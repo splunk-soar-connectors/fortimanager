@@ -1,9 +1,53 @@
-# Splunk> Phantom
+[comment]: # "Auto-generated SOAR connector documentation"
+# FortiManager
 
-Welcome to the open-source repository for Splunk> Phantom's fortimanager App.
+Publisher: Splunk  
+Connector Version: 1.0.0  
+Product Vendor: Fortineet  
+Product Name: FortiManager  
+Product Version Supported (regex): ".\*"  
+Minimum Product Version: 10155.0.0.0  
 
-Please have a look at our [Contributing Guide](https://github.com/Splunk-SOAR-Apps/.github/blob/main/.github/CONTRIBUTING.md) if you are interested in contributing, raising issues, or learning more about open-source Phantom apps.
+Fortimanager
 
-## Legal and License
 
-This Phantom App is licensed under the Apache 2.0 license. Please see our [Contributing Guide](https://github.com/Splunk-SOAR-Apps/.github/blob/main/.github/CONTRIBUTING.md#legal-notice) for further details.
+Replace this text in the app's **readme.html** to contain more detailed information
+
+
+### Supported Actions  
+[test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
+[block url](#action-block-url) - Block an URL  
+
+## action: 'test connectivity'
+Validate the asset configuration for connectivity using supplied configuration
+
+Type: **test**  
+Read only: **True**
+
+#### Action Parameters
+No parameters are required for this action
+
+#### Action Output
+No Output  
+
+## action: 'block url'
+Block an URL
+
+Type: **contain**  
+Read only: **False**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**url** |  required  | URL to block | string |  `url` 
+**policy** |  optional  | Policy to Update | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.parameter.url | string |  `url`  |  
+action_result.parameter.policy | string |  |  
+action_result.status | string |  |  
+action_result.message | string |  |  
+summary.total_objects | numeric |  |  
+summary.total_objects_successful | numeric |  |  

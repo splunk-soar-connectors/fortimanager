@@ -14,6 +14,15 @@ Fortimanager
 Replace this text in the app's **readme.html** to contain more detailed information
 
 
+### Configuration Variables
+The below configuration variables are required for this Connector to operate.  These variables are specified when configuring a FortiManager asset in SOAR.
+
+VARIABLE | REQUIRED | TYPE | DESCRIPTION
+-------- | -------- | ---- | -----------
+**host** |  required  | string | Host
+**user** |  required  | string | User
+**password** |  required  | password | Password
+
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
 [block url](#action-block-url) - Block an URL  

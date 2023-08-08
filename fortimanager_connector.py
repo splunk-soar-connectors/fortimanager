@@ -8,6 +8,7 @@
 from __future__ import print_function, unicode_literals
 
 import json
+from urllib.parse import urlparse
 
 # Phantom App imports
 import phantom.app as phantom
@@ -38,6 +39,12 @@ class FortimanagerConnector(BaseConnector):
         # Do note that the app json defines the asset config, so please
         # modify this as you deem fit.
         self._base_url = None
+        self._user = None
+        self._password = None
+        self._session = None
+
+    def _login(self):
+        pass
 
     def _process_empty_response(self, response, action_result):
         if response.status_code == 200:
@@ -260,7 +267,10 @@ class FortimanagerConnector(BaseConnector):
         optional_config_name = config.get('optional_config_name')
         """
 
-        self._base_url = config.get('base_url')
+        self._host = urlparse(config['host'], 'https').geturl()
+
+        self._user = config['user']
+        self._password = config['password']
 
         return phantom.APP_SUCCESS
 
@@ -272,6 +282,9 @@ class FortimanagerConnector(BaseConnector):
 
 def main():
     import argparse
+
+    import pudb
+    pudb.set_trace()
 
     argparser = argparse.ArgumentParser()
 

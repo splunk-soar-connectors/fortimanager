@@ -1,0 +1,51 @@
+{
+    "appid": "75d83a2e-e7f7-43b8-9378-5ea7d4a7e972",
+    "name": "fortimanager",
+    "description": "asdf",
+    "type": "network security",
+    "product_vendor": "asdf",
+    "logo": "logo_fortinet.svg",
+    "logo_dark": "logo_fortinet_dark.svg",
+    "product_name": "asdf",
+    "python_version": "3",
+    "product_version_regex": ".*",
+    "publisher": "asdf",
+    "license": "Copyright (c) asdf, 2023",
+    "app_version": "1.0.0",
+    "utctime_updated": "2023-08-03T19:40:27.182156Z",
+    "package_name": "phantom_fortimanager",
+    "main_module": "fortimanager_connector.py",
+    "min_phantom_version": "6.2.0.50",
+    "app_wizard_version": "1.0.0",
+    "configuration": {
+        "base_url": {
+            "description": "Fortimanager Base URL",
+            "data_type": "string",
+            "required": true,
+            "order": 0
+        },
+        "username": {
+            "description": "Username",
+            "data_type": "string",
+            "order": 2
+        },
+        "password": {
+            "description": "Password",
+            "data_type": "password",
+            "order": 3
+        }
+    },
+    "actions": [
+        {
+            "action": "test connectivity",
+            "identifier": "test_connectivity",
+            "description": "Validate the asset configuration for connectivity using supplied configuration",
+            "verbose": "",
+            "type": "test",
+            "read_only": true,
+            "parameters": {},
+            "output": [],
+            "versions": "EQ(*)"
+        }
+    ]
+}

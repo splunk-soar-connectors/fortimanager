@@ -124,5 +124,19 @@
             "versions": "EQ(*)"
         }
     ],
-    "custom_made": true
+    "custom_made": true,
+    "pip_dependencies": {
+        "pypi": [
+            {
+                "module": "pyfmg"
+            }
+        ]
+    },
+    "pip39_dependencies": {
+        "pypi": [
+            {
+                "module": "pyfmg"
+            }
+        ]
+    }
 }

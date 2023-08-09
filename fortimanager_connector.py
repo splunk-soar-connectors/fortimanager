@@ -8,7 +8,7 @@
 from __future__ import print_function, unicode_literals
 
 import json
-from urllib.parse import urlparse
+import re
 
 # Phantom App imports
 import phantom.app as phantom
@@ -18,6 +18,8 @@ import requests
 from bs4 import BeautifulSoup
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
+
+from fortimanager_consts import *
 
 
 class RetVal(tuple):
@@ -39,12 +41,40 @@ class FortimanagerConnector(BaseConnector):
         # Do note that the app json defines the asset config, so please
         # modify this as you deem fit.
         self._base_url = None
-        self._user = None
-        self._password = None
-        self._session = None
 
-    def _login(self):
-        pass
+        self._host = None
+        self._username = None
+        self._password = None
+
+        self._session_key = None
+
+    def _login(self, action_result):
+
+        body = {
+            "id": 1,
+            "method": "exec",
+            "params": [
+                {
+                    "data": {
+                        "user": self._username,
+                        "passwd": self._password
+                    },
+                    "url": LOGIN_URL
+                }
+            ]
+        }
+
+        ret_val, response = self._make_rest_call(ACTION_PATH, action_result, json=body, method='post')
+        if ret_val and 'session' in response:
+            self._session_key = response['session']
+            return RetVal(action_result.set_status(phantom.APP_SUCCESS, {}), None)
+        else:
+            return RetVal(action_result.set_status(phantom.APP_ERROR, LOGIN_ERROR_MSG), None)
+
+    def _format_url(self, url):
+        if not re.match('(?:http|https)://', url):
+            return 'https://{}'.format(url)
+        return url
 
     def _process_empty_response(self, response, action_result):
         if response.status_code == 200:
@@ -129,6 +159,19 @@ class FortimanagerConnector(BaseConnector):
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
+    def _make_rest_call_helper(self, endpoint, action_result, headers=None, params=None, data=None, method="get", **kwargs):
+
+        ret_val, response = self._make_rest_call(endpoint, action_result, headers, params, data, method, **kwargs)
+
+        if not phantom.is_fail(ret_val):
+            return ret_val, response
+
+        # If session key has expired, generate a new token
+        # TODO: msg = action_result.get_message()
+
+        # call login here
+        self._login(action_result)
+
     def _make_rest_call(self, endpoint, action_result, method="get", **kwargs):
         # **kwargs can be any additional parameters that requests.request accepts
 
@@ -167,29 +210,44 @@ class FortimanagerConnector(BaseConnector):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        # NOTE: test connectivity does _NOT_ take any parameters
-        # i.e. the param dictionary passed to this handler will be empty.
-        # Also typically it does not add any data into an action_result either.
-        # The status and progress messages are more important.
-
         self.save_progress("Connecting to endpoint")
         # make rest call
-        ret_val, response = self._make_rest_call(
-            '/endpoint', action_result, params=None, headers=None
+
+        body = {
+            "method": "get",
+            "params": [
+                {
+                    "url": TEST_CONNECTIVITY_URL
+                }
+            ],
+            "session": self._session_key,
+            "verbose": 1,
+            "id": 1
+        }
+
+        ret_val, response = self._make_rest_call_helper(
+            ACTION_PATH, action_result, params=None, headers=None, json=body
         )
 
-        if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
-            self.save_progress("Test Connectivity Failed.")
-            # return action_result.get_status()
+        try:
+            if ret_val and response['result'][0]['status']['message'] == 'OK':
+                self.save_progress("Test Connectivity Passed")
+                return action_result.set_status(phantom.APP_SUCCESS)
+
+        except Exception:
+
+            if phantom.is_fail(ret_val):
+                # the call to the 3rd party device or service failed, action result should contain all the error details
+                # for now the return is commented out, but after implementation, return from here
+                self.save_progress("Test Connectivity Failed.")
+                # return action_result.get_status()
 
         # Return success
         # self.save_progress("Test Connectivity Passed")
         # return action_result.set_status(phantom.APP_SUCCESS)
 
         # For now return Error with a message, in case of success we don't set the message, but use the summary
-        return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
+        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def _handle_block_url(self, param):
         # Implement the handler here
@@ -251,26 +309,18 @@ class FortimanagerConnector(BaseConnector):
         return ret_val
 
     def initialize(self):
-        # Load the state in initialize, use it to store data
-        # that needs to be accessed across actions
         self._state = self.load_state()
 
         # get the asset config
         config = self.get_config()
-        """
-        # Access values in asset config by the name
 
-        # Required values can be accessed directly
-        required_config_name = config['required_config_name']
-
-        # Optional values should use the .get() function
-        optional_config_name = config.get('optional_config_name')
-        """
-
-        self._host = urlparse(config['host'], 'https').geturl()
-
-        self._user = config['user']
+        self._host = config['host']
+        self._username = config['user']
         self._password = config['password']
+
+        self._base_url = self._format_url(self._host)
+
+        self._session_key = self._state.get('session')
 
         return phantom.APP_SUCCESS
 

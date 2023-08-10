@@ -59,7 +59,7 @@ class FortimanagerConnector(BaseConnector):
         elif self._api_key:
             fmg_instance = FortiManager(url, apikey=self._api_key, debug=True, disable_request_warnings=True)
         else:
-            return action_result.set_status(phantom.APP_ERROR, "Please provide either username/password OR API key")
+            return False
         fmg_instance.login()
         return fmg_instance
 
@@ -205,6 +205,9 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance = self._login(action_result)
+            if fmg_instance is False:
+                self.save_progress("Test Connectivity Failed.")
+                return action_result.set_status(phantom.APP_ERROR, "Please provide either username/password OR API key")
             self.save_progress("Obtaining system status")
             response_code, response_data = fmg_instance.get('sys/status')
             self.save_progress("response_code: {}".format(response_code))

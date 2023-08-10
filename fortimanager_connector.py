@@ -51,7 +51,6 @@ class FortimanagerConnector(BaseConnector):
         self._password = None
 
         self._api_key = None
-        self._session_key = None
 
     def _get_error_msg_from_exception(self, e):
 
@@ -234,6 +233,7 @@ class FortimanagerConnector(BaseConnector):
         try:
             fmg_instance = self._login(action_result)
             response_code, response_data = fmg_instance.get(TEST_CONNECTIVITY_URL)
+            fmg_instance.logout()
 
         except Exception as e:
             self.save_progress("Test Connectivity Failed")

@@ -212,15 +212,14 @@ class FortimanagerConnector(BaseConnector):
         return self._process_response(r, action_result)
 
     def _login(self, action_result):
-
-        fmg_instance = None
-
-        if self._api_key:
+        if self._username and self._password:
+            fmg_instance = FortiManager(self._host, self._username, self._password, debug=True, disable_request_warnings=True)
+        elif self._api_key:
             fmg_instance = FortiManager(self._host, self._api_key, debug=True, disable_request_warnings=True)
         else:
-            fmg_instance = FortiManager(self._host, self._username, self._password, debug=True, disable_request_warnings=True)
-        fmg_instance.login()
+            raise Exception("The asset configuration requires either an API key or a username and password.")
 
+        fmg_instance.login()
         return fmg_instance
 
     def _handle_test_connectivity(self, param):
@@ -312,13 +311,13 @@ class FortimanagerConnector(BaseConnector):
         # get the asset config
         config = self.get_config()
 
-        self._host = config['host']
-        self._username = config['user']
-        self._password = config['password']
+        self._host = config['host'].replace('http://', '').replace('https://', '')
+
+        self._api_key = config.get('api_key')
+        self._username = config.get('user')
+        self._password = config.get('password')
 
         self._base_url = self._format_url(self._host)
-
-        self._session_key = self._state.get('session')
 
         return phantom.APP_SUCCESS
 

@@ -1,9 +1,9 @@
 {
     "appid": "3d1ce7b2-0064-4e9a-882b-a37584d1e4f7",
     "name": "FortiManager",
-    "description": "Fortimanager",
+    "description": "FortiManager",
     "type": "network security",
-    "product_vendor": "Fortineet",
+    "product_vendor": "Fortinet",
     "logo": "logo_fortimanager.svg",
     "logo_dark": "logo_fortimanager_dark.svg",
     "product_name": "FortiManager",

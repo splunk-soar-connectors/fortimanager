@@ -26,6 +26,7 @@ import requests
 from bs4 import BeautifulSoup
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
+from pyFMG.fortimgr import FortiManager
 
 
 class RetVal(tuple):
@@ -52,6 +53,8 @@ class FortimanagerConnector(BaseConnector):
         self._session_key = None
 
     def _login(self, action_result):
+        fmg_instance = FortiManager('54.234.59.67', self._username, self._password, debug=True, disable_request_warnings=True)
+        fmg_instance.login()
         uri = '/jsonrpc'
         body = {
                 "id": 1,

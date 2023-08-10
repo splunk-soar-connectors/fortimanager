@@ -224,11 +224,9 @@ class FortimanagerConnector(BaseConnector):
 
     def _handle_test_connectivity(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
-
         self.save_progress("Connecting to endpoint")
 
         fmg_instance = None
-
         try:
             fmg_instance = self._login(action_result)
             response_code, response_data = fmg_instance.get(TEST_CONNECTIVITY_URL)

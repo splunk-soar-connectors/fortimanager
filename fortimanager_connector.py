@@ -50,37 +50,18 @@ class FortimanagerConnector(BaseConnector):
         self._base_url = None
         self._username = None
         self._password = None
-        self._session_key = None
+        self._api_key = None
 
     def _login(self, action_result):
-        fmg_instance = FortiManager('54.234.59.67', self._username, self._password, debug=True, disable_request_warnings=True)
+        url = self._base_url.replace('http://', '').replace('https://', '')
+        if self._username and self._password:
+            fmg_instance = FortiManager(url, self._username, self._password, debug=True, disable_request_warnings=True)
+        elif self._api_key:
+            fmg_instance = FortiManager(url, apikey=self._api_key, debug=True, disable_request_warnings=True)
+        else:
+            return action_result.set_status(phantom.APP_ERROR, "Please provide either username/password OR API key")
         fmg_instance.login()
-        uri = '/jsonrpc'
-        body = {
-                "id": 1,
-                "method": "exec",
-                "params": [
-                    {
-                        "data": {
-                            "user": self._username,
-                            "passwd": self._password
-                        },
-                        "url": "/sys/login/user"
-                    }
-                ]
-            }
-
-        ret_val, response = self._make_rest_call(uri, action_result, json=body, method='post')
-
-        if phantom.is_fail(ret_val):
-            return action_result.get_status()
-        try:
-            self._session_key = response['session']
-            self.save_progress('Login successful')
-        except Exception:
-            return action_result.set_status(phantom.APP_ERROR, "Failed to get session key")
-        action_result.add_data(response)
-        return action_result.set_status(phantom.APP_SUCCESS, "Successfully set session key")
+        return fmg_instance
 
     def _process_empty_response(self, response, action_result):
         if response.status_code == 200:
@@ -165,6 +146,24 @@ class FortimanagerConnector(BaseConnector):
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
+    def _get_error_message_from_exception(self, e):
+        """ This method is used to get appropriate error message from the exception.
+        :param e: Exception object
+        :return: error message
+        """
+
+        error_msg = "unknown error"
+        try:
+            if e.args:
+                if len(e.args) > 1:
+                    error_msg = e.args[1]
+                elif len(e.args) == 1:
+                    error_msg = e.args[0]
+        except Exception:
+            self.debug_print("Error occurred while retrieving exception information")
+
+        return error_msg
+
     def _make_rest_call(self, endpoint, action_result, method="get", **kwargs):
         # **kwargs can be any additional parameters that requests.request accepts
 
@@ -200,30 +199,24 @@ class FortimanagerConnector(BaseConnector):
         return self._process_response(r, action_result)
 
     def _handle_test_connectivity(self, param):
-        # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
+        self.save_progress("Connecting to endpoint")
+        fmg_instance = None
 
-        # NOTE: test connectivity does _NOT_ take any parameters
-        # i.e. the param dictionary passed to this handler will be empty.
-        # Also typically it does not add any data into an action_result either.
-        # The status and progress messages are more important.
-        if not self._session_key:
-            self._login(action_result)
-        # self.save_progress("Connecting to endpoint")
-        # # make rest call
-        # ret_val, response = self._make_rest_call(
-        #     '/endpoint', action_result, params=None, headers=None
-        # )
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress("Obtaining system status")
+            response_code, response_data = fmg_instance.get('sys/status')
+            self.save_progress("response_code: {}".format(response_code))
+            self.save_progress("response_data: {}".format(response_data))
+        except Exception as e:
+            error_msg = self._get_error_message_from_exception(e)
+            self.save_progress("Test Connectivity Failed.")
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
 
-        # if phantom.is_fail(ret_val):
-        #     # the call to the 3rd party device or service failed, action result should contain all the error details
-        #     # for now the return is commented out, but after implementation, return from here
-        #     self.save_progress("Test Connectivity Failed.")
-        #     # return action_result.get_status()
-
-        # Return success
-        self.save_progress("Test Connectivity Passed")
-        return action_result.set_status(phantom.APP_SUCCESS)
+        if response_code == 0:
+            self.save_progress("Test Connectivity Passed")
+            return action_result.set_status(phantom.APP_SUCCESS)
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
@@ -258,17 +251,12 @@ class FortimanagerConnector(BaseConnector):
         self._base_url = config.get('base_url')
         self._username = config.get('username')
         self._password = config.get('password')
+        self._api_key = config.get('api_key')
 
         return phantom.APP_SUCCESS
 
     def finalize(self):
         # Save the state, this data is saved across actions and app upgrades
-        if self._session_key:
-            try:
-                self._state['session_key'] = self._session_key
-            except Exception as e:
-                self.debug_print("Error occurred while encrypting the state file. {}".format(str(e)))
-                self._reset_state_file()
         self.save_state(self._state)
         return phantom.APP_SUCCESS
 

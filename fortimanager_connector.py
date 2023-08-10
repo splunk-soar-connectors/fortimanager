@@ -244,6 +244,50 @@ class FortimanagerConnector(BaseConnector):
             self.save_progress("Test Connectivity Failed.")
             return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
 
+    # Global level IP addresses
+    def _handle_global_block_ip(self, param):
+        pass
+
+    def _handle_global_unblock_ip(self, param):
+        pass
+
+    # URLs
+    def _handle_list_blocked_urls(self, param):
+        pass
+
+    def _handle_block_url(self, param):
+        pass
+
+    def _handle_unblock_url(self, param):
+        pass
+
+    # Address Objects
+    def _handle_list_addresses(self, param):
+        pass
+
+    def _handle_create_address(self, param):
+        pass
+
+    def _handle_update_address(self, param):
+        pass
+
+    def _handle_delete_address(self, param):
+        pass
+
+    # Address Groups
+    def _handle_list_address_groups(self, param):
+        pass
+
+    def _handle_create_address_group(self, param):
+        pass
+
+    def _handle_delete_address_group(self, param):
+        pass
+
+    # Web Filters
+    def _handle_list_web_filters(self, param):
+        pass
+
     def _handle_block_url(self, param):
         # Implement the handler here
         # use self.save_progress(...) to send progress messages back to the platform

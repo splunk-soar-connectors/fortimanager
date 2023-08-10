@@ -1,19 +1,25 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-# -----------------------------------------
-# Phantom sample App Connector python file
-# -----------------------------------------
-
-# Python 3 Compatibility imports
-from __future__ import print_function, unicode_literals
+# File: fortimanager_connector.py
+#
+# Copyright (c) 2023 Splunk Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+# either express or implied. See the License for the specific language governing permissions
+# and limitations under the License.
+#
 
 import json
 import re
+import traceback
 
 # Phantom App imports
 import phantom.app as phantom
-# Usage of the consts file is recommended
-# from fortimanager_consts import *
 import requests
 from bs4 import BeautifulSoup
 from phantom.action_result import ActionResult
@@ -38,39 +44,38 @@ class FortimanagerConnector(BaseConnector):
 
         self._state = None
 
-        # Variable to hold a base_url in case the app makes REST calls
-        # Do note that the app json defines the asset config, so please
-        # modify this as you deem fit.
         self._base_url = None
 
         self._host = None
         self._username = None
         self._password = None
 
+        self._api_key = None
         self._session_key = None
 
-    def _login(self, action_result):
+    def _get_error_msg_from_exception(self, e):
 
-        body = {
-            "id": 1,
-            "method": "exec",
-            "params": [
-                {
-                    "data": {
-                        "user": self._username,
-                        "passwd": self._password
-                    },
-                    "url": LOGIN_URL
-                }
-            ]
-        }
+        error_code = None
+        error_message = ERROR_MSG_UNAVAILABLE
 
-        ret_val, response = self._make_rest_call(ACTION_PATH, action_result, json=body, method='post')
-        if ret_val and 'session' in response:
-            self._session_key = response['session']
-            return RetVal(action_result.set_status(phantom.APP_SUCCESS, {}), None)
+        self.error_print(traceback.format_exc())
+
+        try:
+            if hasattr(e, "args"):
+                if len(e.args) > 1:
+                    error_code = e.args[0]
+                    error_message = e.args[1]
+                elif len(e.args) == 1:
+                    error_message = e.args[0]
+        except Exception as e:
+            self.error_print("Error occurred while fetching exception information. Details: {}".format(str(e)))
+
+        if not error_code:
+            error_text = "Error Message: {}".format(error_message)
         else:
-            return RetVal(action_result.set_status(phantom.APP_ERROR, LOGIN_ERROR_MSG), None)
+            error_text = "Error Code: {}. Error Message: {}".format(error_code, error_message)
+
+        return error_text
 
     def _format_url(self, url):
         if not re.match('(?:http|https)://', url):
@@ -207,48 +212,40 @@ class FortimanagerConnector(BaseConnector):
 
         return self._process_response(r, action_result)
 
+    def _login(self, action_result):
+
+        fmg_instance = None
+
+        if self._api_key:
+            fmg_instance = FortiManager(self._host, self._api_key, debug=True, disable_request_warnings=True)
+        else:
+            fmg_instance = FortiManager(self._host, self._username, self._password, debug=True, disable_request_warnings=True)
+        fmg_instance.login()
+
+        return fmg_instance
+
     def _handle_test_connectivity(self, param):
-        # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         self.save_progress("Connecting to endpoint")
-        # make rest call
 
-        body = {
-            "method": "get",
-            "params": [
-                {
-                    "url": TEST_CONNECTIVITY_URL
-                }
-            ],
-            "session": self._session_key,
-            "verbose": 1,
-            "id": 1
-        }
-
-        ret_val, response = self._make_rest_call_helper(
-            ACTION_PATH, action_result, params=None, headers=None, json=body
-        )
+        fmg_instance = None
 
         try:
-            if ret_val and response['result'][0]['status']['message'] == 'OK':
-                self.save_progress("Test Connectivity Passed")
-                return action_result.set_status(phantom.APP_SUCCESS)
+            fmg_instance = self._login(action_result)
+            response_code, response_data = fmg_instance.get(TEST_CONNECTIVITY_URL)
 
-        except Exception:
+        except Exception as e:
+            self.save_progress("Test Connectivity Failed")
+            self.debug_print("Test Connectivity Failed: {}".format(self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
 
-            if phantom.is_fail(ret_val):
-                # the call to the 3rd party device or service failed, action result should contain all the error details
-                # for now the return is commented out, but after implementation, return from here
-                self.save_progress("Test Connectivity Failed.")
-                # return action_result.get_status()
-
-        # Return success
-        # self.save_progress("Test Connectivity Passed")
-        # return action_result.set_status(phantom.APP_SUCCESS)
-
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
+        if response_code == 0:
+            self.save_progress("Test Connectivity Passed")
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.save_progress("Test Connectivity Failed.")
+            return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
 
     def _handle_block_url(self, param):
         # Implement the handler here

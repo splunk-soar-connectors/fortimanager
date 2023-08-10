@@ -5,3 +5,4 @@ LOGIN_URL = '/sys/login/user'
 TEST_CONNECTIVITY_URL = '/sys/status'
 
 LOGIN_ERROR_MSG = 'login failed'
+ERROR_MSG_UNAVAILABLE = 'Error message unavailable'

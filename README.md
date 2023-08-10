@@ -3,12 +3,12 @@
 
 Publisher: Splunk  
 Connector Version: 1.0.0  
-Product Vendor: Fortineet  
+Product Vendor: Fortinet  
 Product Name: FortiManager  
 Product Version Supported (regex): ".\*"  
 Minimum Product Version: 10155.0.0.0  
 
-Fortimanager
+FortiManager
 
 
 Replace this text in the app's **readme.html** to contain more detailed information
@@ -20,8 +20,9 @@ The below configuration variables are required for this Connector to operate.  T
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
 **host** |  required  | string | Host
-**user** |  required  | string | User
-**password** |  required  | password | Password
+**user** |  optional  | string | User
+**password** |  optional  | password | Password
+**api_key** |  optional  | password | API Key
 
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  

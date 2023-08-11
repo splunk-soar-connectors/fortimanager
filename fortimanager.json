@@ -53,6 +53,17 @@
             "versions": "EQ(*)"
         },
         {
+            "action": "list address groups",
+            "identifier": "list_address_groups",
+            "description": "List global address groups",
+            "verbose": "",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {},
+            "output": [],
+            "versions": "EQ(*)"
+        },
+        {
             "action": "block url",
             "identifier": "block_url",
             "description": "Block an URL",

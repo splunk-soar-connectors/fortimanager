@@ -276,7 +276,29 @@ class FortimanagerConnector(BaseConnector):
 
     # Address Groups
     def _handle_list_address_groups(self, param):
-        pass
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        fmg_instance = None
+
+        try:
+            fmg_instance = self._login(action_result)
+            response_code, response_data = fmg_instance.get(GLOBAL_ADDRESS_GROUP_PATH)
+            fmg_instance.logout()
+
+        except Exception as e:
+            self.save_progress("Test Connectivity Failed")
+            self.debug_print("Test Connectivity Failed: {}".format(self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        if response_code == 0:
+            for address_group in response_data:
+                action_result.add_data(address_group)
+            action_result.set_summary({'total address groups': len(response_data)})
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.save_progress("Failed.")
+            return action_result.set_status(phantom.APP_ERROR, "Failed")
 
     def _handle_create_address_group(self, param):
         pass
@@ -288,49 +310,6 @@ class FortimanagerConnector(BaseConnector):
     def _handle_list_web_filters(self, param):
         pass
 
-    def _handle_block_url(self, param):
-        # Implement the handler here
-        # use self.save_progress(...) to send progress messages back to the platform
-        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
-
-        # Add an action result object to self (BaseConnector) to represent the action for this param
-        action_result = self.add_action_result(ActionResult(dict(param)))
-
-        # Access action parameters passed in the 'param' dictionary
-
-        # Required values can be accessed directly
-        # url = param['url']
-
-        # Optional values should use the .get() function
-        # policy = param.get('policy', '')
-
-        # make rest call
-        ret_val, response = self._make_rest_call(
-            '/endpoint', action_result, params=None, headers=None
-        )
-
-        if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
-            # return action_result.get_status()
-            pass
-
-        # Now post process the data,  uncomment code as you deem fit
-
-        # Add the response into the data section
-        action_result.add_data(response)
-
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary['num_data'] = len(action_result['data'])
-
-        # Return success, no need to set the message, only the status
-        # BaseConnector will create a textual message based off of the summary dictionary
-        # return action_result.set_status(phantom.APP_SUCCESS)
-
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
-
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -339,11 +318,34 @@ class FortimanagerConnector(BaseConnector):
 
         self.debug_print("action_id", self.get_action_identifier())
 
-        if action_id == 'block_url':
-            ret_val = self._handle_block_url(param)
-
         if action_id == 'test_connectivity':
             ret_val = self._handle_test_connectivity(param)
+        elif action_id == 'global_block_ip':
+            ret_val = self._handle_global_block_ip(param)
+        elif action_id == 'global_unblock_ip':
+            ret_val = self._handle_global_unblock_ip(param)
+        elif action_id == 'list_blocked_urls':
+            ret_val = self._handle_list_blocked_urls(param)
+        elif action_id == 'block_url':
+            ret_val = self._handle_block_url(param)
+        elif action_id == 'unblock_url':
+            ret_val = self._handle_unblock_url(param)
+        elif action_id == 'list_addresses':
+            ret_val = self._handle_list_addresses(param)
+        elif action_id == 'create_address':
+            ret_val = self._handle_create_address(param)
+        elif action_id == 'update_address':
+            ret_val = self._handle_update_address(param)
+        elif action_id == 'delete_address':
+            ret_val = self._handle_delete_address(param)
+        elif action_id == 'list_address_groups':
+            ret_val = self._handle_list_address_groups(param)
+        elif action_id == 'create_address_group':
+            ret_val = self._handle_create_address_group(param)
+        elif action_id == 'delete_address_group':
+            ret_val = self._handle_delete_address_group(param)
+        elif action_id == 'list_web_filters':
+            ret_val = self._handle_list_web_filters(param)
 
         return ret_val
 

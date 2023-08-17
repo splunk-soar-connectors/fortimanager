@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # File: fortimanager_consts.py
 #
 # Copyright (c) 2023 Splunk Inc.
@@ -27,3 +28,6 @@ LIST_ADOM_FIREWALL_POLICY = '/pm/config/adom/{adom}/pkg/{pkg}/firewall/policy'
 # Global Firewall Endpoints TODO
 # GLOBAL_FIREWALL_ENDPOINT = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
 # LIST_GLOBAL_FIREWALL_POLICY = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
+=======
+# Define your constants here
+>>>>>>> a58d594 (init commit)

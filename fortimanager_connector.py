@@ -246,7 +246,39 @@ class FortimanagerConnector(BaseConnector):
 
     # Global level IP addresses
     def _handle_global_block_ip(self, param):
-        pass
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        fmg_instance = None
+        pkg = param.get('pkg')
+        pkg_path = param.get('pkg_path')
+
+        if pkg and pkg_path:
+            pkg = '{0}/{1}'.format(pkg, pkg_path)
+
+        policy_name = param.get(policy_name)
+        policy_type = param.get(policy_type)
+
+        try:
+            fmg_instance = self._login(action_result)
+            # first get the policy
+            response_code = response_data = fmg_instance(GLOBAL_POLICY_PATH.format(pkg=pkg, pkg_path=pkg_path))
+            response_code, response_data = fmg_instance.get(GLOBAL_BLOCK_IP_ADDRESS_PATH)
+            fmg_instance.logout()
+
+        except Exception as e:
+            self.save_progress("Global block IP action failed")
+            self.debug_print("Global block IP action failed: {}".format(self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        if response_code == 0:
+            for address_group in response_data:
+                action_result.add_data(address_group)
+            action_result.set_summary({'Global block of IP': param['ip_address']})
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.save_progress("Failed.")
+            return action_result.set_status(phantom.APP_ERROR, "Failed")
 
     def _handle_global_unblock_ip(self, param):
         pass
@@ -287,8 +319,8 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.logout()
 
         except Exception as e:
-            self.save_progress("Test Connectivity Failed")
-            self.debug_print("Test Connectivity Failed: {}".format(self._get_error_msg_from_exception(e)))
+            self.save_progress("List address groups action failed.")
+            self.debug_print("List address groups action failed: {}".format(self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, None)
 
         if response_code == 0:

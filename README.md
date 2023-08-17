@@ -26,6 +26,9 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
+[list address groups](#action-list-address-groups) - List global address groups  
+[global block ip](#action-global-block-ip) - Block global level ip addresses  
+[global unblock ip](#action-global-unblock-ip) - Unblock global level ip addresses  
 [block url](#action-block-url) - Block an URL  
 
 ## action: 'test connectivity'
@@ -33,6 +36,48 @@ Validate the asset configuration for connectivity using supplied configuration
 
 Type: **test**  
 Read only: **True**
+
+#### Action Parameters
+No parameters are required for this action
+
+#### Action Output
+No Output  
+
+## action: 'list address groups'
+List global address groups
+
+Type: **investigate**  
+Read only: **True**
+
+#### Action Parameters
+No parameters are required for this action
+
+#### Action Output
+No Output  
+
+## action: 'global block ip'
+Block global level ip addresses
+
+Type: **contain**  
+Read only: **False**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**policy_name** |  required  | Policy Name | string | 
+**policy_type** |  required  | Policy Type | string | 
+**package** |  optional  | Package | string | 
+**package_path** |  optional  | Package Path | string | 
+**ip_address** |  optional  | IP Address | string | 
+
+#### Action Output
+No Output  
+
+## action: 'global unblock ip'
+Unblock global level ip addresses
+
+Type: **contain**  
+Read only: **False**
 
 #### Action Parameters
 No parameters are required for this action

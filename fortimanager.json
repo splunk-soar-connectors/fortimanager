@@ -51,6 +51,96 @@
             "parameters": {},
             "output": [],
             "versions": "EQ(*)"
+        },
+        {
+            "action": "create firewall policy",
+            "description": "Create a firewall policy",
+            "type": "investigate",
+            "identifier": "decode_url",
+            "read_only": true,
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM. Choosing 'Global' allows you to select the type of firewall policy you want to create.",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM",
+                        "Global"
+                    ],
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "order": 1
+                },
+                "package": {
+                    "description": "Policy Package full path and name",
+                    "data_type": "string",
+                    "order": 2
+                },
+                "policy": {
+                    "description": "Policy ID",
+                    "data_type": "string",
+                    "order": 2
+                }
+            },
+            "output": [
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "list firewall policies",
+            "description": "List ADOM or Global firewall policies",
+            "type": "investigate",
+            "identifier": "list_firewall_policies",
+            "read_only": true,
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to list the firewall policies",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM",
+                        "Global"
+                    ],
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "order": 1
+                },
+                "package": {
+                    "description": "Policy Package name",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 2
+                },
+                "package_path": {
+                    "description": "Policy Package folder path",
+                    "data_type": "string",
+                    "order": 3
+                },
+                "policy_type": {
+                    "description": "Policy type. Only for 'Global' Firewall Policies",
+                    "data_type": "string",
+                    "value_list": [
+                        "header",
+                        "footer"
+                    ],
+                    "order": 4
+                }
+            },
+            "output": [
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ],
     "pip_dependencies": {

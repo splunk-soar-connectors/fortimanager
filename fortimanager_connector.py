@@ -17,16 +17,17 @@
 from __future__ import print_function, unicode_literals
 
 import json
+import traceback
 
 # Phantom App imports
 import phantom.app as phantom
-# Usage of the consts file is recommended
-# from fortimanager_consts import *
 import requests
 from bs4 import BeautifulSoup
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
 from pyFMG.fortimgr import FortiManager
+
+from fortimanager_consts import *
 
 
 class RetVal(tuple):
@@ -59,7 +60,7 @@ class FortimanagerConnector(BaseConnector):
         elif self._api_key:
             fmg_instance = FortiManager(url, apikey=self._api_key, debug=True, disable_request_warnings=True)
         else:
-            return False
+            raise Exception("The asset configuration requires either an API key or a username and password.")
         fmg_instance.login()
         return fmg_instance
 
@@ -146,23 +147,29 @@ class FortimanagerConnector(BaseConnector):
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
-    def _get_error_message_from_exception(self, e):
-        """ This method is used to get appropriate error message from the exception.
-        :param e: Exception object
-        :return: error message
-        """
+    def _get_error_msg_from_exception(self, e):
 
-        error_msg = "unknown error"
+        error_code = None
+        error_message = ERROR_MSG_UNAVAILABLE
+
+        self.error_print(traceback.format_exc())
+
         try:
-            if e.args:
+            if hasattr(e, "args"):
                 if len(e.args) > 1:
-                    error_msg = e.args[1]
+                    error_code = e.args[0]
+                    error_message = e.args[1]
                 elif len(e.args) == 1:
-                    error_msg = e.args[0]
-        except Exception:
-            self.debug_print("Error occurred while retrieving exception information")
+                    error_message = e.args[0]
+        except Exception as e:
+            self.error_print("Error occurred while fetching exception information. Details: {}".format(str(e)))
 
-        return error_msg
+        if not error_code:
+            error_text = "Error Message: {}".format(error_message)
+        else:
+            error_text = "Error Code: {}. Error Message: {}".format(error_code, error_message)
+
+        return error_text
 
     def _make_rest_call(self, endpoint, action_result, method="get", **kwargs):
         # **kwargs can be any additional parameters that requests.request accepts
@@ -205,21 +212,112 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance = self._login(action_result)
-            if fmg_instance is False:
-                self.save_progress("Test Connectivity Failed.")
-                return action_result.set_status(phantom.APP_ERROR, "Please provide either username/password OR API key")
             self.save_progress("Obtaining system status")
             response_code, response_data = fmg_instance.get('sys/status')
-            self.save_progress("response_code: {}".format(response_code))
-            self.save_progress("response_data: {}".format(response_data))
+            fmg_instance.logout()
         except Exception as e:
-            error_msg = self._get_error_message_from_exception(e)
+            error_msg = self._get_error_msg_from_exception(e)
             self.save_progress("Test Connectivity Failed.")
             return action_result.set_status(phantom.APP_ERROR, error_msg)
 
         if response_code == 0:
             self.save_progress("Test Connectivity Passed")
             return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.save_progress("response_data: {}".format(response_data))
+            self.save_progress("Test Connectivity Failed.")
+            return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
+
+    def _handle_create_firewall_policy(self, param):
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        fmg_instance = None
+        level = param["level"]
+        if level == 'ADOM':
+            endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=param.get('adom'), pkg=param.get('package'), policy=param.get('policy'))
+        elif level == 'Global':
+            endpoint = GLOBAL_FIREWALL_ENDPOINT
+
+        try:
+            fmg_instance = self._login(action_result)
+            response_code, response_data = fmg_instance.add(endpoint, )
+            fmg_instance.logout()
+        except Exception as e:
+            error_msg = self._get_error_msg_from_exception(e)
+            self.save_progress("Test Connectivity Failed.")
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+
+        # # Flipping logic to make 'enable' checkboxes for better UX
+        # if param.get("enable_log_click"):
+        #     log_click = False
+        # else:
+        #     log_click = True
+
+        # data = {
+        #     "data": [
+        #         {
+        #             "comment": param.get("comment"),
+        #             "url": param["url"],
+        #             "disableLogClick": log_click,
+        #             "action": "block",
+        #             "matchType": param.get("match_type", "explicit")
+        #         }
+        #     ]
+        # }
+
+        # ret_val, response = self._make_rest_call_helper(uri, action_result, headers=headers, method="post", data=data)
+
+        # if phantom.is_fail(ret_val):
+        #     return ret_val
+        # try:
+        #     action_result.add_data(response['data'][0])
+        # except Exception:
+        #     return action_result.set_status(phantom.APP_ERROR, MIMECAST_ERR_PROCESSING_RESPONSE)
+
+        # summary = action_result.update_summary({})
+        # summary['status'] = MIMECAST_SUCC_BLOCK_URL
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_list_firewall_policies(self, param):
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        fmg_instance = None
+        level = param["level"]
+        pkg = param.get('package')
+        package_path = param.get('package_path')
+        if pkg and package_path:
+            pkg += '/' + package_path
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+            endpoint = LIST_ADOM_FIREWALL_POLICY.format(adom=adom, pkg=pkg)
+        elif level == 'Global':
+            endpoint = GLOBAL_FIREWALL_ENDPOINT.format(pkg=pkg, policy_type=param.get('policy_type'))
+
+        try:
+            fmg_instance = self._login(action_result)
+            response_code, firewall_policies = fmg_instance.get(endpoint)
+            fmg_instance.logout()
+        except Exception as e:
+            error_msg = self._get_error_msg_from_exception(e)
+            self.save_progress("List Firewall Policies action failed")
+            self.debug_print("List Firewall Policies action failed: {}".format(error_msg))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        if response_code == 0:
+            for firewall_policy in firewall_policies:
+                action_result.add_data(firewall_policy)
+            action_result.set_summary({'total firewall policies': len(firewall_policies)})
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.save_progress("Failed.")
+            return action_result.set_status(phantom.APP_ERROR, "Failed to retrieve firewall policies")
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
@@ -231,6 +329,12 @@ class FortimanagerConnector(BaseConnector):
 
         if action_id == 'test_connectivity':
             ret_val = self._handle_test_connectivity(param)
+
+        elif action_id == 'create_firewall_policy':
+            ret_val = self._handle_create_firewall_policy(param)
+
+        elif action_id == 'list_firewall_policies':
+            ret_val = self._handle_list_firewall_policies(param)
 
         return ret_val
 

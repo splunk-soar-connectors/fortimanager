@@ -1117,6 +1117,97 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "create address",
+            "identifier": "create_address",
+            "description": "Create address",
+            "verbose": "",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "level_type": {
+                    "description": "Level Type",
+                    "data_type": "string",
+                    "value_list": [
+                        "ADOM",
+                        "Global"
+                    ],
+                    "required": true,
+                    "order": 0
+                },
+                "adom": {
+                    "description": "Administrative Domain Name (Use only if selected level type is `adom`)",
+                    "data_type": "string",
+                    "order": 1
+                },
+                "address_type": {
+                    "description": "Address type",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "Subnet",
+                        "FQDN"
+                    ],
+                    "order": 2
+                },
+                "address_name": {
+                    "description": "Address name",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 3
+                },
+                "subnet": {
+                    "description": "IP address and netmask (e.g. 0.0.0.0/32)",
+                    "data_type": "string",
+                    "order": 4
+                },
+                "fqdn": {
+                    "description": "Fully Qualified Domain Name",
+                    "data_type": "string",
+                    "order": 5
+                },
+                "policy_group_name": {
+                    "description": "Name of policy group to be added to address",
+                    "data_type": "string",
+                    "order": 6
+                }
+            },
+            "output": [],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "update address",
+            "identifier": "update_address",
+            "description": "Update address",
+            "verbose": "",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {},
+            "output": [],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "delete address",
+            "identifier": "delete_address",
+            "description": "Delete address",
+            "verbose": "",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {},
+            "output": [],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "list web filters",
+            "identifier": "list_web_filters",
+            "description": "List web filters",
+            "verbose": "",
+            "type": "generic",
+            "read_only": true,
+            "parameters": {},
+            "output": [],
+            "versions": "EQ(*)"
         }
     ],
     "pip_dependencies": {

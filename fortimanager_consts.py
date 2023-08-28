@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # File: fortimanager_consts.py
 #
 # Copyright (c) 2023 Splunk Inc.
@@ -14,6 +15,8 @@
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
+=======
+>>>>>>> 396808e (PAPP-31731 'Create address' action)
 # Login information
 ACTION_PATH = '/jsonrpc'
 LOGIN_URL = '/sys/login/user'
@@ -22,6 +25,7 @@ TEST_CONNECTIVITY_URL = '/sys/status'
 LOGIN_ERROR_MSG = 'login failed'
 ERROR_MSG_UNAVAILABLE = 'Error message unavailable'
 
+<<<<<<< HEAD
 # ADOM Firewall Endpoints
 ADOM_FIREWALL_ENDPOINT = '/pm/config/adom/{adom}/pkg/{pkg}/firewall/policy'
 LIST_ADOM_FIREWALL_POLICY = '/pm/config/adom/{adom}/pkg/{pkg}/firewall/policy'
@@ -31,3 +35,20 @@ LIST_ADOM_FIREWALL_POLICY = '/pm/config/adom/{adom}/pkg/{pkg}/firewall/policy'
 =======
 # Define your constants here
 >>>>>>> a58d594 (init commit)
+=======
+LOCK_SUCCESS_MSG = '{adom} ADOM locked successfully'
+LOCK_FAILED_MSG = 'Failed to lock {adom} ADOM'
+
+GLOBAL_POLICY_PATH = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
+GLOBAL_ADDRESS_GROUP_PATH = '/pm/config/global/obj/firewall/addrgrp'
+GLOBAL_ADDRESS_GROUP_ENDPOINT = '/pm/config/global/obj/firewall/addrgrp/{addrgrp}'
+
+# Firewall addresses
+GLOBAL_IPV4_ADDRESS_ENDPOINT = '/pm/config/global/obj/firewall/address'
+ADOM_IPV4_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'
+
+ADDRESS_INVALID_ERROR_MSG = 'The provided address is either invalid or not supported'
+FILTER_ADDRESS_ERROR_MSG = 'The provided filter string is malformed. The proper format is \"<field>\" <comparison operator> \"<value>\"'
+
+FILTER_ADDRESS_REGEX = r"^\"(?P<field>[a-z]+)\"\s*(?P<comp>(\=|\>|\<|\>\=|\<\=|\=\=))\s*\"(?P<value>.+)\""
+>>>>>>> 396808e (PAPP-31731 'Create address' action)

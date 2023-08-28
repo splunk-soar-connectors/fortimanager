@@ -457,6 +457,7 @@ class FortimanagerConnector(BaseConnector):
             self.save_progress("Test Connectivity Failed.")
             return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
 
+<<<<<<< HEAD
     def is_ip(self, addr):
         try:
             ipaddress.IPv4Interface(addr)
@@ -510,6 +511,8 @@ class FortimanagerConnector(BaseConnector):
         elif all(ch.isalph() or ch.isspace() for ch in addr.strip()):
             self._addr_type = 'geography'
 
+=======
+>>>>>>> 5526110 (remove unused helper functions)
     # Global level IP addresses
     def _handle_global_block_ip(self, param):
         pass

@@ -47,6 +47,8 @@ GLOBAL_ADDRESS_GROUP_ENDPOINT = '/pm/config/global/obj/firewall/addrgrp/{addrgrp
 GLOBAL_IPV4_ADDRESS_ENDPOINT = '/pm/config/global/obj/firewall/address'
 ADOM_IPV4_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'
 
+CREATE_ADDRESS_SUCCESS_MESSAGE = 'Successfully created address object'
+
 ADDRESS_INVALID_ERROR_MSG = 'The provided address is either invalid or not supported'
 FILTER_ADDRESS_ERROR_MSG = 'The provided filter string is malformed. The proper format is \"<field>\" <comparison operator> \"<value>\"'
 

@@ -542,7 +542,7 @@ class FortimanagerConnector(BaseConnector):
         name = param['address_name']
         addr_type = param['address_type']
 
-        adom = param.get('adom', 'global')
+        adom = param.get('adom', 'root') if level == "ADOM" else 'global'
         policy_group = param.get('policy_group_name')
 
         fmg_instance = None
@@ -578,6 +578,11 @@ class FortimanagerConnector(BaseConnector):
 
             response_code, response_data = fmg_instance.add(url, **data)
             fmg_instance.commit_changes(adom)
+
+            summary = {
+                'status': CREATE_ADDRESS_SUCCESS_MESSAGE,
+            }
+            action_result.update_summary(summary)
 
         except Exception as e:
             self.save_progress("Create address action failed")

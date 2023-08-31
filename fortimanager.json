@@ -1160,6 +1160,9 @@
                 "subnet": {
                     "description": "IP address and netmask (e.g. 0.0.0.0/32)",
                     "data_type": "string",
+                    "contains": [
+                        "ip"
+                    ],
                     "order": 4
                 },
                 "fqdn": {
@@ -1173,10 +1176,168 @@
                     "order": 6
                 }
             },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.subnet",
+                    "data_type": "string",
+                    "example_values": [
+                        "0.0.0.0"
+                    ],
+                    "contains": [
+                        "ip"
+                    ],
+                    "column_name": "Subnet",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.parameter.policy_group_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "group1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string",
+                    "example_values": [
+                        "test-fqdn"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ],
+                    "column_name": "Status",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Status: Successfully created address object",
+                        "Object already exists"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.fqdn",
+                    "data_type": "string",
+                    "example_values": [
+                        "gmail.com"
+                    ],
+                    "column_name": "FQDN",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.parameter.level_type",
+                    "data_type": "string",
+                    "example_values": [
+                        "Global",
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.address_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "test-fqdn",
+                        "test-subnet1"
+                    ],
+                    "column_name": "Address Name",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.address_type",
+                    "data_type": "string",
+                    "example_values": [
+                        "FQDN",
+                        "Subnet"
+                    ],
+                    "column_name": "Address Type",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully created address object"
+                    ]
+                }
+            ],
+            "versions": "EQ(*)",
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "Create Address"
+            }
+        },
+        {
+<<<<<<< HEAD
+=======
+            "action": "list addresses",
+            "identifier": "list_addresses",
+            "description": "List addresses",
+            "verbose": "",
+            "type": "generic",
+            "read_only": true,
+            "parameters": {
+                "level_type": {
+                    "description": "Level Type",
+                    "default": "global",
+                    "data_type": "string",
+                    "value_list": [
+                        "ADOM",
+                        "Global"
+                    ],
+                    "required": true,
+                    "order": 0
+                },
+                "filter": {
+                    "description": "Field filters to apply. Use the following format: \"<field>\" <comparison operator> \"<value>\" (e.g. \"type\" == \"ipmask\")",
+                    "data_type": "string",
+                    "order": 1
+                },
+                "limit": {
+                    "description": "Maximum number of results to return",
+                    "data_type": "numeric",
+                    "order": 2
+                },
+                "offset": {
+                    "description": "Starting value to return results from",
+                    "data_type": "numeric",
+                    "order": 3
+                }
+            },
             "output": [],
             "versions": "EQ(*)"
         },
         {
+>>>>>>> 9db8baf (add output paths)
             "action": "update address",
             "identifier": "update_address",
             "description": "Update address",

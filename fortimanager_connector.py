@@ -234,52 +234,53 @@ class FortimanagerConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
         fmg_instance = None
-        level = param["level"]
+        level = param['level']
+        pkg = param['package']
+        data = {
+                    'name': param['name'],
+                    'srcintf': param['source_interface'],
+                    'dstintf': param['destination_interface'],
+                    'service': param['service'],
+                    'srcaddr': param['source_address'],
+                    'dstaddr': param['destination_address'],
+                    'action': param['action'],
+                    'status': param['status'],
+                    'inspection-mode': param['inspection_mode'],
+                    'logtraffic': param['log_traffic'],
+                    'schedule': param['schedule']
+                }
         if level == 'ADOM':
-            endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=param.get('adom'), pkg=param.get('package'), policy=param.get('policy'))
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+            endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg)
         elif level == 'Global':
-            endpoint = GLOBAL_FIREWALL_ENDPOINT
+            adom = 'global'
+            policy_type = param['policy_type']
+            endpoint = GLOBAL_FIREWALL_ENDPOINT.format(pkg=pkg, policy_type=policy_type)
 
         try:
             fmg_instance = self._login(action_result)
-            response_code, response_data = fmg_instance.add(endpoint, )
+            fmg_instance.lock_adom(adom)
+            response_code, response_data = fmg_instance.add(endpoint, **data)
+            fmg_instance.commit_changes(adom)
+            fmg_instance.unlock_adom(adom)
             fmg_instance.logout()
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
-            self.save_progress("Test Connectivity Failed.")
-            return action_result.set_status(phantom.APP_ERROR, error_msg)
+            self.save_progress("Create Firewall Policy action failed")
+            self.debug_print("Create Firewall Policy action failed: {}".format(error_msg))
+            return action_result.set_status(phantom.APP_ERROR, None)
 
-        # # Flipping logic to make 'enable' checkboxes for better UX
-        # if param.get("enable_log_click"):
-        #     log_click = False
-        # else:
-        #     log_click = True
-
-        # data = {
-        #     "data": [
-        #         {
-        #             "comment": param.get("comment"),
-        #             "url": param["url"],
-        #             "disableLogClick": log_click,
-        #             "action": "block",
-        #             "matchType": param.get("match_type", "explicit")
-        #         }
-        #     ]
-        # }
-
-        # ret_val, response = self._make_rest_call_helper(uri, action_result, headers=headers, method="post", data=data)
-
-        # if phantom.is_fail(ret_val):
-        #     return ret_val
-        # try:
-        #     action_result.add_data(response['data'][0])
-        # except Exception:
-        #     return action_result.set_status(phantom.APP_ERROR, MIMECAST_ERR_PROCESSING_RESPONSE)
-
-        # summary = action_result.update_summary({})
-        # summary['status'] = MIMECAST_SUCC_BLOCK_URL
-
-        return action_result.set_status(phantom.APP_SUCCESS)
+        if response_code == 0:
+            action_result.add_data(response_data)
+            summary = action_result.update_summary({})
+            summary['status'] = 'Successfully added firewall policy'
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.save_progress("Failed.")
+            error_msg = response_data['status']['message']
+            return action_result.set_status(phantom.APP_ERROR, "Failed to create firewall policy. Reason: {}".format(error_msg))
 
     def _handle_list_firewall_policies(self, param):
 
@@ -290,6 +291,7 @@ class FortimanagerConnector(BaseConnector):
         level = param["level"]
         pkg = param.get('package')
         package_path = param.get('package_path')
+        policy_name = param.get('policy_name')
         if pkg and package_path:
             pkg += '/' + package_path
         if level == 'ADOM':
@@ -298,11 +300,20 @@ class FortimanagerConnector(BaseConnector):
                 adom = 'root'
             endpoint = LIST_ADOM_FIREWALL_POLICY.format(adom=adom, pkg=pkg)
         elif level == 'Global':
-            endpoint = GLOBAL_FIREWALL_ENDPOINT.format(pkg=pkg, policy_type=param.get('policy_type'))
+            endpoint = LIST_GLOBAL_FIREWALL_POLICY.format(pkg=pkg, policy_type=param.get('policy_type'))
 
         try:
             fmg_instance = self._login(action_result)
-            response_code, firewall_policies = fmg_instance.get(endpoint)
+            if policy_name:
+                data = {
+                    'filter': [
+                        [
+                            "name", "==", "{}".format(policy_name)
+                        ]
+                    ]}
+                response_code, firewall_policies = fmg_instance.get(endpoint, **data)
+            else:
+                response_code, firewall_policies = fmg_instance.get(endpoint)
             fmg_instance.logout()
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
@@ -317,7 +328,8 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_SUCCESS)
         else:
             self.save_progress("Failed.")
-            return action_result.set_status(phantom.APP_ERROR, "Failed to retrieve firewall policies")
+            error_msg = firewall_policies['status']['message']
+            return action_result.set_status(phantom.APP_ERROR, "Failed to retrieve firewall policies. Reason: {}".format(error_msg))
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS

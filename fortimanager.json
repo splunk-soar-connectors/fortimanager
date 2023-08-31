@@ -15,7 +15,7 @@
     "utctime_updated": "2023-08-03T19:40:27.182156Z",
     "package_name": "phantom_fortimanager",
     "main_module": "fortimanager_connector.py",
-    "min_phantom_version": "6.2.0.50",
+    "min_phantom_version": "6.0.0",
     "app_wizard_version": "1.0.0",
     "configuration": {
         "base_url": {
@@ -56,7 +56,7 @@
             "action": "create firewall policy",
             "description": "Create a firewall policy",
             "type": "investigate",
-            "identifier": "decode_url",
+            "identifier": "create_firewall_policy",
             "read_only": true,
             "parameters": {
                 "level": {
@@ -75,17 +75,267 @@
                     "order": 1
                 },
                 "package": {
-                    "description": "Policy Package full path and name",
+                    "description": "The Policy Package name or full folder path to create the firewall policy within",
                     "data_type": "string",
+                    "required": true,
                     "order": 2
                 },
-                "policy": {
-                    "description": "Policy ID",
+                "name": {
+                    "description": "Policy name to create",
                     "data_type": "string",
-                    "order": 2
+                    "required": true,
+                    "order": 3
+                },
+                "policy_type": {
+                    "description": "Policy type. Only required for 'Global' Firewall Policies",
+                    "data_type": "string",
+                    "default": "header",
+                    "value_list": [
+                        "header",
+                        "footer"
+                    ],
+                    "order": 4
+                },
+                "source_interface": {
+                    "description": "Incoming (ingress) interface to specify for the firewall policy",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 5
+                },
+                "destination_interface": {
+                    "description": "Outgoing (egress) interface to specify for the firewall policy",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 6
+                },
+                "source_address": {
+                    "description": "Source IPv4 Address and address group names to specify for the firewall policy",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 7
+                },
+                "destination_address": {
+                    "description": "Destination IPv4 Address and address group names to specify for the firewall policy",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 8
+                },
+                "action": {
+                    "description": "Policy action to specify for the firewall policy. Accept: Allows sessions that match the firewall policy. Deny: Blocks sessions that match the firewall policy. IPSec: Firewall policy becomes a policy-based IPsec VPN policy.",
+                    "data_type": "string",
+                    "required": true,
+                    "default": "deny",
+                    "value_list": [
+                        "deny",
+                        "accept",
+                        "ipsec"
+                    ],
+                    "order": 9
+                },
+                "status": {
+                    "description": "'Enable' or 'Disable' this firewall policy on your FortiManager instance",
+                    "data_type": "string",
+                    "required": false,
+                    "default": "enable",
+                    "value_list": [
+                        "enable",
+                        "disable"
+                    ],
+                    "order": 10
+                },
+                "schedule": {
+                    "description": "Name for the schedule to be associated with the firewall policy (e.g. always, none)",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 11
+                },
+                "service": {
+                    "description": "Service and Service group names to create for the firewall policy",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 12
+                },
+                "inspection_mode": {
+                    "description": "Firewall policy Inspection Mode",
+                    "data_type": "string",
+                    "required": false,
+                    "default": "flow",
+                    "value_list": [
+                        "proxy",
+                        "flow"
+                    ],
+                    "order": 13
+                },
+                "log_traffic": {
+                    "description": "Enables or disables logging of either all sessions or only security profile sessions",
+                    "data_type": "string",
+                    "required": false,
+                    "default": "disable",
+                    "value_list": [
+                        "all",
+                        "utm",
+                        "disable"
+                    ],
+                    "order": 14
                 }
             },
             "output": [
+                {
+                    "data_path": "action_result.data.*.policyid",
+                    "data_type": "numeric",
+                    "column_name": "Policy ID",
+                    "column_order": 1,
+                    "example_values": [
+                        1074741829,
+                        10,
+                        11
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Status: Successfully added firewall policy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully added firewall policy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.name",
+                    "data_type": "string",
+                    "example_values": [
+                        "soar-adom-firewall-policy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "Global",
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.action",
+                    "data_type": "string",
+                    "example_values": [
+                        "deny"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "enable"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package",
+                    "data_type": "string",
+                    "example_values": [
+                        "default"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.service",
+                    "data_type": "string",
+                    "example_values": [
+                        "gALL",
+                        "ALL"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.schedule",
+                    "data_type": "string",
+                    "example_values": [
+                        "galways",
+                        "always"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.log_traffic",
+                    "data_type": "string",
+                    "example_values": [
+                        "all"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.policy_type",
+                    "data_type": "string",
+                    "example_values": [
+                        "footer"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.source_address",
+                    "data_type": "string",
+                    "example_values": [
+                        "gall",
+                        "all"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.inspection_mode",
+                    "data_type": "string",
+                    "example_values": [
+                        "flow"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.source_interface",
+                    "data_type": "string",
+                    "example_values": [
+                        "any"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.destination_address",
+                    "data_type": "string",
+                    "example_values": [
+                        "gall",
+                        "all"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.destination_interface",
+                    "data_type": "string",
+                    "example_values": [
+                        "any"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                }
             ],
             "render": {
                 "type": "table"
@@ -110,7 +360,7 @@
                     "order": 0
                 },
                 "adom": {
-                    "description": "ADOM name",
+                    "description": "ADOM name. Only required for 'ADOM' Firewall Policies",
                     "data_type": "string",
                     "order": 1
                 },
@@ -121,21 +371,767 @@
                     "order": 2
                 },
                 "package_path": {
-                    "description": "Policy Package folder path",
+                    "description": "The full folder path nested within the policy package",
                     "data_type": "string",
                     "order": 3
                 },
                 "policy_type": {
-                    "description": "Policy type. Only for 'Global' Firewall Policies",
+                    "description": "Policy type. Only required for 'Global' Firewall Policies",
                     "data_type": "string",
                     "value_list": [
                         "header",
                         "footer"
                     ],
                     "order": 4
+                },
+                "policy_name": {
+                    "description": "Specific firewall policy name whose details you want to retrieve",
+                    "data_type": "string",
+                    "order": 5
                 }
             },
             "output": [
+                {
+                    "data_path": "action_result.data.*.fec",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.oid",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5105,
+                        5142
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.tos",
+                    "data_type": "string",
+                    "example_values": [
+                        "0x00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dsri",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string",
+                    "column_name": "Name",
+                    "column_order": 0,
+                    "example_values": [
+                        "soar-footer-firewall-name"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.uuid",
+                    "data_type": "string",
+                    "example_values": [
+                        "c33e106e-4117-51ee-1771-7827f531ca41",
+                        "987cb312-3d16-51ee-a38e-2a5f3b237725"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.wccp",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._byte",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._pkts",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.nat46",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.nat64",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.natip",
+                    "data_type": "string",
+                    "example_values": [
+                        "0.0.0.0"
+                    ],
+                    "contains": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.action",
+                    "data_type": "numeric",
+                    "column_name": "Action",
+                    "column_order": 8,
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.status",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.cgn-eif",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.cgn-eim",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dstaddr",
+                    "data_type": "string",
+                    "column_name": "Destination",
+                    "column_order": 5,
+                    "example_values": [
+                        "gall",
+                        "all"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dstintf",
+                    "data_type": "string",
+                    "column_name": "To",
+                    "column_order": 2,
+                    "example_values": [
+                        "any"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.obj seq",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.rtp-nat",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.service",
+                    "data_type": "string",
+                    "column_name": "Service",
+                    "column_order": 7,
+                    "example_values": [
+                        "gALL",
+                        "ALL"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.srcaddr",
+                    "data_type": "string",
+                    "column_name": "Source",
+                    "column_order": 3,
+                    "example_values": [
+                        "gall",
+                        "all"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.srcintf",
+                    "data_type": "string",
+                    "column_name": "From",
+                    "column_order": 1,
+                    "example_values": [
+                        "any"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.policyid",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1074741825,
+                        3
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.schedule",
+                    "data_type": "string",
+                    "column_name": "Schedule",
+                    "column_order": 6,
+                    "example_values": [
+                        "galways",
+                        "always"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.tos-mask",
+                    "data_type": "string",
+                    "example_values": [
+                        "0x00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._hitcount",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._last_hit",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.match-vip",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.sgt-check",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._first_hit",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._sesscount",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.logtraffic",
+                    "data_type": "numeric",
+                    "example_values": [
+                        2
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.tos-negate",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.anti-replay",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.geoip-match",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.pcp-inbound",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.session-ttl",
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ztna-status",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._label-color",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.pcp-outbound",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.profile-type",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.vlan-cos-fwd",
+                    "data_type": "numeric",
+                    "example_values": [
+                        255
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.vlan-cos-rev",
+                    "data_type": "numeric",
+                    "example_values": [
+                        255
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._last_session",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.email-collect",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.geoip-anycast",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.policy-expiry",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._first_session",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dstaddr-negate",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.match-vip-only",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.policy-offload",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.service-negate",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.srcaddr-negate",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.tcp-mss-sender",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._global-vpn-tgt",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dstaddr6-negate",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dynamic-shaping",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ip-version-type",
+                    "data_type": "string",
+                    "example_values": [
+                        "ipv4"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.np-acceleration",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.permit-any-host",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.srcaddr6-negate",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.diffserv-forward",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.diffserv-reverse",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.internet-service",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.logtraffic-start",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.schedule-timeout",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.send-deny-packet",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.tcp-mss-receiver",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.cgn-session-quota",
+                    "data_type": "numeric",
+                    "example_values": [
+                        16777215
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.internet-service6",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.block-notification",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.cgn-resource-quota",
+                    "data_type": "numeric",
+                    "example_values": [
+                        16
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.policy-expiry-date",
+                    "data_type": "string",
+                    "example_values": [
+                        "0000-00-00 00:00:00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.reputation-minimum",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._global-label-color",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.reputation-minimum6",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.internet-service-src",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ztna-policy-redirect",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.captive-portal-exempt",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.delay-tcp-npu-session",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.identity-based-policy",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.internet-service6-src",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.policy-behaviour-type",
+                    "data_type": "string",
+                    "example_values": [
+                        "standard"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.reputation-direction6",
+                    "data_type": "numeric",
+                    "example_values": [
+                        42
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ztna-device-ownership",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ztna-tags-match-logic",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.radius-mac-auth-bypass",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.tcp-session-without-syn",
+                    "data_type": "numeric",
+                    "example_values": [
+                        2
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.internet-service6-negate",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.internet-service6-src-negate",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Total firewall policies: 1",
+                        "Total firewall policies: 6"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total firewall policies",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1,
+                        6
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "Global",
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package",
+                    "data_type": "string",
+                    "example_values": [
+                        "default"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.policy_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "soar-footer-firewall-name"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.policy_type",
+                    "data_type": "string",
+                    "example_values": [
+                        "footer"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.vpn_dst_node",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.vpn_src_node",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                }
             ],
             "render": {
                 "type": "table"

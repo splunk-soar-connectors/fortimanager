@@ -431,7 +431,7 @@ class FortimanagerConnector(BaseConnector):
         else:
             raise Exception("The asset configuration requires either an API key or a username and password.")
 
-        response_code, response_data = fmg_instance.login()
+        fmg_instance.login()
         return fmg_instance
 
     def _handle_test_connectivity(self, param):
@@ -542,7 +542,13 @@ class FortimanagerConnector(BaseConnector):
         name = param['address_name']
         addr_type = param['address_type']
 
-        adom = param.get('adom', 'root') if level == "ADOM" else 'global'
+        if level == "ADOM":
+            adom = param.get('adom', 'root')
+            url = ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
+        else:
+            adom = 'global'
+            url = GLOBAL_IPV4_ADDRESS_ENDPOINT
+
         policy_group = param.get('policy_group_name')
 
         fmg_instance = None
@@ -559,8 +565,6 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance.lock_adom(adom)
-
-            url = ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom) if level == "ADOM" else GLOBAL_IPV4_ADDRESS_ENDPOINT
 
             data['name'] = name
 
@@ -702,7 +706,7 @@ class FortimanagerConnector(BaseConnector):
         self._host = config['host'].replace('http://', '').replace('https://', '')
 
         self._api_key = config.get('api_key')
-        self._username = config.get('user')
+        self._username = config.get('username')
         self._password = config.get('password')
 
 <<<<<<< HEAD

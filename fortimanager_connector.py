@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # File: fortimanager_connector.py
 #
 # Copyright (c) 2023 Splunk Inc.
@@ -13,31 +12,10 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
-=======
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-# -----------------------------------------
-# Phantom sample App Connector python file
-# -----------------------------------------
->>>>>>> a58d594 (init commit)
 
 # Python 3 Compatibility imports
 from __future__ import print_function, unicode_literals
 
-<<<<<<< HEAD
-import json
-import re
-import traceback
-
-# Phantom App imports
-import phantom.app as phantom
-import requests
-from phantom.action_result import ActionResult
-from phantom.base_connector import BaseConnector
-from pyFMG.fortimgr import FortiManager
-
-from fortimanager_consts import *
-=======
 # Phantom App imports
 import phantom.app as phantom
 from phantom.base_connector import BaseConnector
@@ -52,7 +30,6 @@ import requests
 import json
 import traceback
 from bs4 import BeautifulSoup
->>>>>>> a58d594 (init commit)
 
 
 class RetVal(tuple):
@@ -70,7 +47,6 @@ class FortimanagerConnector(BaseConnector):
 
         self._state = None
 
-<<<<<<< HEAD
         self._base_url = None
         self._verify_server_cert = False
         self._host = None
@@ -249,20 +225,6 @@ class FortimanagerConnector(BaseConnector):
             self.save_progress("Failed.")
             error_msg = firewall_policies['status']['message']
             return action_result.set_status(phantom.APP_ERROR, "Failed to retrieve firewall policies. Reason: {}".format(error_msg))
-=======
-        # Variable to hold a base_url in case the app makes REST calls
-        # Do note that the app json defines the asset config, so please
-        # modify this as you deem fit.
-        self._base_url = None
-
-        self._host = None
-        self._username = None
-        self._password = None
-
-        self._api_key = None
-
-        self._addr_type = None
-        self._mac_scope = None
 
     def _get_error_msg_from_exception(self, e):
 
@@ -431,7 +393,7 @@ class FortimanagerConnector(BaseConnector):
         else:
             raise Exception("The asset configuration requires either an API key or a username and password.")
 
-        fmg_instance.login()
+        response_code, response_data = fmg_instance.login()
         return fmg_instance
 
     def _handle_test_connectivity(self, param):
@@ -457,69 +419,6 @@ class FortimanagerConnector(BaseConnector):
             self.save_progress("Test Connectivity Failed.")
             return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
 
-<<<<<<< HEAD
-    def is_ip(self, addr):
-        try:
-            ipaddress.IPv4Interface(addr)
-        except Exception:
-            return False
-
-        return True
-
-    def is_mac(self, addr):
-        regex = re.compile(
-            "^([0-9A-Fa-f]{2}[:-])"
-            + "{5}([0-9A-Fa-f]{2})|"
-            + "([0-9a-fA-F]{4}\\."
-            + "[0-9a-fA-F]{4}\\."
-            + "[0-9a-fA-F]{4})$"
-        )
-
-        if addr is None:
-            return False
-
-        return True if re.search(regex, addr) else False
-
-<<<<<<< HEAD
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
->>>>>>> a58d594 (init commit)
-=======
-    def find_mac_scope(self, addr):
-        if addr.find('-') != -1:
-            self._mac_scope = 'range'
-        elif addr.find(',') != 1:
-            try:
-                self.is_mac(addr.split(',')[1])
-                self._mac_scope = 'list'
-            except Exception:
-                self._mac_scope = 'single'
-        else:
-            self._mac_scope = 'single'
-
-    def find_addr_type(self, addr):
-        if self.is_ip(addr):
-            self._addr_type = 'ipmask'
-        elif addr.find('/') != -1:
-            self._addr_type = 'wildcard'
-        elif addr.find('-') != -1:
-            self._addr_type = 'ip-range'
-        elif phantom.is_hostname(addr):
-            self._addr_type = 'fqdn'
-        elif self.is_mac(addr):
-            self._addr_type = 'mac'
-        elif all(ch.isalph() or ch.isspace() for ch in addr.strip()):
-            self._addr_type = 'geography'
-
-=======
->>>>>>> 5526110 (remove unused helper functions)
-    # Global level IP addresses
-    def _handle_global_block_ip(self, param):
-        pass
-
-    def _handle_global_unblock_ip(self, param):
-        pass
-
     # URLs
     def _handle_list_blocked_urls(self, param):
         pass
@@ -542,13 +441,7 @@ class FortimanagerConnector(BaseConnector):
         name = param['address_name']
         addr_type = param['address_type']
 
-        if level == "ADOM":
-            adom = param.get('adom', 'root')
-            url = ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
-        else:
-            adom = 'global'
-            url = GLOBAL_IPV4_ADDRESS_ENDPOINT
-
+        adom = param.get('adom')
         policy_group = param.get('policy_group_name')
 
         fmg_instance = None
@@ -566,11 +459,13 @@ class FortimanagerConnector(BaseConnector):
         try:
             fmg_instance.lock_adom(adom)
 
+            url = ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom) if level == "ADOM" else GLOBAL_IPV4_ADDRESS_ENDPOINT
+
             data['name'] = name
 
             if addr_type == 'Subnet':
                 ip_addr = param.get('subnet')
-                data['subnet'] = ipaddress.IPv4Interface(ip_addr).with_prefixlen
+                data['subnet'] = ipaddress.IPv4Interface(ip_addr).with_netmask.split('/')
                 data['type'] = 'ipmask'
 
             elif addr_type == 'FQDN':
@@ -582,11 +477,6 @@ class FortimanagerConnector(BaseConnector):
 
             response_code, response_data = fmg_instance.add(url, **data)
             fmg_instance.commit_changes(adom)
-
-            summary = {
-                'status': CREATE_ADDRESS_SUCCESS_MESSAGE,
-            }
-            action_result.update_summary(summary)
 
         except Exception as e:
             self.save_progress("Create address action failed")
@@ -610,23 +500,9 @@ class FortimanagerConnector(BaseConnector):
     def _handle_delete_address(self, param):
         pass
 
-    # Address Groups
-    def _handle_create_address_group(self, param):
-        pass
-
-    def _handle_list_address_groups(self, param):
-        pass
-
-    def _handle_update_address_group(self, param):
-        pass
-
-    def _handle_delete_address_group(self, param):
-        pass
-
     # Web Filters
     def _handle_list_web_filters(self, param):
         pass
->>>>>>> 396808e (PAPP-31731 'Create address' action)
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
@@ -638,10 +514,6 @@ class FortimanagerConnector(BaseConnector):
 
         if action_id == 'test_connectivity':
             ret_val = self._handle_test_connectivity(param)
-        elif action_id == 'global_block_ip':
-            ret_val = self._handle_global_block_ip(param)
-        elif action_id == 'global_unblock_ip':
-            ret_val = self._handle_global_unblock_ip(param)
         elif action_id == 'list_blocked_urls':
             ret_val = self._handle_list_blocked_urls(param)
         elif action_id == 'block_url':
@@ -656,16 +528,12 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_update_address(param)
         elif action_id == 'delete_address':
             ret_val = self._handle_delete_address(param)
-        elif action_id == 'list_address_groups':
-            ret_val = self._handle_list_address_groups(param)
-        elif action_id == 'create_address_group':
-            ret_val = self._handle_create_address_group(param)
-        elif action_id == 'delete_address_group':
-            ret_val = self._handle_delete_address_group(param)
         elif action_id == 'list_web_filters':
             ret_val = self._handle_list_web_filters(param)
-
-<<<<<<< HEAD
+        elif action_id == 'create_firewall_policy':
+            ret_val = self._handle_create_firewall_policy(param)
+        elif action_id == 'list_firewall_policies':
+            ret_val = self._handle_list_firewall_policies(param)
         elif action_id == 'create_firewall_policy':
             ret_val = self._handle_create_firewall_policy(param)
 
@@ -675,19 +543,10 @@ class FortimanagerConnector(BaseConnector):
         return ret_val
 
     def initialize(self):
-=======
-        return ret_val
-
-    def initialize(self):
-        # Load the state in initialize, use it to store data
-        # that needs to be accessed across actions
->>>>>>> a58d594 (init commit)
         self._state = self.load_state()
 
         # get the asset config
         config = self.get_config()
-<<<<<<< HEAD
-<<<<<<< HEAD
 
         self._host = config['url'].replace('http://', '').replace('https://', '')
 
@@ -696,25 +555,6 @@ class FortimanagerConnector(BaseConnector):
         self._password = config.get('password')
 
         self._base_url = self._format_url(self._host)
-        self._verify_server_cert = config.get('verify_server_cert', False)
-=======
-        """
-        # Access values in asset config by the name
-=======
->>>>>>> 396808e (PAPP-31731 'Create address' action)
-
-        self._host = config['url'].replace('http://', '').replace('https://', '')
-
-        self._api_key = config.get('api_key')
-        self._username = config.get('username')
-        self._password = config.get('password')
-
-<<<<<<< HEAD
-        self._base_url = config.get('base_url')
->>>>>>> a58d594 (init commit)
-=======
-        self._base_url = self._format_url(self._host)
->>>>>>> 396808e (PAPP-31731 'Create address' action)
 
         return phantom.APP_SUCCESS
 
@@ -791,7 +631,6 @@ def main():
 
 
 if __name__ == '__main__':
-<<<<<<< HEAD
 
     import sys
 
@@ -810,6 +649,3 @@ if __name__ == '__main__':
         return_value = connector._handle_action(json.dumps(in_json), None)
         print(json.dumps(json.loads(return_value), indent=4))
     sys.exit(0)
-=======
-    main()
->>>>>>> a58d594 (init commit)

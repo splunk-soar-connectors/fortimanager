@@ -1130,9 +1130,9 @@
                     "description": "Level Type",
                     "data_type": "string",
                     "value_list": [
-                        "ADOM",
-                        "Global"
+                        "ADOM"
                     ],
+                    "default": "ADOM",
                     "required": true,
                     "order": 0
                 },
@@ -1161,7 +1161,8 @@
                     "description": "IP address and netmask (e.g. 0.0.0.0/32)",
                     "data_type": "string",
                     "contains": [
-                        "ip"
+                        "ip",
+                        "netmask"
                     ],
                     "order": 4
                 },
@@ -1191,7 +1192,8 @@
                         "0.0.0.0"
                     ],
                     "contains": [
-                        "ip"
+                        "ip",
+                        "netmask"
                     ],
                     "column_name": "Subnet",
                     "column_order": 3

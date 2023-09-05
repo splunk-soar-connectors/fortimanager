@@ -39,12 +39,7 @@ LIST_ADOM_FIREWALL_POLICY = '/pm/config/adom/{adom}/pkg/{pkg}/firewall/policy'
 LOCK_SUCCESS_MSG = '{adom} ADOM locked successfully'
 LOCK_FAILED_MSG = 'Failed to lock {adom} ADOM'
 
-GLOBAL_POLICY_PATH = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
-GLOBAL_ADDRESS_GROUP_PATH = '/pm/config/global/obj/firewall/addrgrp'
-GLOBAL_ADDRESS_GROUP_ENDPOINT = '/pm/config/global/obj/firewall/addrgrp/{addrgrp}'
-
 # Firewall addresses
-GLOBAL_IPV4_ADDRESS_ENDPOINT = '/pm/config/global/obj/firewall/address'
 ADOM_IPV4_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'
 
 CREATE_ADDRESS_SUCCESS_MESSAGE = 'Successfully created address object'

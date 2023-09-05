@@ -703,7 +703,7 @@ class FortimanagerConnector(BaseConnector):
 =======
 >>>>>>> 396808e (PAPP-31731 'Create address' action)
 
-        self._host = config['host'].replace('http://', '').replace('https://', '')
+        self._host = config['url'].replace('http://', '').replace('https://', '')
 
         self._api_key = config.get('api_key')
         self._username = config.get('username')

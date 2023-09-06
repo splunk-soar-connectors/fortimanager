@@ -1,16 +1,16 @@
 {
     "appid": "75d83a2e-e7f7-43b8-9378-5ea7d4a7e972",
-    "name": "fortimanager",
-    "description": "asdf",
+    "name": "FortiManager",
+    "description": "FortiManager",
     "type": "network security",
-    "product_vendor": "asdf",
+    "product_vendor": "Fortinet",
     "logo": "logo_fortinet.svg",
     "logo_dark": "logo_fortinet_dark.svg",
-    "product_name": "asdf",
+    "product_name": "FortiManager",
     "python_version": "3",
     "product_version_regex": ".*",
-    "publisher": "asdf",
-    "license": "Copyright (c) asdf, 2023",
+    "publisher": "Splunk",
+    "license": "Copyright (c) Splunk, 2023",
     "app_version": "1.0.0",
     "utctime_updated": "2023-08-03T19:40:27.182156Z",
     "package_name": "phantom_fortimanager",
@@ -18,13 +18,13 @@
     "min_phantom_version": "6.0.0",
     "app_wizard_version": "1.0.0",
     "configuration": {
-        "base_url": {
-            "description": "Fortimanager Base URL",
+        "url": {
+            "description": "Base URL of FortiManager instance",
             "data_type": "string",
             "required": true,
             "order": 0
         },
-        "username": {
+        "user": {
             "description": "Username",
             "data_type": "string",
             "order": 1
@@ -60,13 +60,13 @@
             "read_only": true,
             "parameters": {
                 "level": {
-                    "description": "Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM. Choosing 'Global' allows you to select the type of firewall policy you want to create.",
+                    "description": "Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM.",
                     "data_type": "string",
                     "required": true,
                     "value_list": [
-                        "ADOM",
-                        "Global"
+                        "ADOM"
                     ],
+                    "default": "ADOM",
                     "order": 0
                 },
                 "adom": {
@@ -78,6 +78,7 @@
                     "description": "The Policy Package name or full folder path to create the firewall policy within",
                     "data_type": "string",
                     "required": true,
+                    "default": "default",
                     "order": 2
                 },
                 "name": {
@@ -86,37 +87,31 @@
                     "required": true,
                     "order": 3
                 },
-                "policy_type": {
-                    "description": "Policy type. Only required for 'Global' Firewall Policies",
-                    "data_type": "string",
-                    "default": "header",
-                    "value_list": [
-                        "header",
-                        "footer"
-                    ],
-                    "order": 4
-                },
                 "source_interface": {
                     "description": "Incoming (ingress) interface to specify for the firewall policy",
                     "data_type": "string",
+                    "default": "any",
                     "required": true,
                     "order": 5
                 },
                 "destination_interface": {
                     "description": "Outgoing (egress) interface to specify for the firewall policy",
                     "data_type": "string",
+                    "default": "any",
                     "required": true,
                     "order": 6
                 },
                 "source_address": {
                     "description": "Source IPv4 Address and address group names to specify for the firewall policy",
                     "data_type": "string",
+                    "default": "all",
                     "required": true,
                     "order": 7
                 },
                 "destination_address": {
                     "description": "Destination IPv4 Address and address group names to specify for the firewall policy",
                     "data_type": "string",
+                    "default": "all",
                     "required": true,
                     "order": 8
                 },
@@ -146,12 +141,14 @@
                 "schedule": {
                     "description": "Name for the schedule to be associated with the firewall policy (e.g. always, none)",
                     "data_type": "string",
+                    "default": "always",
                     "required": true,
                     "order": 11
                 },
                 "service": {
                     "description": "Service and Service group names to create for the firewall policy",
                     "data_type": "string",
+                    "default": "ALL",
                     "required": true,
                     "order": 12
                 },
@@ -223,7 +220,6 @@
                     "data_path": "action_result.parameter.level",
                     "data_type": "string",
                     "example_values": [
-                        "Global",
                         "ADOM"
                     ]
                 },
@@ -344,7 +340,7 @@
         },
         {
             "action": "list firewall policies",
-            "description": "List ADOM or Global firewall policies",
+            "description": "List ADOM firewall policies",
             "type": "investigate",
             "identifier": "list_firewall_policies",
             "read_only": true,
@@ -354,9 +350,9 @@
                     "data_type": "string",
                     "required": true,
                     "value_list": [
-                        "ADOM",
-                        "Global"
+                        "ADOM"
                     ],
+                    "default": "ADOM",
                     "order": 0
                 },
                 "adom": {
@@ -374,15 +370,6 @@
                     "description": "The full folder path nested within the policy package",
                     "data_type": "string",
                     "order": 3
-                },
-                "policy_type": {
-                    "description": "Policy type. Only required for 'Global' Firewall Policies",
-                    "data_type": "string",
-                    "value_list": [
-                        "header",
-                        "footer"
-                    ],
-                    "order": 4
                 },
                 "policy_name": {
                     "description": "Specific firewall policy name whose details you want to retrieve",
@@ -1078,7 +1065,6 @@
                     "data_path": "action_result.parameter.level",
                     "data_type": "string",
                     "example_values": [
-                        "Global",
                         "ADOM"
                     ]
                 },
@@ -1119,17 +1105,26 @@
                 },
                 {
                     "data_path": "action_result.data.*.vpn_dst_node",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": []
                 },
                 {
                     "data_path": "action_result.data.*.vpn_src_node",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": []
                 },
                 {
                     "data_path": "action_result.parameter.adom",
                     "data_type": "string",
                     "example_values": [
                         "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_firewall_policies",
+                    "data_type": "numeric",
+                    "example_values": [
+                        6
                     ]
                 }
             ],

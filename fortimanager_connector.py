@@ -17,6 +17,7 @@
 from __future__ import print_function, unicode_literals
 
 import json
+import re
 import traceback
 
 # Phantom App imports
@@ -45,20 +46,19 @@ class FortimanagerConnector(BaseConnector):
 
         self._state = None
 
-        # Variable to hold a base_url in case the app makes REST calls
-        # Do note that the app json defines the asset config, so please
-        # modify this as you deem fit.
         self._base_url = None
+
+        self._host = None
         self._username = None
         self._password = None
+
         self._api_key = None
 
     def _login(self, action_result):
-        url = self._base_url.replace('http://', '').replace('https://', '')
         if self._username and self._password:
-            fmg_instance = FortiManager(url, self._username, self._password, debug=True, disable_request_warnings=True)
+            fmg_instance = FortiManager(self._host, self._username, self._password, debug=True, disable_request_warnings=True)
         elif self._api_key:
-            fmg_instance = FortiManager(url, apikey=self._api_key, debug=True, disable_request_warnings=True)
+            fmg_instance = FortiManager(self._host, apikey=self._api_key, debug=True, disable_request_warnings=True)
         else:
             raise Exception("The asset configuration requires either an API key or a username and password.")
         fmg_instance.login()
@@ -146,6 +146,11 @@ class FortimanagerConnector(BaseConnector):
         )
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
+
+    def _format_url(self, url):
+        if not re.match('(?:http|https)://', url):
+            return 'https://{}'.format(url)
+        return url
 
     def _get_error_msg_from_exception(self, e):
 
@@ -324,7 +329,8 @@ class FortimanagerConnector(BaseConnector):
         if response_code == 0:
             for firewall_policy in firewall_policies:
                 action_result.add_data(firewall_policy)
-            action_result.set_summary({'total firewall policies': len(firewall_policies)})
+            summary = action_result.update_summary({})
+            summary['total_firewall_policies'] = len(firewall_policies)
             return action_result.set_status(phantom.APP_SUCCESS)
         else:
             self.save_progress("Failed.")
@@ -351,26 +357,18 @@ class FortimanagerConnector(BaseConnector):
         return ret_val
 
     def initialize(self):
-        # Load the state in initialize, use it to store data
-        # that needs to be accessed across actions
         self._state = self.load_state()
 
         # get the asset config
         config = self.get_config()
-        """
-        # Access values in asset config by the name
 
-        # Required values can be accessed directly
-        required_config_name = config['required_config_name']
+        self._host = config['url'].replace('http://', '').replace('https://', '')
 
-        # Optional values should use the .get() function
-        optional_config_name = config.get('optional_config_name')
-        """
-
-        self._base_url = config.get('base_url')
-        self._username = config.get('username')
-        self._password = config.get('password')
         self._api_key = config.get('api_key')
+        self._username = config.get('user')
+        self._password = config.get('password')
+
+        self._base_url = self._format_url(self._host)
 
         return phantom.APP_SUCCESS
 

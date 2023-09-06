@@ -1,29 +1,29 @@
 [comment]: # "Auto-generated SOAR connector documentation"
-# fortimanager
+# FortiManager
 
-Publisher: asdf  
+Publisher: Splunk  
 Connector Version: 1.0.0  
-Product Vendor: asdf  
-Product Name: asdf  
+Product Vendor: Fortinet  
+Product Name: FortiManager  
 Product Version Supported (regex): ".\*"  
 Minimum Product Version: 6.0.0  
 
-asdf
+FortiManager
 
 ### Configuration Variables
-The below configuration variables are required for this Connector to operate.  These variables are specified when configuring a asdf asset in SOAR.
+The below configuration variables are required for this Connector to operate.  These variables are specified when configuring a FortiManager asset in SOAR.
 
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
-**base_url** |  required  | string | Fortimanager Base URL
-**username** |  optional  | string | Username
+**url** |  required  | string | Base URL of FortiManager instance
+**user** |  optional  | string | Username
 **password** |  optional  | password | Password
 **api_key** |  optional  | password | API Key
 
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
 [create firewall policy](#action-create-firewall-policy) - Create a firewall policy  
-[list firewall policies](#action-list-firewall-policies) - List ADOM or Global firewall policies  
+[list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies  
 
 ## action: 'test connectivity'
 Validate the asset configuration for connectivity using supplied configuration
@@ -46,11 +46,10 @@ Read only: **True**
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
-**level** |  required  | Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM. Choosing 'Global' allows you to select the type of firewall policy you want to create. | string | 
+**level** |  required  | Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM. | string | 
 **adom** |  optional  | ADOM name | string | 
 **package** |  required  | The Policy Package name or full folder path to create the firewall policy within | string | 
 **name** |  required  | Policy name to create | string | 
-**policy_type** |  optional  | Policy type. Only required for 'Global' Firewall Policies | string | 
 **source_interface** |  required  | Incoming (ingress) interface to specify for the firewall policy | string | 
 **destination_interface** |  required  | Outgoing (egress) interface to specify for the firewall policy | string | 
 **source_address** |  required  | Source IPv4 Address and address group names to specify for the firewall policy | string | 
@@ -70,7 +69,7 @@ action_result.status | string |  |   success
 action_result.message | string |  |   Status: Successfully added firewall policy 
 action_result.summary.status | string |  |   Successfully added firewall policy 
 action_result.parameter.name | string |  |   soar-adom-firewall-policy 
-action_result.parameter.level | string |  |   Global  ADOM 
+action_result.parameter.level | string |  |   ADOM 
 action_result.parameter.action | string |  |   deny 
 action_result.parameter.status | string |  |   enable 
 action_result.parameter.package | string |  |   default 
@@ -88,7 +87,7 @@ summary.total_objects_successful | numeric |  |   1
 action_result.parameter.adom | string |  |   root   
 
 ## action: 'list firewall policies'
-List ADOM or Global firewall policies
+List ADOM firewall policies
 
 Type: **investigate**  
 Read only: **True**
@@ -100,7 +99,6 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **adom** |  optional  | ADOM name. Only required for 'ADOM' Firewall Policies | string | 
 **package** |  required  | Policy Package name | string | 
 **package_path** |  optional  | The full folder path nested within the policy package | string | 
-**policy_type** |  optional  | Policy type. Only required for 'Global' Firewall Policies | string | 
 **policy_name** |  optional  | Specific firewall policy name whose details you want to retrieve | string | 
 
 #### Action Output
@@ -200,7 +198,7 @@ action_result.data.\*.internet-service6-src-negate | numeric |  |   0
 action_result.status | string |  |   success 
 action_result.message | string |  |   Total firewall policies: 1  Total firewall policies: 6 
 action_result.summary.total firewall policies | numeric |  |   1  6 
-action_result.parameter.level | string |  |   Global  ADOM 
+action_result.parameter.level | string |  |   ADOM 
 action_result.parameter.package | string |  |   default 
 action_result.parameter.policy_name | string |  |   soar-footer-firewall-name 
 action_result.parameter.policy_type | string |  |   footer 
@@ -209,3 +207,4 @@ summary.total_objects_successful | numeric |  |   1
 action_result.data.\*.vpn_dst_node | string |  |  
 action_result.data.\*.vpn_src_node | string |  |  
 action_result.parameter.adom | string |  |   root 
+action_result.summary.total_firewall_policies | numeric |  |   6 

@@ -101,12 +101,12 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance = self._login(action_result)
             self.save_progress("Obtaining system status")
             response_code, response_data = fmg_instance.get('sys/status')
-            fmg_instance.logout()
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress("Test Connectivity Failed.")
+            fmg_instance.logout()
             return action_result.set_status(phantom.APP_ERROR, error_msg)
-
+        fmg_instance.logout()
         if response_code == 0:
             self.save_progress("Test Connectivity Passed")
             return action_result.set_status(phantom.APP_SUCCESS)
@@ -152,14 +152,15 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.lock_adom(adom)
             response_code, response_data = fmg_instance.add(endpoint, **data)
             fmg_instance.commit_changes(adom)
-            fmg_instance.unlock_adom(adom)
-            fmg_instance.logout()
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress("Create Firewall Policy action failed")
             self.debug_print("Create Firewall Policy action failed: {}".format(error_msg))
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
             return action_result.set_status(phantom.APP_ERROR, None)
-
+        fmg_instance.unlock_adom(adom)
+        fmg_instance.logout()
         if response_code == 0:
             action_result.add_data(response_data)
             summary = action_result.update_summary({})

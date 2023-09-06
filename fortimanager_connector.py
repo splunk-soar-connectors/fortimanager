@@ -23,7 +23,6 @@ import traceback
 # Phantom App imports
 import phantom.app as phantom
 import requests
-from bs4 import BeautifulSoup
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
 from pyFMG.fortimgr import FortiManager
@@ -142,10 +141,11 @@ class FortimanagerConnector(BaseConnector):
             if not adom:
                 adom = 'root'
             endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg)
-        elif level == 'Global':
-            adom = 'global'
-            policy_type = param['policy_type']
-            endpoint = GLOBAL_FIREWALL_ENDPOINT.format(pkg=pkg, policy_type=policy_type)
+        # Global Feature TODO
+        # elif level == 'Global':
+        #     adom = 'global'
+        #     policy_type = param['policy_type']
+        #     endpoint = GLOBAL_FIREWALL_ENDPOINT.format(pkg=pkg, policy_type=policy_type)
 
         try:
             fmg_instance = self._login(action_result)
@@ -187,8 +187,9 @@ class FortimanagerConnector(BaseConnector):
             if not adom:
                 adom = 'root'
             endpoint = LIST_ADOM_FIREWALL_POLICY.format(adom=adom, pkg=pkg)
-        elif level == 'Global':
-            endpoint = LIST_GLOBAL_FIREWALL_POLICY.format(pkg=pkg, policy_type=param.get('policy_type'))
+        # Global Feature TODO
+        # elif level == 'Global':
+        #     endpoint = LIST_GLOBAL_FIREWALL_POLICY.format(pkg=pkg, policy_type=param.get('policy_type'))
 
         try:
             fmg_instance = self._login(action_result)

@@ -319,13 +319,13 @@ class FortimanagerConnector(BaseConnector):
                 response_code, firewall_policies = fmg_instance.get(endpoint, **data)
             else:
                 response_code, firewall_policies = fmg_instance.get(endpoint)
-            fmg_instance.logout()
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress("List Firewall Policies action failed")
             self.debug_print("List Firewall Policies action failed: {}".format(error_msg))
+            fmg_instance.logout()
             return action_result.set_status(phantom.APP_ERROR, None)
-
+        fmg_instance.logout()
         if response_code == 0:
             for firewall_policy in firewall_policies:
                 action_result.add_data(firewall_policy)
@@ -365,7 +365,7 @@ class FortimanagerConnector(BaseConnector):
         self._host = config['url'].replace('http://', '').replace('https://', '')
 
         self._api_key = config.get('api_key')
-        self._username = config.get('user')
+        self._username = config.get('username')
         self._password = config.get('password')
 
         self._base_url = self._format_url(self._host)

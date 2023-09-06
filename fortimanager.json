@@ -24,7 +24,7 @@
             "required": true,
             "order": 0
         },
-        "user": {
+        "username": {
             "description": "Username",
             "data_type": "string",
             "order": 1
@@ -54,7 +54,7 @@
         },
         {
             "action": "create firewall policy",
-            "description": "Create a firewall policy",
+            "description": "Create an ADOM firewall policy",
             "type": "investigate",
             "identifier": "create_firewall_policy",
             "read_only": true,
@@ -374,7 +374,7 @@
                 "policy_name": {
                     "description": "Specific firewall policy name whose details you want to retrieve",
                     "data_type": "string",
-                    "order": 5
+                    "order": 4
                 }
             },
             "output": [
@@ -1153,10 +1153,6 @@
                 "input_file": "wheels/py3/pyfmg-0.8.5.4-py3-none-any.whl"
             },
             {
-                "module": "requests",
-                "input_file": "wheels/shared/requests-2.27.1-py2.py3-none-any.whl"
-            },
-            {
                 "module": "urllib3",
                 "input_file": "wheels/shared/urllib3-1.26.16-py2.py3-none-any.whl"
             }
@@ -1179,10 +1175,6 @@
             {
                 "module": "pyfmg",
                 "input_file": "wheels/py3/pyfmg-0.8.5.4-py3-none-any.whl"
-            },
-            {
-                "module": "requests",
-                "input_file": "wheels/py3/requests-2.31.0-py3-none-any.whl"
             },
             {
                 "module": "urllib3",

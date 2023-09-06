@@ -177,7 +177,7 @@ class FortimanagerConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
         fmg_instance = None
-        level = param["level"]
+        level = param['level']
         pkg = param.get('package')
         package_path = param.get('package_path')
         policy_name = param.get('policy_name')

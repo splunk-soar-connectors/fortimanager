@@ -16,13 +16,13 @@ The below configuration variables are required for this Connector to operate.  T
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
 **url** |  required  | string | Base URL of FortiManager instance
-**user** |  optional  | string | Username
+**username** |  optional  | string | Username
 **password** |  optional  | password | Password
 **api_key** |  optional  | password | API Key
 
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
-[create firewall policy](#action-create-firewall-policy) - Create a firewall policy  
+[create firewall policy](#action-create-firewall-policy) - Create an ADOM firewall policy  
 [list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies  
 
 ## action: 'test connectivity'
@@ -38,7 +38,7 @@ No parameters are required for this action
 No Output  
 
 ## action: 'create firewall policy'
-Create a firewall policy
+Create an ADOM firewall policy
 
 Type: **investigate**  
 Read only: **True**

@@ -46,7 +46,7 @@ class FortimanagerConnector(BaseConnector):
         self._state = None
 
         self._base_url = None
-
+        self._verify_server_cert = False
         self._host = None
         self._username = None
         self._password = None
@@ -55,9 +55,11 @@ class FortimanagerConnector(BaseConnector):
 
     def _login(self, action_result):
         if self._username and self._password:
-            fmg_instance = FortiManager(self._host, self._username, self._password, debug=True, disable_request_warnings=True)
+            fmg_instance = FortiManager(self._host, self._username, self._password,
+                                        debug=True, use_ssl=self._verify_server_cert, disable_request_warnings=True)
         elif self._api_key:
-            fmg_instance = FortiManager(self._host, apikey=self._api_key, debug=True, disable_request_warnings=True)
+            fmg_instance = FortiManager(self._host, apikey=self._api_key,
+                                        debug=True, use_ssl=self._verify_server_cert, disable_request_warnings=True)
         else:
             raise Exception("The asset configuration requires either an API key or a username and password.")
         fmg_instance.login()
@@ -254,6 +256,7 @@ class FortimanagerConnector(BaseConnector):
         self._password = config.get('password')
 
         self._base_url = self._format_url(self._host)
+        self._verify_server_cert = config.get('verify_server_cert', False)
 
         return phantom.APP_SUCCESS
 

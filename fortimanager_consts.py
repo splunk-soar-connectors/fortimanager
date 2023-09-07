@@ -1,6 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # File: fortimanager_consts.py
+=======
+# File: foritmanager_consts.py
+>>>>>>> 0970480 (add copyright info)
 #
 # Copyright (c) 2023 Splunk Inc.
 #
@@ -15,8 +19,11 @@
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
+<<<<<<< HEAD
 =======
 >>>>>>> 396808e (PAPP-31731 'Create address' action)
+=======
+>>>>>>> 0970480 (add copyright info)
 # Login information
 ACTION_PATH = '/jsonrpc'
 LOGIN_URL = '/sys/login/user'

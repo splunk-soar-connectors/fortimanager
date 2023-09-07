@@ -73,13 +73,13 @@ action_result.parameter.level | string |  |   ADOM
 action_result.parameter.action | string |  |   deny 
 action_result.parameter.status | string |  |   enable 
 action_result.parameter.package | string |  |   default 
-action_result.parameter.service | string |  |   gALL  ALL 
-action_result.parameter.schedule | string |  |   galways  always 
+action_result.parameter.service | string |  |   ALL 
+action_result.parameter.schedule | string |  |   always 
 action_result.parameter.log_traffic | string |  |   all 
-action_result.parameter.source_address | string |  |   gall  all 
+action_result.parameter.source_address | string |  |   all 
 action_result.parameter.inspection_mode | string |  |   flow 
 action_result.parameter.source_interface | string |  |   any 
-action_result.parameter.destination_address | string |  |   gall  all 
+action_result.parameter.destination_address | string |  |   all 
 action_result.parameter.destination_interface | string |  |   any 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
@@ -119,15 +119,15 @@ action_result.data.\*.action | numeric |  |   0
 action_result.data.\*.status | numeric |  |   1 
 action_result.data.\*.cgn-eif | numeric |  |   0 
 action_result.data.\*.cgn-eim | numeric |  |   0 
-action_result.data.\*.dstaddr | string |  |   gall  all 
+action_result.data.\*.dstaddr | string |  |   all 
 action_result.data.\*.dstintf | string |  |   any 
 action_result.data.\*.obj seq | numeric |  |   1 
 action_result.data.\*.rtp-nat | numeric |  |   0 
-action_result.data.\*.service | string |  |   gALL  ALL 
-action_result.data.\*.srcaddr | string |  |   gall  all 
+action_result.data.\*.service | string |  |   ALL 
+action_result.data.\*.srcaddr | string |  |   all 
 action_result.data.\*.srcintf | string |  |   any 
 action_result.data.\*.policyid | numeric |  |   1074741825  3 
-action_result.data.\*.schedule | string |  |   galways  always 
+action_result.data.\*.schedule | string |  |   always 
 action_result.data.\*.tos-mask | string |  |   0x00 
 action_result.data.\*._hitcount | numeric |  |   0 
 action_result.data.\*._last_hit | numeric |  |   0 

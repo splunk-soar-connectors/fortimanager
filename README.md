@@ -46,7 +46,7 @@ Read only: **True**
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
-**level** |  required  | Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM. | string | 
+**level** |  required  | Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM | string | 
 **adom** |  optional  | ADOM name | string | 
 **package** |  required  | The Policy Package name or full folder path to create the firewall policy within | string | 
 **name** |  required  | Policy name to create | string | 
@@ -54,12 +54,12 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **destination_interface** |  required  | Outgoing (egress) interface to specify for the firewall policy | string | 
 **source_address** |  required  | Source IPv4 Address and address group names to specify for the firewall policy | string | 
 **destination_address** |  required  | Destination IPv4 Address and address group names to specify for the firewall policy | string | 
-**action** |  required  | Policy action to specify for the firewall policy. Accept: Allows sessions that match the firewall policy. Deny: Blocks sessions that match the firewall policy. IPSec: Firewall policy becomes a policy-based IPsec VPN policy. | string | 
-**status** |  optional  | 'Enable' or 'Disable' this firewall policy on your FortiManager instance | string | 
+**action** |  required  | Policy action to specify for the firewall policy. Accept: Allows sessions that match the firewall policy. Deny: Blocks sessions that match the firewall policy. IPSec: Firewall policy becomes a policy-based IPsec VPN policy | string | 
+**status** |  required  | 'Enable' or 'Disable' this firewall policy on your FortiManager instance | string | 
 **schedule** |  required  | Name for the schedule to be associated with the firewall policy (e.g. always, none) | string | 
 **service** |  required  | Service and Service group names to create for the firewall policy | string | 
-**inspection_mode** |  optional  | Firewall policy Inspection Mode | string | 
-**log_traffic** |  optional  | Enables or disables logging of either all sessions or only security profile sessions | string | 
+**inspection_mode** |  required  | Firewall policy Inspection Mode | string | 
+**log_traffic** |  required  | Enables or disables logging of either all sessions or only security profile sessions | string | 
 
 #### Action Output
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
@@ -76,7 +76,6 @@ action_result.parameter.package | string |  |   default
 action_result.parameter.service | string |  |   gALL  ALL 
 action_result.parameter.schedule | string |  |   galways  always 
 action_result.parameter.log_traffic | string |  |   all 
-action_result.parameter.policy_type | string |  |   footer 
 action_result.parameter.source_address | string |  |   gall  all 
 action_result.parameter.inspection_mode | string |  |   flow 
 action_result.parameter.source_interface | string |  |   any 
@@ -201,7 +200,6 @@ action_result.summary.total firewall policies | numeric |  |   1  6
 action_result.parameter.level | string |  |   ADOM 
 action_result.parameter.package | string |  |   default 
 action_result.parameter.policy_name | string |  |   soar-footer-firewall-name 
-action_result.parameter.policy_type | string |  |   footer 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
 action_result.data.\*.vpn_dst_node | string |  |  

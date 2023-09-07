@@ -16,6 +16,7 @@ The below configuration variables are required for this Connector to operate.  T
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
 **url** |  required  | string | Base URL of FortiManager instance
+**verify_server_cert** |  optional  | boolean | Verify server certificate
 **username** |  optional  | string | Username
 **password** |  optional  | password | Password
 **api_key** |  optional  | password | API Key

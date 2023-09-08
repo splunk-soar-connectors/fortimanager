@@ -1,4 +1,4 @@
-# File: foritmanager_consts.py
+# File: fortimanager_consts.py
 #
 # Copyright (c) 2023 Splunk Inc.
 #

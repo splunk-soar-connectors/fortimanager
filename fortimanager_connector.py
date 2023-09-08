@@ -248,8 +248,11 @@ class FortimanagerConnector(BaseConnector):
         name = param['address_name']
         addr_type = param['address_type']
 
-        adom = param.get('adom')
+        adom = param.get('adom', 'root')
         policy_group = param.get('policy_group_name')
+
+        if level == "ADOM":
+            url = ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
 
         fmg_instance = None
         data = {}
@@ -265,8 +268,6 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance.lock_adom(adom)
-
-            url = ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom) if level == "ADOM" else GLOBAL_IPV4_ADDRESS_ENDPOINT
 
             data['name'] = name
 
@@ -369,9 +370,6 @@ class FortimanagerConnector(BaseConnector):
 def main():
     import argparse
 
-    import pudb
-    pudb.set_trace()
-
     argparser = argparse.ArgumentParser()
 
     argparser.add_argument('input_test_json', help='Input Test JSON file')
@@ -433,4 +431,21 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+
+    import sys
+
+    import pudb
+
+    pudb.set_trace()
+    if len(sys.argv) < 2:
+        print('No test json specified as input')
+        sys.exit(0)
+    with open(sys.argv[1]) as f:
+        in_json = f.read()
+        in_json = json.loads(in_json)
+        print(json.dumps(in_json, indent=4))
+        connector = FortimanagerConnector()
+        connector.print_progress_message = True
+        return_value = connector._handle_action(json.dumps(in_json), None)
+        print(json.dumps(json.loads(return_value), indent=4))
+    sys.exit(0)

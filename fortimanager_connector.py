@@ -210,14 +210,14 @@ class FortimanagerConnector(BaseConnector):
         fmg_instance = None
 
         try:
-            fmg_instance = self._login()
+            fmg_instance = self._login(action_result)
             response_code, response_data = fmg_instance.get(TEST_CONNECTIVITY_URL)
             fmg_instance.logout()
 
         except Exception as e:
             self.save_progress("Test Connectivity Failed")
             self.debug_print("Test Connectivity Failed: {}".format(self._get_error_msg_from_exception(e)))
-            return action_result.set_status(phantom.APP_ERROR, None)
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
         if response_code == 0:
             self.save_progress("Test Connectivity Passed")
@@ -258,7 +258,7 @@ class FortimanagerConnector(BaseConnector):
         data = {}
 
         try:
-            fmg_instance = self._login()
+            fmg_instance = self._login(action_result)
             self.save_progress("login successful")
 
         except Exception as e:
@@ -358,6 +358,7 @@ class FortimanagerConnector(BaseConnector):
         self._password = config.get('password')
 
         self._base_url = self._format_url(self._host)
+        self._verify_server_cert = config.get('verify_server_cert', False)
 
         return phantom.APP_SUCCESS
 

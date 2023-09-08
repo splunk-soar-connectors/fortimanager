@@ -1121,8 +1121,7 @@
         {
             "action": "create address",
             "identifier": "create_address",
-            "description": "Create address",
-            "verbose": "",
+            "description": "Create a firewall address object",
             "type": "generic",
             "read_only": false,
             "parameters": {
@@ -1137,12 +1136,12 @@
                     "order": 0
                 },
                 "adom": {
-                    "description": "Administrative Domain Name (Use only if selected level type is `adom`)",
+                    "description": "Administrative Domain Name",
                     "data_type": "string",
                     "order": 1
                 },
                 "address_type": {
-                    "description": "Address type",
+                    "description": "Type of address to create",
                     "data_type": "string",
                     "required": true,
                     "value_list": [
@@ -1302,7 +1301,6 @@
             "action": "list addresses",
             "identifier": "list_addresses",
             "description": "List addresses",
-            "verbose": "",
             "type": "generic",
             "read_only": true,
             "parameters": {
@@ -1340,7 +1338,6 @@
             "action": "update address",
             "identifier": "update_address",
             "description": "Update address",
-            "verbose": "",
             "type": "generic",
             "read_only": false,
             "parameters": {},
@@ -1351,7 +1348,6 @@
             "action": "delete address",
             "identifier": "delete_address",
             "description": "Delete address",
-            "verbose": "",
             "type": "generic",
             "read_only": false,
             "parameters": {},
@@ -1362,7 +1358,6 @@
             "action": "list web filters",
             "identifier": "list_web_filters",
             "description": "List web filters",
-            "verbose": "",
             "type": "generic",
             "read_only": true,
             "parameters": {},

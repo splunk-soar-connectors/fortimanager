@@ -1121,48 +1121,16 @@
     "pip_dependencies": {
         "wheel": [
             {
-                "module": "certifi",
-                "input_file": "wheels/py3/certifi-2023.7.22-py3-none-any.whl"
-            },
-            {
-                "module": "charset_normalizer",
-                "input_file": "wheels/py3/charset_normalizer-2.0.12-py3-none-any.whl"
-            },
-            {
-                "module": "idna",
-                "input_file": "wheels/py3/idna-3.4-py3-none-any.whl"
-            },
-            {
                 "module": "pyfmg",
                 "input_file": "wheels/py3/pyfmg-0.8.5.4-py3-none-any.whl"
-            },
-            {
-                "module": "urllib3",
-                "input_file": "wheels/shared/urllib3-1.26.16-py2.py3-none-any.whl"
             }
         ]
     },
     "pip39_dependencies": {
         "wheel": [
             {
-                "module": "certifi",
-                "input_file": "wheels/py3/certifi-2023.7.22-py3-none-any.whl"
-            },
-            {
-                "module": "charset_normalizer",
-                "input_file": "wheels/py39/charset_normalizer-3.2.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
-            },
-            {
-                "module": "idna",
-                "input_file": "wheels/py3/idna-3.4-py3-none-any.whl"
-            },
-            {
                 "module": "pyfmg",
                 "input_file": "wheels/py3/pyfmg-0.8.5.4-py3-none-any.whl"
-            },
-            {
-                "module": "urllib3",
-                "input_file": "wheels/py3/urllib3-2.0.4-py3-none-any.whl"
             }
         ]
     }

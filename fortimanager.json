@@ -1299,8 +1299,6 @@
             }
         },
         {
-<<<<<<< HEAD
-=======
             "action": "list addresses",
             "identifier": "list_addresses",
             "description": "List addresses",
@@ -1339,7 +1337,6 @@
             "versions": "EQ(*)"
         },
         {
->>>>>>> 9db8baf (add output paths)
             "action": "update address",
             "identifier": "update_address",
             "description": "Update address",

@@ -96,29 +96,6 @@ class FortimanagerConnector(BaseConnector):
 
         return error_text
 
-    def _handle_test_connectivity(self, param):
-        action_result = self.add_action_result(ActionResult(dict(param)))
-        self.save_progress("Connecting to endpoint")
-        fmg_instance = None
-
-        try:
-            fmg_instance = self._login(action_result)
-            self.save_progress("Obtaining system status")
-            response_code, response_data = fmg_instance.get('sys/status')
-        except Exception as e:
-            error_msg = self._get_error_msg_from_exception(e)
-            self.save_progress("Test Connectivity Failed.")
-            fmg_instance.logout()
-            return action_result.set_status(phantom.APP_ERROR, error_msg)
-        fmg_instance.logout()
-        if response_code == 0:
-            self.save_progress("Test Connectivity Passed")
-            return action_result.set_status(phantom.APP_SUCCESS)
-        else:
-            self.save_progress("response_data: {}".format(response_data))
-            self.save_progress("Test Connectivity Failed.")
-            return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
-
     def _handle_create_firewall_policy(self, param):
 
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
@@ -225,46 +202,6 @@ class FortimanagerConnector(BaseConnector):
             self.save_progress("Failed.")
             error_msg = firewall_policies['status']['message']
             return action_result.set_status(phantom.APP_ERROR, "Failed to retrieve firewall policies. Reason: {}".format(error_msg))
-
-    def _get_error_msg_from_exception(self, e):
-
-        error_code = None
-        error_message = ERROR_MSG_UNAVAILABLE
-
-        self.error_print(traceback.format_exc())
-
-        try:
-            if hasattr(e, "args"):
-                if len(e.args) > 1:
-                    error_code = e.args[0]
-                    error_message = e.args[1]
-                elif len(e.args) == 1:
-                    error_message = e.args[0]
-        except Exception as e:
-            self.error_print("Error occurred while fetching exception information. Details: {}".format(str(e)))
-
-        if not error_code:
-            error_text = "Error Message: {}".format(error_message)
-        else:
-            error_text = "Error Code: {}. Error Message: {}".format(error_code, error_message)
-
-        return error_text
-
-    def _format_url(self, url):
-        if not re.match('(?:http|https)://', url):
-            return 'https://{}'.format(url)
-        return url
-
-    def _login(self):
-        if self._username and self._password:
-            fmg_instance = FortiManager(self._host, self._username, self._password, debug=True, use_ssl=True, disable_request_warnings=True)
-        elif self._api_key:
-            fmg_instance = FortiManager(self._host, self._api_key, debug=True, use_ssl=True, disable_request_warnings=True)
-        else:
-            raise Exception("The asset configuration requires either an API key or a username and password.")
-
-        response_code, response_data = fmg_instance.login()
-        return fmg_instance
 
     def _handle_test_connectivity(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
@@ -404,11 +341,6 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_create_firewall_policy(param)
         elif action_id == 'list_firewall_policies':
             ret_val = self._handle_list_firewall_policies(param)
-        elif action_id == 'create_firewall_policy':
-            ret_val = self._handle_create_firewall_policy(param)
-
-        elif action_id == 'list_firewall_policies':
-            ret_val = self._handle_list_firewall_policies(param)
 
         return ret_val
 
@@ -501,21 +433,4 @@ def main():
 
 
 if __name__ == '__main__':
-
-    import sys
-
-    import pudb
-
-    pudb.set_trace()
-    if len(sys.argv) < 2:
-        print('No test json specified as input')
-        sys.exit(0)
-    with open(sys.argv[1]) as f:
-        in_json = f.read()
-        in_json = json.loads(in_json)
-        print(json.dumps(in_json, indent=4))
-        connector = FortimanagerConnector()
-        connector.print_progress_message = True
-        return_value = connector._handle_action(json.dumps(in_json), None)
-        print(json.dumps(json.loads(return_value), indent=4))
-    sys.exit(0)
+    main()

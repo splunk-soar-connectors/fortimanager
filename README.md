@@ -2,7 +2,6 @@
 # FortiManager
 
 Publisher: Splunk  
-<<<<<<< HEAD
 Connector Version: 1.0.1  
 Product Vendor: Fortinet  
 Product Name: FortiManager  
@@ -19,42 +18,18 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 **url** |  required  | string | Base URL of FortiManager instance
 **verify_server_cert** |  optional  | boolean | Verify server certificate
 **username** |  optional  | string | Username
-=======
-Connector Version: 1.0.0  
-Product Vendor: Fortinet  
-Product Name: FortiManager  
-Product Version Supported (regex): ".\*"  
-Minimum Product Version: 6.0.2  
-
-FortiManager
-
-
-Replace this text in the app's **readme.html** to contain more detailed information
-
-
-### Configuration Variables
-The below configuration variables are required for this Connector to operate.  These variables are specified when configuring a FortiManager asset in SOAR.
-
-VARIABLE | REQUIRED | TYPE | DESCRIPTION
--------- | -------- | ---- | -----------
-**host** |  required  | string | Host
-**user** |  optional  | string | User
->>>>>>> 2296c77 (Update README.md)
 **password** |  optional  | password | Password
 **api_key** |  optional  | password | API Key
 
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
-<<<<<<< HEAD
 [create firewall policy](#action-create-firewall-policy) - Create an ADOM firewall policy  
 [list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies  
-=======
 [create address](#action-create-address) - Create address  
 [list addresses](#action-list-addresses) - List addresses  
 [update address](#action-update-address) - Update address  
 [delete address](#action-delete-address) - Delete address  
 [list web filters](#action-list-web-filters) - List web filters  
->>>>>>> 2296c77 (Update README.md)
 
 ## action: 'test connectivity'
 Validate the asset configuration for connectivity using supplied configuration
@@ -68,43 +43,15 @@ No parameters are required for this action
 #### Action Output
 No Output  
 
-<<<<<<< HEAD
 ## action: 'create firewall policy'
 Create an ADOM firewall policy
 
 Type: **investigate**  
-=======
-## action: 'create address'
-Create address
-
-Type: **generic**  
-Read only: **False**
-
-#### Action Parameters
-PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
---------- | -------- | ----------- | ---- | --------
-**level_type** |  required  | Level Type | string | 
-**adom** |  optional  | Administrative Domain Name (Use only if selected level type is `adom`) | string | 
-**address_type** |  required  | Address type | string | 
-**address_name** |  required  | Address name | string | 
-**subnet** |  optional  | IP address and netmask (e.g. 0.0.0.0/32) | string | 
-**fqdn** |  optional  | Fully Qualified Domain Name | string | 
-**policy_group_name** |  optional  | Name of policy group to be added to address | string | 
-
-#### Action Output
-No Output  
-
-## action: 'list addresses'
-List addresses
-
-Type: **generic**  
->>>>>>> 2296c77 (Update README.md)
 Read only: **True**
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
-<<<<<<< HEAD
 **level** |  required  | Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM | string | 
 **adom** |  optional  | ADOM name | string | 
 **package** |  required  | The Policy Package name or full folder path to create the firewall policy within | string | 
@@ -265,7 +212,50 @@ action_result.data.\*.vpn_dst_node | string |  |
 action_result.data.\*.vpn_src_node | string |  |  
 action_result.parameter.adom | string |  |   root 
 action_result.summary.total_firewall_policies | numeric |  |   6 
-=======
+
+## action: 'create address'
+Create address
+
+Type: **generic**  
+Read only: **False**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level_type** |  required  | Level Type | string | 
+**adom** |  optional  | Administrative Domain Name (Use only if selected level type is `adom`) | string | 
+**address_type** |  required  | Address type | string | 
+**address_name** |  required  | Address name | string | 
+**subnet** |  optional  | IP address and netmask (e.g. 0.0.0.0/32) | string |  `ip`  `netmask` 
+**fqdn** |  optional  | Fully Qualified Domain Name | string | 
+**policy_group_name** |  optional  | Name of policy group to be added to address | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.subnet | string |  `ip`  `netmask`  |   0.0.0.0 
+action_result.parameter.policy_group_name | string |  |   group1 
+action_result.data.\*.name | string |  |   test-fqdn 
+action_result.status | string |  |   success  failed 
+action_result.message | string |  |   Status: Successfully created address object  Object already exists 
+action_result.parameter.fqdn | string |  |   gmail.com 
+action_result.parameter.level_type | string |  |   Global  ADOM 
+action_result.parameter.address_name | string |  |   test-fqdn  test-subnet1 
+action_result.parameter.address_type | string |  |   FQDN  Subnet 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1  0 
+action_result.summary.status | string |  |   Successfully created address object   
+
+## action: 'list addresses'
+List addresses
+
+Type: **generic**  
+Read only: **True**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
 **level_type** |  required  | Level Type | string | 
 **filter** |  optional  | Field filters to apply. Use the following format: "<field>" <comparison operator> "<value>" (e.g. "type" == "ipmask") | string | 
 **limit** |  optional  | Maximum number of results to return | numeric | 
@@ -309,4 +299,3 @@ No parameters are required for this action
 
 #### Action Output
 No Output
->>>>>>> 2296c77 (Update README.md)

@@ -11,7 +11,7 @@
     "product_version_regex": ".*",
     "publisher": "Splunk",
     "license": "Copyright (c) 2023 Splunk Inc.",
-    "app_version": "1.0.0",
+    "app_version": "1.0.1",
     "utctime_updated": "2023-08-03T19:40:27.182156Z",
     "package_name": "phantom_fortimanager",
     "main_module": "fortimanager_connector.py",

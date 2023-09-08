@@ -1125,7 +1125,7 @@
             "type": "generic",
             "read_only": false,
             "parameters": {
-                "level_type": {
+                "level": {
                     "description": "Level Type",
                     "data_type": "string",
                     "value_list": [
@@ -1239,7 +1239,7 @@
                     "column_order": 2
                 },
                 {
-                    "data_path": "action_result.parameter.level_type",
+                    "data_path": "action_result.parameter.level",
                     "data_type": "string",
                     "example_values": [
                         "Global",
@@ -1304,7 +1304,7 @@
             "type": "generic",
             "read_only": true,
             "parameters": {
-                "level_type": {
+                "level": {
                     "description": "Level Type",
                     "default": "global",
                     "data_type": "string",

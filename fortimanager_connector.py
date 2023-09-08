@@ -211,13 +211,24 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance = self._login(action_result)
-            response_code, response_data = fmg_instance.get(TEST_CONNECTIVITY_URL)
-            fmg_instance.logout()
+            self.save_progress("Login successful")
 
         except Exception as e:
-            self.save_progress("Test Connectivity Failed")
-            self.debug_print("Test Connectivity Failed: {}".format(self._get_error_msg_from_exception(e)))
-            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+            self.save_progress("Login failed")
+            self.debug_print("Login failed: {}".format(self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, "Login failed: {}".format(self._get_error_msg_from_exception(e)))
+
+        try:
+            self.save_progress("Obtaining system status")
+            response_code, response_data = fmg_instance.get('sys/status')
+
+        except Exception as e:
+            error_msg = self._get_error_msg_from_exception(e)
+            self.save_progress("Test Connectivity Failed.")
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+
+        finally:
+            fmg_instance.logout()
 
         if response_code == 0:
             self.save_progress("Test Connectivity Passed")
@@ -244,7 +255,7 @@ class FortimanagerConnector(BaseConnector):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level_type']
+        level = param['level']
         name = param['address_name']
         addr_type = param['address_type']
 

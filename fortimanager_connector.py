@@ -273,8 +273,8 @@ class FortimanagerConnector(BaseConnector):
             self.save_progress("login successful")
 
         except Exception as e:
-            self.save_progress("Create address action failed")
-            self.debug_print("Create address action failed: {}".format(self._get_error_msg_from_exception(e)))
+            self.save_progress(CREATE_ADDRESS_FAILED_MESSAGE)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MESSAGE, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, None)
 
         try:
@@ -298,8 +298,8 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.commit_changes(adom)
 
         except Exception as e:
-            self.save_progress("Create address action failed")
-            self.debug_print("Create address action failed: {}".format(self._get_error_msg_from_exception(e)))
+            self.save_progress(CREATE_ADDRESS_FAILED_MESSAGE)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MESSAGE, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
         finally:
@@ -308,9 +308,9 @@ class FortimanagerConnector(BaseConnector):
 
         if response_code == 0:
             action_result.add_data(response_data)
-            return action_result.set_status(phantom.APP_SUCCESS)
+            return action_result.set_status(phantom.APP_SUCCESS, CREATE_ADDRESS_SUCCESS_MESSAGE)
         else:
-            self.save_progress("Create address action failed")
+            self.save_progress(CREATE_ADDRESS_FAILED_MESSAGE)
             return action_result.set_status(phantom.APP_ERROR, response_data['status']['message'])
 
     def _handle_update_address(self, param):

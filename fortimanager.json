@@ -15,7 +15,7 @@
     "utctime_updated": "2023-08-03T19:40:27.182156Z",
     "package_name": "phantom_fortimanager",
     "main_module": "fortimanager_connector.py",
-    "min_phantom_version": "6.0.2",
+    "min_phantom_version": "6.1.0",
     "app_wizard_version": "1.0.0",
     "fips_compliant": false,
     "configuration": {

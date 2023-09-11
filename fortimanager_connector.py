@@ -16,19 +16,20 @@
 # Python 3 Compatibility imports
 from __future__ import print_function, unicode_literals
 
+import ipaddress
+import json
+import re
+import traceback
+
 # Phantom App imports
 import phantom.app as phantom
-from phantom.base_connector import BaseConnector
+import requests
 from phantom.action_result import ActionResult
+from phantom.base_connector import BaseConnector
 from pyFMG.fortimgr import FortiManager
 
 # Usage of the consts file is recommended
 from fortimanager_consts import *
-import ipaddress
-import re
-import requests
-import json
-import traceback
 
 
 class RetVal(tuple):

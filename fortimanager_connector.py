@@ -29,7 +29,6 @@ import re
 import requests
 import json
 import traceback
-from bs4 import BeautifulSoup
 
 
 class RetVal(tuple):
@@ -273,8 +272,8 @@ class FortimanagerConnector(BaseConnector):
             self.save_progress("login successful")
 
         except Exception as e:
-            self.save_progress(CREATE_ADDRESS_FAILED_MESSAGE)
-            self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MESSAGE, self._get_error_msg_from_exception(e)))
+            self.save_progress(CREATE_ADDRESS_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, None)
 
         try:
@@ -298,8 +297,8 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.commit_changes(adom)
 
         except Exception as e:
-            self.save_progress(CREATE_ADDRESS_FAILED_MESSAGE)
-            self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MESSAGE, self._get_error_msg_from_exception(e)))
+            self.save_progress(CREATE_ADDRESS_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
         finally:
@@ -308,9 +307,9 @@ class FortimanagerConnector(BaseConnector):
 
         if response_code == 0:
             action_result.add_data(response_data)
-            return action_result.set_status(phantom.APP_SUCCESS, CREATE_ADDRESS_SUCCESS_MESSAGE)
+            return action_result.set_status(phantom.APP_SUCCESS, CREATE_ADDRESS_SUCCESS_MSG)
         else:
-            self.save_progress(CREATE_ADDRESS_FAILED_MESSAGE)
+            self.save_progress(CREATE_ADDRESS_FAILED_MSG)
             return action_result.set_status(phantom.APP_ERROR, response_data['status']['message'])
 
     def _handle_update_address(self, param):
@@ -333,22 +332,8 @@ class FortimanagerConnector(BaseConnector):
 
         if action_id == 'test_connectivity':
             ret_val = self._handle_test_connectivity(param)
-        elif action_id == 'list_blocked_urls':
-            ret_val = self._handle_list_blocked_urls(param)
-        elif action_id == 'block_url':
-            ret_val = self._handle_block_url(param)
-        elif action_id == 'unblock_url':
-            ret_val = self._handle_unblock_url(param)
-        elif action_id == 'list_addresses':
-            ret_val = self._handle_list_addresses(param)
         elif action_id == 'create_address':
             ret_val = self._handle_create_address(param)
-        elif action_id == 'update_address':
-            ret_val = self._handle_update_address(param)
-        elif action_id == 'delete_address':
-            ret_val = self._handle_delete_address(param)
-        elif action_id == 'list_web_filters':
-            ret_val = self._handle_list_web_filters(param)
         elif action_id == 'create_firewall_policy':
             ret_val = self._handle_create_firewall_policy(param)
         elif action_id == 'list_firewall_policies':

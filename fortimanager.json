@@ -4,8 +4,8 @@
     "description": "FortiManager",
     "type": "network security",
     "product_vendor": "Fortinet",
-    "logo": "fortimanager.svg",
-    "logo_dark": "fortimanager_dark.svg",
+    "logo": "logo_fortinet.svg",
+    "logo_dark": "logo_fortinet_dark.svg",
     "product_name": "FortiManager",
     "python_version": "3",
     "product_version_regex": ".*",
@@ -52,7 +52,6 @@
             "action": "test connectivity",
             "identifier": "test_connectivity",
             "description": "Validate the asset configuration for connectivity using supplied configuration",
-            "verbose": "",
             "type": "test",
             "read_only": true,
             "parameters": {},
@@ -1296,73 +1295,6 @@
                 "height": 5,
                 "title": "Create Address"
             }
-        },
-        {
-            "action": "list addresses",
-            "identifier": "list_addresses",
-            "description": "List addresses",
-            "type": "generic",
-            "read_only": true,
-            "parameters": {
-                "level": {
-                    "description": "Level Type",
-                    "default": "global",
-                    "data_type": "string",
-                    "value_list": [
-                        "ADOM",
-                        "Global"
-                    ],
-                    "required": true,
-                    "order": 0
-                },
-                "filter": {
-                    "description": "Field filters to apply. Use the following format: \"<field>\" <comparison operator> \"<value>\" (e.g. \"type\" == \"ipmask\")",
-                    "data_type": "string",
-                    "order": 1
-                },
-                "limit": {
-                    "description": "Maximum number of results to return",
-                    "data_type": "numeric",
-                    "order": 2
-                },
-                "offset": {
-                    "description": "Starting value to return results from",
-                    "data_type": "numeric",
-                    "order": 3
-                }
-            },
-            "output": [],
-            "versions": "EQ(*)"
-        },
-        {
-            "action": "update address",
-            "identifier": "update_address",
-            "description": "Update address",
-            "type": "generic",
-            "read_only": false,
-            "parameters": {},
-            "output": [],
-            "versions": "EQ(*)"
-        },
-        {
-            "action": "delete address",
-            "identifier": "delete_address",
-            "description": "Delete address",
-            "type": "generic",
-            "read_only": false,
-            "parameters": {},
-            "output": [],
-            "versions": "EQ(*)"
-        },
-        {
-            "action": "list web filters",
-            "identifier": "list_web_filters",
-            "description": "List web filters",
-            "type": "generic",
-            "read_only": true,
-            "parameters": {},
-            "output": [],
-            "versions": "EQ(*)"
         }
     ],
     "pip_dependencies": {

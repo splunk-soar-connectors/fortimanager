@@ -34,8 +34,8 @@ LOCK_FAILED_MSG = 'Failed to lock {adom} ADOM'
 # Firewall addresses
 ADOM_IPV4_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'
 
-CREATE_ADDRESS_SUCCESS_MESSAGE = 'Successfully created address object'
-CREATE_ADDRESS_FAILED_MESSAGE = 'Failed to create address object'
+CREATE_ADDRESS_SUCCESS_MSG = 'Successfully created address object'
+CREATE_ADDRESS_FAILED_MSG = 'Failed to create address object'
 
 ADDRESS_INVALID_ERROR_MSG = 'The provided address is either invalid or not supported'
 FILTER_ADDRESS_ERROR_MSG = 'The provided filter string is malformed. The proper format is \"<field>\" <comparison operator> \"<value>\"'

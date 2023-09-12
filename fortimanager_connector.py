@@ -264,11 +264,7 @@ class FortimanagerConnector(BaseConnector):
         policy_group = param.get('policy_group_name')
 
         if level == "ADOM":
-<<<<<<< HEAD
-            url = ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
-=======
             url = CREATE_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
->>>>>>> f803d38 (init commit for delete address action)
 
         fmg_instance = None
         data = {}
@@ -282,12 +278,7 @@ class FortimanagerConnector(BaseConnector):
             self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, None)
 
-<<<<<<< HEAD
-        try:
-            fmg_instance.lock_adom(adom)
-
-=======
-       # retry acquiring ADOM lock if initial attempt fails
+        # retry acquiring ADOM lock if initial attempt fails
         retries = 3
 
         while retries >= 0:
@@ -312,12 +303,11 @@ class FortimanagerConnector(BaseConnector):
                     return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
                 else:
                     self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
-            
+
             time.sleep(10)
 
         # then actually create address
         try:
->>>>>>> f803d38 (init commit for delete address action)
             data['name'] = name
 
             if addr_type == 'Subnet':
@@ -355,9 +345,6 @@ class FortimanagerConnector(BaseConnector):
         pass
 
     def _handle_delete_address(self, param):
-<<<<<<< HEAD
-        pass
-=======
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
@@ -403,9 +390,10 @@ class FortimanagerConnector(BaseConnector):
                     fmg_instance.logout()
                     self.debug_print("{}: {}".format(DELETE_ADDRESS_FAILED_MSG, LOCK_RETRY_FAILED_MSG.format(adom=adom, retries=retries)))
                     return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
                 else:
                     self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
-            
+
             time.sleep(10)
 
         # then actually delete address
@@ -424,11 +412,13 @@ class FortimanagerConnector(BaseConnector):
 
         if response_code == 0:
             action_result.add_data(response_data)
+            summary = {'status': DELETE_ADDRESS_SUCCESS_MSG}
+            action_result.update_summary(summary)
             return action_result.set_status(phantom.APP_SUCCESS, DELETE_ADDRESS_SUCCESS_MSG)
+
         else:
             self.save_progress(DELETE_ADDRESS_FAILED_MSG)
             return action_result.set_status(phantom.APP_ERROR, response_data['status']['message'])
->>>>>>> f803d38 (init commit for delete address action)
 
     # Web Filters
     def _handle_list_web_filters(self, param):
@@ -446,11 +436,8 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_test_connectivity(param)
         elif action_id == 'create_address':
             ret_val = self._handle_create_address(param)
-<<<<<<< HEAD
-=======
         elif action_id == 'delete_address':
             ret_val = self._handle_delete_address(param)
->>>>>>> f803d38 (init commit for delete address action)
         elif action_id == 'create_firewall_policy':
             ret_val = self._handle_create_firewall_policy(param)
         elif action_id == 'list_firewall_policies':

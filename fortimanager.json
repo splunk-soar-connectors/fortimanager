@@ -1325,13 +1325,83 @@
                     "required": true
                 }
             },
-            "output": [],
+            "output": [
+                {
+                    "data_path": "action_result.data.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "/pm/config/adom/root/obj/firewall/address/subnet123"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.status.code",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.status.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "OK"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully deleted address object"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.address_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "subnet123"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                }
+            ],
             "render": {
                 "type": "table"
             },
             "versions": "EQ(*)"
         }
-    
     ],
     "pip_dependencies": {
         "wheel": [

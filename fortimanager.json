@@ -1116,6 +1116,185 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "create address",
+            "identifier": "create_address",
+            "description": "Create a firewall address object",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "level": {
+                    "description": "Level Type",
+                    "data_type": "string",
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "required": true,
+                    "order": 0
+                },
+                "adom": {
+                    "description": "Administrative Domain Name",
+                    "data_type": "string",
+                    "order": 1
+                },
+                "address_type": {
+                    "description": "Type of address to create",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "Subnet",
+                        "FQDN"
+                    ],
+                    "order": 2
+                },
+                "address_name": {
+                    "description": "Address name",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 3
+                },
+                "subnet": {
+                    "description": "IP address and netmask (e.g. 0.0.0.0/32)",
+                    "data_type": "string",
+                    "contains": [
+                        "ip",
+                        "netmask"
+                    ],
+                    "order": 4
+                },
+                "fqdn": {
+                    "description": "Fully Qualified Domain Name",
+                    "data_type": "string",
+                    "order": 5
+                },
+                "policy_group_name": {
+                    "description": "Name of policy group to be added to address",
+                    "data_type": "string",
+                    "order": 6
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.subnet",
+                    "data_type": "string",
+                    "example_values": [
+                        "0.0.0.0"
+                    ],
+                    "contains": [
+                        "ip",
+                        "netmask"
+                    ],
+                    "column_name": "Subnet",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.parameter.policy_group_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "group1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string",
+                    "example_values": [
+                        "test-fqdn"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ],
+                    "column_name": "Status",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Status: Successfully created address object",
+                        "Object already exists"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.fqdn",
+                    "data_type": "string",
+                    "example_values": [
+                        "gmail.com"
+                    ],
+                    "column_name": "FQDN",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "Global",
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.address_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "test-fqdn",
+                        "test-subnet1"
+                    ],
+                    "column_name": "Address Name",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.address_type",
+                    "data_type": "string",
+                    "example_values": [
+                        "FQDN",
+                        "Subnet"
+                    ],
+                    "column_name": "Address Type",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully created address object"
+                    ]
+                }
+            ],
+            "versions": "EQ(*)",
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "Create Address"
+            }
         }
     ],
     "pip_dependencies": {

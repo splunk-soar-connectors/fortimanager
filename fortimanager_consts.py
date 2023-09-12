@@ -27,3 +27,17 @@ LIST_ADOM_FIREWALL_POLICY = '/pm/config/adom/{adom}/pkg/{pkg}/firewall/policy'
 # Global Firewall Endpoints TODO
 # GLOBAL_FIREWALL_ENDPOINT = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
 # LIST_GLOBAL_FIREWALL_POLICY = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
+
+LOCK_SUCCESS_MSG = '{adom} ADOM locked successfully'
+LOCK_FAILED_MSG = 'Failed to lock {adom} ADOM'
+
+# Firewall addresses
+ADOM_IPV4_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'
+
+CREATE_ADDRESS_SUCCESS_MSG = 'Successfully created address object'
+CREATE_ADDRESS_FAILED_MSG = 'Failed to create address object'
+
+ADDRESS_INVALID_ERROR_MSG = 'The provided address is either invalid or not supported'
+FILTER_ADDRESS_ERROR_MSG = 'The provided filter string is malformed. The proper format is \"<field>\" <comparison operator> \"<value>\"'
+
+FILTER_ADDRESS_REGEX = r"^\"(?P<field>[a-z]+)\"\s*(?P<comp>(\=|\>|\<|\>\=|\<\=|\=\=))\s*\"(?P<value>.+)\""

@@ -10,9 +10,12 @@ Minimum Product Version: 6.0.0
 
 FortiManager
 
-
-Replace this text in the app's **readme.html** to contain more detailed information
-
+[comment]: # " File: README.md"
+[comment]: # "  Copyright (c) 2023 Splunk Inc."
+[comment]: # ""
+[comment]: # "  Licensed under Apache 2.0 (https://www.apache.org/licenses/LICENSE-2.0.txt)"
+[comment]: # ""
+### Overview
 
 ### Configuration Variables
 The below configuration variables are required for this Connector to operate.  These variables are specified when configuring a FortiManager asset in SOAR.

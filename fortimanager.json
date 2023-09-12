@@ -1295,7 +1295,43 @@
                 "height": 5,
                 "title": "Create Address"
             }
+        },
+        {
+            "action": "delete address",
+            "description": "Delete firewall address object",
+            "type": "generic",
+            "identifier": "delete_address",
+            "read_only": false,
+            "parameters": {
+                "level": {
+                    "description": "Level type",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "order": 1
+                },
+                "address_name": {
+                    "description": "Name of address object to delete",
+                    "data_type": "string",
+                    "order": 2,
+                    "required": true
+                }
+            },
+            "output": [],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
+    
     ],
     "pip_dependencies": {
         "wheel": [

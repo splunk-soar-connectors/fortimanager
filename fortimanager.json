@@ -1153,11 +1153,16 @@
                     "description": "Address name",
                     "data_type": "string",
                     "required": true,
+                    "primary": true,
+                    "contains": [
+                        "fortimanager address name"
+                    ],
                     "order": 3
                 },
                 "subnet": {
                     "description": "IP address and netmask (e.g. 0.0.0.0/32)",
                     "data_type": "string",
+                    "primary": true,
                     "contains": [
                         "ip",
                         "netmask"
@@ -1252,6 +1257,9 @@
                         "test-fqdn",
                         "test-subnet1"
                     ],
+                    "contains": [
+                        "fortimanager address name"
+                    ],
                     "column_name": "Address Name",
                     "column_order": 0
                 },
@@ -1321,8 +1329,12 @@
                 "address_name": {
                     "description": "Name of address object to delete",
                     "data_type": "string",
-                    "order": 2,
-                    "required": true
+                    "required": true,
+                    "primary": true,
+                    "contains": [
+                        "fortimanager address name"
+                    ],
+                    "order": 2
                 }
             },
             "output": [
@@ -1352,7 +1364,8 @@
                     "data_type": "string",
                     "example_values": [
                         "success"
-                    ]
+                    ],
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.message",
@@ -1378,9 +1391,13 @@
                 {
                     "data_path": "action_result.parameter.address_name",
                     "data_type": "string",
+                    "contains": [
+                        "fortimanager address name"
+                    ],
                     "example_values": [
                         "subnet123"
-                    ]
+                    ],
+                    "column_order": 0
                 },
                 {
                     "data_path": "summary.total_objects",
@@ -1395,10 +1412,18 @@
                     "example_values": [
                         1
                     ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully deleted address object"
+                    ]
                 }
             ],
             "render": {
-                "type": "table"
+                "type": "table",
+                "title": "Delete Address"
             },
             "versions": "EQ(*)"
         }

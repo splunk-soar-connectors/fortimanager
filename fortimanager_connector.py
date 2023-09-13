@@ -19,7 +19,6 @@ from __future__ import print_function, unicode_literals
 import ipaddress
 import json
 import re
-import time
 import traceback
 
 # Phantom App imports
@@ -278,33 +277,22 @@ class FortimanagerConnector(BaseConnector):
             self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, None)
 
-        # retry acquiring ADOM lock if initial attempt fails
-        retries = 3
+        # acquire lock
+        try:
+            lock_code, lock_data = fmg_instance.lock_adom(adom)
 
-        while retries >= 0:
-            try:
-                lock_code, lock_data = fmg_instance.lock_adom(adom)
+            if lock_code == 0:
+                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+            else:
+                self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
-                if lock_code == 0:
-                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-                    break
-                else:
-                    self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
-                    retry -= 1
-
-            except Exception as e:
-                self.save_progress(DELETE_ADDRESS_FAILED_MSG)
-                self.debug_print("{}: {}".format(DELETE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
-                retry -= 1
-
-                if retry < 0:
-                    fmg_instance.logout()
-                    self.debug_print("{}: {}".format(DELETE_ADDRESS_FAILED_MSG, LOCK_RETRY_FAILED_MSG.format(adom=adom, retries=retries)))
-                    return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
-                else:
-                    self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
-
-            time.sleep(10)
+        except Exception as e:
+            self.save_progress(CREATE_ADDRESS_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            fmg_instance.logout()
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
         # then actually create address
         try:
@@ -367,34 +355,22 @@ class FortimanagerConnector(BaseConnector):
             self.debug_print("{}: {}".format(DELETE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, None)
 
-        # retry acquiring ADOM lock if initial attempt fails
-        retries = 3
+        # acquire lock
+        try:
+            lock_code, lock_data = fmg_instance.lock_adom(adom)
 
-        while retries >= 0:
-            try:
-                lock_code, lock_data = fmg_instance.lock_adom(adom)
+            if lock_code == 0:
+                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+            else:
+                self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
-                if lock_code == 0:
-                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-                    break
-                else:
-                    self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
-                    retry -= 1
-
-            except Exception as e:
-                self.save_progress(DELETE_ADDRESS_FAILED_MSG)
-                self.debug_print("{}: {}".format(DELETE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
-                retry -= 1
-
-                if retry < 0:
-                    fmg_instance.logout()
-                    self.debug_print("{}: {}".format(DELETE_ADDRESS_FAILED_MSG, LOCK_RETRY_FAILED_MSG.format(adom=adom, retries=retries)))
-                    return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
-
-                else:
-                    self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
-
-            time.sleep(10)
+        except Exception as e:
+            self.save_progress(DELETE_ADDRESS_FAILED_MSG)
+            self.debug_print("{}: {}".format(DELETE_ADDRESS_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            fmg_instance.logout()
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
         # then actually delete address
         try:

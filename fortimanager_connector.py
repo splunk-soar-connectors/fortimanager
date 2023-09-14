@@ -259,10 +259,10 @@ class FortimanagerConnector(BaseConnector):
         name = param['address_name']
         addr_type = param['address_type']
 
-        adom = param.get('adom', 'root')
         policy_group = param.get('policy_group_name')
 
         if level == "ADOM":
+            adom = param.get('adom', 'root')
             url = CREATE_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
 
         fmg_instance = None
@@ -339,9 +339,8 @@ class FortimanagerConnector(BaseConnector):
         level = param['level']
         name = param['address_name']
 
-        adom = param.get('adom', 'root')
-
         if level == "ADOM":
+            adom = param.get('adom', 'root')
             url = DELETE_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
 
         fmg_instance = None

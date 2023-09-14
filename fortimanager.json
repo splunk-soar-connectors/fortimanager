@@ -1137,6 +1137,7 @@
                 "adom": {
                     "description": "Administrative Domain Name",
                     "data_type": "string",
+                    "default": "root",
                     "order": 1
                 },
                 "address_type": {
@@ -1206,7 +1207,8 @@
                     "data_type": "string",
                     "example_values": [
                         "group1"
-                    ]
+                    ],
+                    "column_order": 5
                 },
                 {
                     "data_path": "action_result.data.*.name",
@@ -1324,6 +1326,7 @@
                 "adom": {
                     "description": "ADOM name",
                     "data_type": "string",
+                    "default": "root",
                     "order": 1
                 },
                 "address_name": {

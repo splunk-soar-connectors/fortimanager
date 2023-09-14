@@ -244,6 +244,69 @@ class FortimanagerConnector(BaseConnector):
             ip_list = ip_list.strip(' ').split(',')
         return ip_list
 
+    def _get_current_policy_ips(self, fmg_instance, adom, package, policy_name):
+        policy_endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=package)
+        filter = ["name", "==", policy_name]
+
+        response_code, response_data = fmg_instance.get(policy_endpoint, filter=filter)
+        if response_code == 0 and response_data[0]:
+            current_policy = response_data[0]
+            if not current_policy:
+                # return action_result.set_status(phantom.APP_ERROR, 'Policy does not exist')
+                return False
+            source_block_ips = current_policy.get('srcaddr', [])
+            destination_block_ips = current_policy.get('dstaddr', [])
+            already_blocked_ips = source_block_ips + destination_block_ips
+            return already_blocked_ips
+
+    def _get_address_group(self, fmg_instance, address_group_name, adom):
+        address_group_endpoint = ADOM_ADDRESS_GROUP_ENDPOINT.format(adom=adom, addrgrp=address_group_name)
+        response_code, address_group = fmg_instance.get(address_group_endpoint)
+        if response_code == 0:
+            return address_group
+        else:
+            return False
+
+    def _create_address_objects(self, fmg_instance, adom, ip_block_list):
+        add_address_endpoint = ADOM_ADD_ADDRESS_ENDPOINT.format(adom=adom)
+
+        result = { 'created_address_objects': [],
+                   'address_object_already_exists': [],
+                   'address_object_failed': [] }
+
+        for ip in ip_block_list:
+            ip_object = vars(ipaddress.IPv4Network(ip))
+
+            ip_address = str(ip_object.get('network_address'))
+            ip_netmask = str(ip_object.get('netmask'))
+            ip_payload = [{'name': ip, 'subnet': [ip_address, ip_netmask]}]
+            data = {"data": ip_payload}
+
+            response_code, response_data = fmg_instance.add(add_address_endpoint, data)
+            status_message = None
+            if 'status' in response_data:
+                status_message = response_data['status'].get('message')
+
+            if response_code == 0:
+                result['created_address_objects'].append(ip)
+            elif status_message == 'Object already exists':
+                result['address_object_already_exists'].append(ip)
+            else:
+                result['address_object_failed'].append((ip, status_message))
+
+        return result
+
+    def _update_address_group(self, fmg_instance, address_group_name, adom, ip_block_list):
+        address_group_endpoint = ADOM_ADDRESS_GROUP_ENDPOINT.format(adom=adom, addrgrp=address_group_name)
+        group_payload = {'member': ip_block_list}
+        data = group_payload
+
+        response_code, failed_ips = fmg_instance.update(address_group_endpoint, data=data)
+        if response_code == 0:
+            return failed_ips
+        else:
+            return False
+
     def _handle_block_ip_addresses(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
@@ -266,12 +329,11 @@ class FortimanagerConnector(BaseConnector):
         address_group_name = param['address_group_name']
         ip_addresses_to_block = self._get_ip_list(param['ip_addresses'])
 
-        current_policy = None
-        source_block_ips = None
-        destination_block_ips = None
-        already_blocked_ips = None
-
+        already_blocked_ips = []
         ip_block_list = []
+
+        result = { 'ips_blocked': [],
+                   'ips_already_blocked': [] }
 
         fmg_instance = None
 
@@ -279,63 +341,51 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance = self._login(action_result)
             fmg_instance.lock_adom(adom)
 
-            # first get the current policy IP addresses
-            policy_endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=package)
-            filter = ["name", "==", policy_name]
+            # get the current policy IP addresses
+            already_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
+            if isinstance(already_blocked_ips, bool):
+                return action_result.set_status(phantom.APP_ERROR, 'Policy does not exist')
 
-            response_code, response_data = fmg_instance.get(policy_endpoint, filter=filter)
-            if response_code == 0 and response_data[0]:
-                current_policy = response_data[0]
-                if not current_policy:
-                    return action_result.set_status(phantom.APP_ERROR, 'Policy does not exist')
-                source_block_ips = current_policy.get('srcaddr', [])
-                destination_block_ips = current_policy.get('dstaddr', [])
-                already_blocked_ips = source_block_ips + destination_block_ips
+            if address_group_name not in already_blocked_ips:
+                return action_result.set_status(
+                    phantom.APP_ERROR, 'Address group {} does not exist in this policy'.format(address_group_name))
 
-                if address_group_name not in already_blocked_ips:
-                    return action_result.set_status(
-                        phantom.APP_ERROR, 'Address group {} does not exist in this policy'.format(address_group_name))
+            # get the address group
+            address_group = self._get_address_group(fmg_instance, address_group_name, adom)
+            if isinstance(address_group, bool):
+                return action_result.set_status(phantom.APP_ERROR, 'Error retrieving address group {}'.format(address_group_name))
 
-                # get the address group
-                address_group_endpoint = ADOM_ADDRESS_GROUP_ENDPOINT.format(adom=adom, addrgrp=address_group_name)
-                response_code, address_group = fmg_instance.get(address_group_endpoint)
-                if response_code == 0:
-                    address_group_members = address_group.get('member')
+            address_group_members = address_group.get('member')
+
+            # check to see if IPs to block are in the group
+            for ip in ip_addresses_to_block:
+                if ip not in address_group_members:
+                    ip_block_list.append(ip)
+                    result['ips_blocked'].append(ip)
                 else:
-                    return action_result.set_status(phantom.APP_ERROR, 'Error retrieving address group {}'.format(address_group_name))
+                    result['ips_already_blocked'].append(ip)
 
-                # check to see if IPs to block are in the group
-                for ip in ip_addresses_to_block:
-                    if ip not in address_group_members:
-                        ip_block_list.append(ip)
+            # create the address objects to add
+            create_address_objects_result = self._create_address_objects(fmg_instance, adom, ip_block_list)
 
-                # Need to create the address objects to add
-                add_address_endpoint = ADOM_ADD_ADDRESS_ENDPOINT.format(adom=adom)
-                for ip in ip_block_list:
-                    ip_object = vars(ipaddress.IPv4Network(ip))
+            # add original members back for update
+            ip_block_list.extend(address_group_members)
 
-                    ip_address = str(ip_object.get('network_address'))
-                    ip_netmask = str(ip_object.get('netmask'))
-                    ip_payload = [{'name': ip, 'subnet': [ip_address, ip_netmask]}]
-                    data = {"data": ip_payload}
+            # update the address group with new list of ips
+            response_data = self._update_address_group(fmg_instance, address_group_name, adom, ip_block_list)
+            if isinstance(response_data, bool):
+                return action_result.set_status(phantom.APP_ERROR, "Failed to update address group with block IP objects")
 
-                    fmg_instance.add(add_address_endpoint, data)
+            action_result.add_data(result)
+            action_result.add_data(create_address_objects_result)
 
-                # need to add original members back for update
-                ip_block_list.extend(address_group_members)
+            summary = action_result.update_summary({})
+            for key in result:
+                summary[key] = result[key]
 
-                # now update the address group with new list of ips
-                group_payload = {'member': ip_block_list}
-                data = group_payload
+            fmg_instance.commit_changes(adom)
 
-                response_code, failed_ips = fmg_instance.update(address_group_endpoint, data=data)
-                fmg_instance.commit_changes(adom)
-                fmg_instance.unlock_adom(adom)
-
-                return action_result.set_status(phantom.APP_SUCCESS, "Block IP action successful")
-
-            else:
-                return action_result.set_status(phantom.APP_ERROR, "Block IP action failed: {}".format(response_data.get('message')))
+            return action_result.set_status(phantom.APP_SUCCESS, "Block IP action successful")
 
         except Exception as e:
             self.save_progress("ADOM level block IP action failed")

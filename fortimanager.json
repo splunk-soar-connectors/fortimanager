@@ -61,7 +61,7 @@
         {
             "action": "create firewall policy",
             "description": "Create an ADOM firewall policy",
-            "type": "investigate",
+            "type": "generic",
             "identifier": "create_firewall_policy",
             "read_only": true,
             "parameters": {
@@ -78,6 +78,7 @@
                 "adom": {
                     "description": "ADOM name",
                     "data_type": "string",
+                    "default": "root",
                     "order": 1
                 },
                 "package": {
@@ -94,28 +95,28 @@
                     "order": 3
                 },
                 "source_interface": {
-                    "description": "Incoming (ingress) interface to specify for the firewall policy",
+                    "description": "Incoming (ingress) interface to specify for the firewall policy. If specifying more than one, enter as a comma-separated list",
                     "data_type": "string",
                     "default": "any",
                     "required": true,
                     "order": 4
                 },
                 "destination_interface": {
-                    "description": "Outgoing (egress) interface to specify for the firewall policy",
+                    "description": "Outgoing (egress) interface to specify for the firewall policy. If specifying more than one, enter as a comma-separated list",
                     "data_type": "string",
                     "default": "any",
                     "required": true,
                     "order": 5
                 },
                 "source_address": {
-                    "description": "Source IPv4 Address and address group names to specify for the firewall policy",
+                    "description": "Source IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list",
                     "data_type": "string",
                     "default": "all",
                     "required": true,
                     "order": 6
                 },
                 "destination_address": {
-                    "description": "Destination IPv4 Address and address group names to specify for the firewall policy",
+                    "description": "Destination IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list",
                     "data_type": "string",
                     "default": "all",
                     "required": true,
@@ -152,7 +153,7 @@
                     "order": 10
                 },
                 "service": {
-                    "description": "Service and Service group names to create for the firewall policy",
+                    "description": "Service and Service group names to create for the firewall policy. If specifying more than one, enter as a comma-separated list",
                     "data_type": "string",
                     "default": "ALL",
                     "required": true,
@@ -353,6 +354,7 @@
                 "adom": {
                     "description": "ADOM name. Only required for 'ADOM' Firewall Policies",
                     "data_type": "string",
+                    "default": "root",
                     "order": 1
                 },
                 "package": {
@@ -416,7 +418,8 @@
                     "data_type": "string",
                     "example_values": [
                         "c33e106e-4117-51ee-1771-7827f531ca41",
-                        "987cb312-3d16-51ee-a38e-2a5f3b237725"
+                        "987cb312-3d16-51ee-a38e-2a5f3b237725",
+                        "328ee00e-5100-51ee-7bf8-0e865287254f"
                     ]
                 },
                 {
@@ -509,7 +512,8 @@
                     "column_name": "To",
                     "column_order": 2,
                     "example_values": [
-                        "any"
+                        "any",
+                        "1-A10"
                     ]
                 },
                 {
@@ -550,7 +554,8 @@
                     "column_name": "From",
                     "column_order": 1,
                     "example_values": [
-                        "any"
+                        "any",
+                        "1-A1"
                     ]
                 },
                 {
@@ -558,7 +563,8 @@
                     "data_type": "numeric",
                     "example_values": [
                         1074741825,
-                        3
+                        3,
+                        1
                     ]
                 },
                 {
@@ -1108,12 +1114,359 @@
                     "data_path": "action_result.summary.total_firewall_policies",
                     "data_type": "numeric",
                     "example_values": [
-                        6
+                        6,
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.wanopt",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.webcache",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.disclaimer",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.utm-status",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.capture-packet",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.webcache-https",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ssl-ssh-profile",
+                    "data_type": "string",
+                    "example_values": [
+                        "deep-inspection"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.timeout-send-rst",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.auto-asic-offload",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.passive-wan-health-measurement",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package_path",
+                    "data_type": "string",
+                    "example_values": [
+                        "firewall-policy-path"
                     ]
                 }
             ],
             "render": {
                 "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "list addresses",
+            "description": "List firewall address objects",
+            "type": "generic",
+            "identifier": "list_addresses",
+            "read_only": true,
+            "parameters": {
+                "level": {
+                    "description": "Level type",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "address_name": {
+                    "description": "Name of address object to retrieve. If none is specified, this action will return all matching values.",
+                    "data_type": "string",
+                    "primary": true,
+                    "contains": [
+                        "fortimanager address name"
+                    ],
+                    "order": 2
+                },
+                "filter_by": {
+                    "description": "Criteria to filter results by. Use the following format to specify filter: [[\"{attribute}\", \"==\", \"{value}\"]]",
+                    "data_type": "string",
+                    "order": 3
+                },
+                "limit": {
+                    "description": "Maximum number of addresses to return. Default is 0, which returns all results.",
+                    "data_type": "numeric",
+                    "default": "0",
+                    "order": 4
+                },
+                "offset": {
+                    "description": "The starting point of the results to be returned.",
+                    "data_type": "numeric",
+                    "default": "0",
+                    "order": 5
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.oid",
+                    "data_type": "numeric",
+                    "example_values": [
+                        3189
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.list",
+                    "data_type": "string",
+                    "example_values": []
+                },
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string",
+                    "example_values": [
+                        "EMS_ALL_UNKNOWN_CLIENTS"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.type",
+                    "data_type": "string",
+                    "example_values": [
+                        "dynamic"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.uuid",
+                    "data_type": "string",
+                    "example_values": [
+                        "6a5e837c-14dd-51ee-0eda-bba486fb4162"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.color",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dirty",
+                    "data_type": "string",
+                    "example_values": [
+                        "clean"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.tagging",
+                    "data_type": "string",
+                    "example_values": []
+                },
+                {
+                    "data_path": "action_result.data.*.obj-type",
+                    "data_type": "string",
+                    "example_values": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.sub-type",
+                    "data_type": "string",
+                    "example_values": [
+                        "ems-tag"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.route-tag",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.node-ip-only",
+                    "data_type": "string",
+                    "example_values": [
+                        "disable"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.clearpass-spt",
+                    "data_type": "string",
+                    "example_values": [
+                        "unknown"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fabric-object",
+                    "data_type": "string",
+                    "example_values": [
+                        "disable"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dynamic_mapping",
+                    "data_type": "string",
+                    "example_values": []
+                },
+                {
+                    "data_path": "action_result.data.*.associated-interface",
+                    "data_type": "string",
+                    "example_values": [
+                        "any"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fqdn",
+                    "data_type": "string",
+                    "example_values": [
+                        "gmail.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.cache-ttl",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.allow-routing",
+                    "data_type": "string",
+                    "example_values": [
+                        "disable"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.macaddr",
+                    "data_type": "string",
+                    "example_values": [
+                        "00:11:22:33:44:58"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Total address objects returned: 9"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_address_objects_returned",
+                    "data_type": "numeric",
+                    "example_values": [
+                        9
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.address_name",
+                    "data_type": "string",
+                    "contains": [
+                        "fortimanager address name"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.limit",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.offset",
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.filter_by",
+                    "data_type": "string",
+                    "example_values": [
+                        "[[\"type\", \">=\", 2]]"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table",
+                "title": "List Addresses"
             },
             "versions": "EQ(*)"
         },
@@ -1431,14 +1784,15 @@
             "versions": "EQ(*)"
         },
         {
-            "action": "list addresses",
-            "description": "List firewall address objects",
-            "type": "generic",
-            "identifier": "list_addresses",
+            "action": "block ip",
+            "identifier": "block_ip",
+            "description": "Block ADOM level IP addresses",
+            "type": "contain",
             "read_only": true,
+            "undo": "unblock ip",
             "parameters": {
                 "level": {
-                    "description": "Level type",
+                    "description": "Level type at which to block IP addresses",
                     "data_type": "string",
                     "required": true,
                     "value_list": [
@@ -1448,171 +1802,71 @@
                     "order": 0
                 },
                 "adom": {
-                    "description": "ADOM name",
+                    "description": "ADOM name. Only required for 'ADOM' blocking of IP addresses",
                     "data_type": "string",
-                    "default": "root",
+                    "required": true,
                     "order": 1
                 },
-                "address_name": {
-                    "description": "Name of address object to retrieve. If none is specified, this action will return all matching values.",
+                "package": {
+                    "description": "Policy package name",
                     "data_type": "string",
-                    "primary": true,
-                    "contains": [
-                        "fortimanager address name"
-                    ],
+                    "required": true,
                     "order": 2
                 },
-                "filter_by": {
-                    "description": "Criteria to filter results by. Use the following format to specify filter: [[\"{attribute}\", \"==\", \"{value}\"]]",
+                "package_path": {
+                    "description": "The full folder path nested within the policy package",
                     "data_type": "string",
                     "order": 3
                 },
-                "limit": {
-                    "description": "Maximum number of addresses to return. Default is 0, which returns all results.",
-                    "data_type": "numeric",
-                    "default": "0",
+                "policy_name": {
+                    "description": "Specific firewall policy name for blocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
                     "order": 4
                 },
-                "offset": {
-                    "description": "The starting point of the results to be returned.",
-                    "data_type": "numeric",
-                    "default": "0",
+                "address_group_name": {
+                    "description": "Specific address group name for for blocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
                     "order": 5
+                },
+                "ip_addresses": {
+                    "description": "Comma-separated list of IP addresses to block",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 6
                 }
             },
             "output": [
                 {
-                    "data_path": "action_result.data.*.oid",
-                    "data_type": "numeric",
+                    "data_path": "action_result.data.*.ips_blocked",
+                    "data_type": "string",
+                    "column_name": "IPs Blocked",
+                    "column_order": 0,
                     "example_values": [
-                        3189
+                        "192.168.14.0/24"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.list",
+                    "data_path": "action_result.data.*.ips_already_blocked",
                     "data_type": "string",
-                    "example_values": []
-                },
-                {
-                    "data_path": "action_result.data.*.name",
-                    "data_type": "string",
+                    "column_name": "IPs Already Blocked",
+                    "column_order": 1,
                     "example_values": [
-                        "EMS_ALL_UNKNOWN_CLIENTS"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.type",
-                    "data_type": "string",
-                    "example_values": [
-                        "dynamic"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.uuid",
-                    "data_type": "string",
-                    "example_values": [
-                        "6a5e837c-14dd-51ee-0eda-bba486fb4162"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.color",
-                    "data_type": "numeric",
-                    "example_values": [
-                        0
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.dirty",
-                    "data_type": "string",
-                    "example_values": [
-                        "clean"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.tagging",
-                    "data_type": "string",
-                    "example_values": []
-                },
-                {
-                    "data_path": "action_result.data.*.obj-type",
-                    "data_type": "string",
-                    "example_values": [
+                        "192.168.4.4",
+                        "192.168.20.0/24"
+                    ],
+                    "contains": [
                         "ip"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.sub-type",
+                    "data_path": "action_result.data.*.created_address_objects",
                     "data_type": "string",
+                    "column_name": "Address Objects Created",
+                    "column_order": 2,
                     "example_values": [
-                        "ems-tag"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.route-tag",
-                    "data_type": "numeric",
-                    "example_values": [
-                        0
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.node-ip-only",
-                    "data_type": "string",
-                    "example_values": [
-                        "disable"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.clearpass-spt",
-                    "data_type": "string",
-                    "example_values": [
-                        "unknown"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.fabric-object",
-                    "data_type": "string",
-                    "example_values": [
-                        "disable"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.dynamic_mapping",
-                    "data_type": "string",
-                    "example_values": []
-                },
-                {
-                    "data_path": "action_result.data.*.associated-interface",
-                    "data_type": "string",
-                    "example_values": [
-                        "any"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.fqdn",
-                    "data_type": "string",
-                    "example_values": [
-                        "gmail.com"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.cache-ttl",
-                    "data_type": "numeric",
-                    "example_values": [
-                        0
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.allow-routing",
-                    "data_type": "string",
-                    "example_values": [
-                        "disable"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.macaddr",
-                    "data_type": "string",
-                    "example_values": [
-                        "00:11:22:33:44:58"
+                        "192.168.14.0/24"
                     ]
                 },
                 {
@@ -1626,14 +1880,44 @@
                     "data_path": "action_result.message",
                     "data_type": "string",
                     "example_values": [
-                        "Total address objects returned: 9"
+                        "Total ips blocked: 0, Total ips already blocked: 1, Total created address objects: 0, Total address object already exists: 0, Total address object failed: 0"
                     ]
                 },
                 {
-                    "data_path": "action_result.summary.total_address_objects_returned",
+                    "data_path": "action_result.summary.total_ips_blocked",
                     "data_type": "numeric",
                     "example_values": [
-                        9
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_ips_already_blocked",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_address_object_failed",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_created_address_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_address_object_already_exists",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
                     ]
                 },
                 {
@@ -1651,31 +1935,32 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.address_name",
+                    "data_path": "action_result.parameter.package",
                     "data_type": "string",
-                    "contains": [
-                        "fortimanager address name"
+                    "example_values": [
+                        "example_policy_package"
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.limit",
-                    "data_type": "numeric",
+                    "data_path": "action_result.parameter.policy_name",
+                    "data_type": "string",
                     "example_values": [
-                        0
+                        "example-fw_policy"
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.offset",
+                    "data_path": "action_result.parameter.ip_addresses",
                     "data_type": "string",
                     "example_values": [
-                        "0"
+                        "192.168.4.4,192.168.14.0/24",
+                        "192.168.20.0/24"
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.filter_by",
+                    "data_path": "action_result.parameter.address_group_name",
                     "data_type": "string",
                     "example_values": [
-                        "[[\"type\", \">=\", 2]]"
+                        "example_test_addr_grp"
                     ]
                 },
                 {
@@ -1691,11 +1976,327 @@
                     "example_values": [
                         1
                     ]
+                },
+                {
+                    "data_path": "action_result.parameter.package_path",
+                    "data_type": "string",
+                    "example_values": [
+                        "my_package_folder"
+                    ]
+                }
+            ],
+            "versions": "EQ(*)",
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "Block Ip"
+            }
+        },
+        {
+            "action": "unblock ip",
+            "identifier": "unblock_ip",
+            "description": "Unblock ADOM level IP addresses",
+            "type": "contain",
+            "read_only": true,
+            "undo": "block ip",
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to unblock IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name. Only required for 'ADOM' unblocking of IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 1
+                },
+                "package": {
+                    "description": "Policy package name",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 2
+                },
+                "package_path": {
+                    "description": "The full folder path nested within the policy package",
+                    "data_type": "string",
+                    "order": 3
+                },
+                "policy_name": {
+                    "description": "Specific firewall policy name for unblocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 4
+                },
+                "address_group_name": {
+                    "description": "Specific address group name for for unblocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 5
+                },
+                "ip_addresses": {
+                    "description": "Comma-separated list of IP addresses to unblock",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 6
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.ips_unblocked",
+                    "data_type": "string",
+                    "column_name": "IPs Unblocked",
+                    "column_order": 0,
+                    "example_values": [
+                        "192.168.14.0/24"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ips_already_unblocked",
+                    "data_type": "string",
+                    "column_name": "IPs Already Unblocked",
+                    "column_order": 1,
+                    "example_values": [
+                        "192.168.14.0/24"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Total ips unblocked: 2, Total ips already unblocked: 0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_ips_unblocked",
+                    "data_type": "numeric",
+                    "example_values": [
+                        2,
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_ips_already_unblocked",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package",
+                    "data_type": "string",
+                    "example_values": [
+                        "example_policy_package"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.policy_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "example-fw_policy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.ip_addresses",
+                    "data_type": "string",
+                    "example_values": [
+                        "192.168.4.4,192.168.14.0/24",
+                        "192.168.20.0/24"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.address_group_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "example_test_addr_grp"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package_path",
+                    "data_type": "string",
+                    "example_values": [
+                        "my_package_folder"
+                    ]
+                }
+            ],
+            "versions": "EQ(*)",
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "Unblock Ip"
+            }
+        },
+        {
+            "action": "delete firewall policy",
+            "description": "Delete an ADOM firewall policy",
+            "type": "generic",
+            "identifier": "delete_firewall_policy",
+            "read_only": true,
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "package": {
+                    "description": "The Policy Package name or full folder path of the firewall policy to delete",
+                    "data_type": "string",
+                    "required": true,
+                    "default": "default",
+                    "order": 2
+                },
+                "policy_id": {
+                    "description": "Policy ID (can be retrieved from 'List Firewall Policies' action) to delete",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 3
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "/pm/config/adom/root/pkg/default/firewall/policy/28",
+                        "/pm/config/adom/root/pkg/default/firewall/policy/29"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.status.code",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.status.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "OK"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 0,
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Status: Successfully deleted firewall policy ID: 29"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully deleted firewall policy ID: 29"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package",
+                    "data_type": "string",
+                    "example_values": [
+                        "default"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.policy_id",
+                    "data_type": "string",
+                    "example_values": [
+                        "28",
+                        "29"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
                 }
             ],
             "render": {
-                "type": "table",
-                "title": "List Addresses"
+                "type": "table"
             },
             "versions": "EQ(*)"
         }

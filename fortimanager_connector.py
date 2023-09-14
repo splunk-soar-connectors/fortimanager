@@ -57,11 +57,11 @@ class FortimanagerConnector(BaseConnector):
 
     def _login(self, action_result):
         if self._username and self._password:
-            fmg_instance = FortiManager(self._host, self._username, self._password, debug=False,
-                                        verify_ssl=self._verify_server_cert, verbose=True, disable_request_warnings=True)
+            fmg_instance = FortiManager(self._host, self._username, self._password,
+                                        debug=False, verify_ssl=self._verify_server_cert, disable_request_warnings=True)
         elif self._api_key:
-            fmg_instance = FortiManager(self._host, apikey=self._api_key, debug=False,
-                                        verify_ssl=self._verify_server_cert, verbose=True, disable_request_warnings=True)
+            fmg_instance = FortiManager(self._host, apikey=self._api_key,
+                                        debug=False, verify_ssl=self._verify_server_cert, disable_request_warnings=True)
         else:
             raise Exception("The asset configuration requires either an API key or a username and password.")
         fmg_instance.login()
@@ -106,11 +106,11 @@ class FortimanagerConnector(BaseConnector):
         pkg = param['package']
         data = {
                     'name': param['name'],
-                    'srcintf': param['source_interface'],
-                    'dstintf': param['destination_interface'],
-                    'service': param['service'],
-                    'srcaddr': param['source_address'],
-                    'dstaddr': param['destination_address'],
+                    'srcintf': self._get_param_list(param['source_interface']),
+                    'dstintf': self._get_param_list(param['destination_interface']),
+                    'service': self._get_param_list(param['service']),
+                    'srcaddr': self._get_param_list(param['source_address']),
+                    'dstaddr': self._get_param_list(param['destination_address']),
                     'action': param['action'],
                     'status': param['status'],
                     'inspection-mode': param['inspection_mode'],
@@ -149,7 +149,10 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_SUCCESS)
         else:
             self.save_progress("Failed.")
-            error_msg = response_data['status']['message']
+            if response_data.get('status'):
+                error_msg = response_data['status'].get('message', 'Unknown')
+            else:
+                error_msg = 'Unknown'
             return action_result.set_status(phantom.APP_ERROR, "Failed to create firewall policy. Reason: {}".format(error_msg))
 
     def _handle_list_firewall_policies(self, param):
@@ -194,14 +197,77 @@ class FortimanagerConnector(BaseConnector):
         fmg_instance.logout()
         if response_code == 0:
             for firewall_policy in firewall_policies:
+                if firewall_policy.get('action') == 0:
+                    firewall_policy['action'] = 'accept'
+                elif firewall_policy.get('action') == 1:
+                    firewall_policy['action'] = 'deny'
+                elif firewall_policy.get('action') == 2:
+                    firewall_policy['action'] = 'IPsec'
                 action_result.add_data(firewall_policy)
             summary = action_result.update_summary({})
             summary['total_firewall_policies'] = len(firewall_policies)
             return action_result.set_status(phantom.APP_SUCCESS)
         else:
             self.save_progress("Failed.")
-            error_msg = firewall_policies['status']['message']
+            if firewall_policies.get('status'):
+                error_msg = firewall_policies['status'].get('message', 'Unknown')
+            else:
+                error_msg = 'Unknown'
             return action_result.set_status(phantom.APP_ERROR, "Failed to retrieve firewall policies. Reason: {}".format(error_msg))
+
+    def _handle_delete_firewall_policy(self, param):
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        fmg_instance = None
+        level = param['level']
+        pkg = param['package']
+        policy_id = param['policy_id']
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+            endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg) + '/' + policy_id
+        # Global Feature TODO
+        # elif level == 'Global':
+        #     adom = 'global'
+        #     policy_type = param['policy_type']
+        #     endpoint = GLOBAL_FIREWALL_ENDPOINT.format(pkg=pkg, policy_type=policy_type)
+        try:
+            fmg_instance = self._login(action_result)
+            fmg_instance.lock_adom(adom)
+            response_code, response_data = fmg_instance.delete(endpoint)
+            fmg_instance.commit_changes(adom)
+        except Exception as e:
+            error_msg = self._get_error_msg_from_exception(e)
+            self.save_progress("Delete Firewall Policy action failed")
+            self.debug_print("Delete Firewall Policy action failed: {}".format(error_msg))
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+            return action_result.set_status(phantom.APP_ERROR, None)
+        fmg_instance.unlock_adom(adom)
+        fmg_instance.logout()
+        if response_code == 0:
+            action_result.add_data(response_data)
+            summary = action_result.update_summary({})
+            summary['status'] = 'Successfully deleted firewall policy ID: {}'.format(policy_id)
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.save_progress("Failed.")
+            if response_data.get('status'):
+                error_msg = response_data['status'].get('message', 'Unknown')
+            else:
+                error_msg = 'Unknown'
+            return action_result.set_status(phantom.APP_ERROR, "Failed to delete firewall policy. Reason: {}".format(error_msg))
+
+    def _get_param_list(self, param_list):
+        # param_list can be a string or a list
+        if isinstance(param_list, list):
+            pass
+        elif isinstance(param_list, str):
+            param_list = [x.strip() for x in param_list.split(',')]
+        return param_list
 
     def _handle_test_connectivity(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
@@ -462,6 +528,248 @@ class FortimanagerConnector(BaseConnector):
     def _handle_list_web_filters(self, param):
         pass
 
+    def _get_ip_list(self, ip_list):
+        # IP list can be a string or a list
+        if isinstance(ip_list, list):
+            pass
+        elif isinstance(ip_list, str):
+            ip_list = ip_list.strip(' ').split(',')
+        return ip_list
+
+    def _get_current_policy_ips(self, fmg_instance, adom, package, policy_name):
+        policy_endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=package)
+        filter = ["name", "==", policy_name]
+
+        response_code, response_data = fmg_instance.get(policy_endpoint, filter=filter)
+        if response_code == 0 and response_data[0]:
+            current_policy = response_data[0]
+            if not current_policy:
+                return False
+            source_block_ips = current_policy.get('srcaddr', [])
+            destination_block_ips = current_policy.get('dstaddr', [])
+            already_blocked_ips = source_block_ips + destination_block_ips
+            return already_blocked_ips
+        else:
+            return False
+
+    def _get_address_group(self, fmg_instance, address_group_name, adom):
+        address_group_endpoint = ADOM_ADDRESS_GROUP_ENDPOINT.format(adom=adom, addrgrp=address_group_name)
+        response_code, address_group = fmg_instance.get(address_group_endpoint)
+        if response_code == 0:
+            return address_group
+        else:
+            return False
+
+    def _create_address_objects(self, fmg_instance, adom, ip_block_list):
+        add_address_endpoint = ADOM_ADD_ADDRESS_ENDPOINT.format(adom=adom)
+
+        result = { 'created_address_objects': [],
+                   'address_object_already_exists': [],
+                   'address_object_failed': [] }
+
+        for ip in ip_block_list:
+            ip_object = vars(ipaddress.IPv4Network(ip))
+
+            ip_address = str(ip_object.get('network_address'))
+            ip_netmask = str(ip_object.get('netmask'))
+            ip_payload = [{'name': ip, 'subnet': [ip_address, ip_netmask]}]
+            data = {"data": ip_payload}
+
+            response_code, response_data = fmg_instance.add(add_address_endpoint, data)
+            status_message = None
+            if 'status' in response_data:
+                status_message = response_data['status'].get('message')
+
+            if response_code == 0:
+                result['created_address_objects'].append(ip)
+            elif status_message == 'Object already exists':
+                result['address_object_already_exists'].append(ip)
+            else:
+                result['address_object_failed'].append((ip, status_message))
+
+        return result
+
+    def _update_address_group(self, fmg_instance, address_group_name, adom, ip_block_list):
+        address_group_endpoint = ADOM_ADDRESS_GROUP_ENDPOINT.format(adom=adom, addrgrp=address_group_name)
+        group_payload = {'member': ip_block_list}
+        data = group_payload
+
+        response_code, failed_ips = fmg_instance.update(address_group_endpoint, data=data)
+        if response_code == 0:
+            return failed_ips
+        else:
+            return False
+
+    def _handle_block_ip(self, param):
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+
+        package = param['package']
+        package_path = param.get('package_path')
+
+        if package and package_path:
+            package = '{0}/{1}'.format(package_path, package)
+
+        policy_name = param['policy_name']
+        address_group_name = param['address_group_name']
+        ip_addresses_to_block = self._get_ip_list(param['ip_addresses'])
+
+        already_blocked_ips = []
+        ip_block_list = []
+
+        result = { 'ips_blocked': [],
+                   'ips_already_blocked': [] }
+
+        fmg_instance = None
+
+        try:
+            fmg_instance = self._login(action_result)
+            fmg_instance.lock_adom(adom)
+
+            # get the current policy IP addresses
+            already_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
+            if isinstance(already_blocked_ips, bool):
+                return action_result.set_status(phantom.APP_ERROR, 'Policy does not exist')
+
+            if address_group_name not in already_blocked_ips:
+                return action_result.set_status(
+                    phantom.APP_ERROR, 'Address group {} does not exist in this policy'.format(address_group_name))
+
+            # get the address group
+            address_group = self._get_address_group(fmg_instance, address_group_name, adom)
+            if isinstance(address_group, bool):
+                return action_result.set_status(phantom.APP_ERROR, 'Error retrieving address group {}'.format(address_group_name))
+
+            address_group_members = address_group.get('member')
+
+            # check to see if IPs to block are in the group
+            for ip in ip_addresses_to_block:
+                if ip not in address_group_members:
+                    ip_block_list.append(ip)
+                    result['ips_blocked'].append(ip)
+                else:
+                    result['ips_already_blocked'].append(ip)
+
+            # create the address objects to add
+            create_address_objects_result = self._create_address_objects(fmg_instance, adom, ip_block_list)
+
+            # add original members back for update
+            ip_block_list.extend(address_group_members)
+
+            # update the address group with new list of ips
+            response_data = self._update_address_group(fmg_instance, address_group_name, adom, ip_block_list)
+            if isinstance(response_data, bool):
+                return action_result.set_status(phantom.APP_ERROR, "Failed to update address group with block IP objects")
+
+            result.update(create_address_objects_result)
+            action_result.add_data(result)
+
+            summary = action_result.update_summary({})
+            for key in result:
+                summary["total_{}".format(key)] = len(result[key])
+
+            fmg_instance.commit_changes(adom)
+
+            return action_result.set_status(phantom.APP_SUCCESS)
+
+        except Exception as e:
+            self.save_progress("ADOM level block IP action failed")
+            self.debug_print("ADOM level block IP action failed: {}".format(self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+
+    def _handle_unblock_ip(self, param):
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+
+        package = param['package']
+        package_path = param.get('package_path')
+
+        if package and package_path:
+            package = '{0}/{1}'.format(package_path, package)
+
+        policy_name = param['policy_name']
+        address_group_name = param['address_group_name']
+        ip_addresses_to_unblock = self._get_ip_list(param['ip_addresses'])
+
+        currently_blocked_ips = []
+        ip_unblock_list = []
+
+        result = { 'ips_unblocked': [],
+                   'ips_already_unblocked': [] }
+
+        fmg_instance = None
+
+        try:
+            fmg_instance = self._login(action_result)
+            fmg_instance.lock_adom(adom)
+
+            # first get the current policy IP addresses
+            currently_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
+
+            if address_group_name not in currently_blocked_ips:
+                return action_result.set_status(
+                    phantom.APP_ERROR, 'Address group {} does not exist in this policy'.format(address_group_name))
+
+            # get the address group
+            address_group = self._get_address_group(fmg_instance, address_group_name, adom)
+            if isinstance(address_group, bool):
+                return action_result.set_status(phantom.APP_ERROR, 'Error retrieving address group {}'.format(address_group_name))
+
+            address_group_members = address_group.get('member')
+            ip_unblock_list.extend(address_group_members)
+
+            # check to see if IPs to unblock are in the group
+            for ip in ip_addresses_to_unblock:
+                if ip in address_group_members:
+                    ip_unblock_list.remove(ip)
+                    result['ips_unblocked'].append(ip)
+                else:
+                    result['ips_already_unblocked'].append(ip)
+
+            # update the address group with new list of ips
+            response_data = self._update_address_group(fmg_instance, address_group_name, adom, ip_unblock_list)
+            if isinstance(response_data, bool):
+                return action_result.set_status(phantom.APP_ERROR, "Failed to update address group with unblock IP objects")
+
+            action_result.add_data(result)
+
+            summary = action_result.update_summary({})
+            for key in result:
+                summary["total_{}".format(key)] = len(result[key])
+
+            fmg_instance.commit_changes()
+
+            return action_result.set_status(phantom.APP_SUCCESS)
+
+        except Exception as e:
+            self.save_progress("ADOM level unblock IP action failed")
+            self.debug_print("ADOM level unblock IP action failed: {}".format(self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -476,12 +784,16 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_create_address(param)
         elif action_id == 'delete_address':
             ret_val = self._handle_delete_address(param)
-        elif action_id == 'list_addresses':
-            ret_val = self._handle_list_addresses(param)
         elif action_id == 'create_firewall_policy':
             ret_val = self._handle_create_firewall_policy(param)
         elif action_id == 'list_firewall_policies':
             ret_val = self._handle_list_firewall_policies(param)
+        elif action_id == 'block_ip':
+            ret_val = self._handle_block_ip(param)
+        elif action_id == 'unblock_ip':
+            ret_val = self._handle_unblock_ip(param)
+        elif action_id == 'delete_firewall_policy':
+            ret_val = self._handle_delete_firewall_policy(param)
 
         return ret_val
 

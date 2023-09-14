@@ -1116,10 +1116,122 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "block ip",
+            "identifier": "block_ip",
+            "description": "Block ADOM level IP addresses",
+            "type": "contain",
+            "read_only": true,
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to block IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name. Only required for 'ADOM' blocking of IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 1
+                },
+                "package": {
+                    "description": "Policy package name",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 2
+                },
+                "package_path": {
+                    "description": "The full folder path nested within the policy package",
+                    "data_type": "string",
+                    "order": 3
+                },
+                "policy_name": {
+                    "description": "Specific firewall policy name for blocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 4
+                },
+                "address_group_name": {
+                    "description": "Specific address group name for for blocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 5
+                },
+                "ip_addresses": {
+                    "description": "Comma-separated list of IP addresses to block",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 6
+                }
+            },
+            "output": [],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "unblock ip",
+            "identifier": "unblock_ip",
+            "description": "Unblock ADOM level IP addresses",
+            "type": "contain",
+            "read_only": true,
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to unblock IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name. Only required for 'ADOM' unblocking of IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 1
+                },
+                "package": {
+                    "description": "Policy package name",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 2
+                },
+                "package_path": {
+                    "description": "The full folder path nested within the policy package",
+                    "data_type": "string",
+                    "order": 3
+                },
+                "policy_name": {
+                    "description": "Specific firewall policy name for unblocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 4
+                },
+                "address_group_name": {
+                    "description": "Specific address group name for for unblocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 5
+                },
+                "ip_addresses": {
+                    "description": "Comma-separated list of IP addresses to unblock",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 6
+                }
+            },
+            "output": [],
+            "versions": "EQ(*)"
         }
     ],
     "pip_dependencies": {
-        "wheel": [
+        "pypi": [
             {
                 "module": "pyfmg",
                 "input_file": "wheels/py3/pyfmg-0.8.5.4-py3-none-any.whl"
@@ -1127,7 +1239,7 @@
         ]
     },
     "pip39_dependencies": {
-        "wheel": [
+        "pypi": [
             {
                 "module": "pyfmg",
                 "input_file": "wheels/py3/pyfmg-0.8.5.4-py3-none-any.whl"

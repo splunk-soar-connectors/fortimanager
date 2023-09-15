@@ -30,3 +30,21 @@ ADOM_ADD_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'
 # Global Firewall Endpoints TODO
 # GLOBAL_FIREWALL_ENDPOINT = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
 # LIST_GLOBAL_FIREWALL_POLICY = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
+
+LOCK_SUCCESS_MSG = '{adom} ADOM locked successfully'
+LOCK_FAILED_MSG = 'Failed to lock {adom} ADOM'
+LOCK_RETRY_FAILED_MSG = 'Failed to lock {adom} ADOM after {retries} retries'
+
+# Firewall addresses
+CREATE_ADOM_IPV4_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'
+DELETE_ADOM_IPV4_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address/{name}'
+
+CREATE_ADDRESS_SUCCESS_MSG = 'Successfully created address object'
+CREATE_ADDRESS_FAILED_MSG = 'Failed to create address object'
+DELETE_ADDRESS_SUCCESS_MSG = 'Successfully deleted address object'
+DELETE_ADDRESS_FAILED_MSG = 'Failed to delete address object'
+
+ADDRESS_INVALID_ERROR_MSG = 'The provided address is either invalid or not supported'
+FILTER_ADDRESS_ERROR_MSG = 'The provided filter string is malformed. The proper format is \"<field>\" <comparison operator> \"<value>\"'
+
+FILTER_ADDRESS_REGEX = r"^\"(?P<field>[a-z]+)\"\s*(?P<comp>(\=|\>|\<|\>\=|\<\=|\=\=))\s*\"(?P<value>.+)\""

@@ -10,6 +10,13 @@ Minimum Product Version: 6.0.0
 
 FortiManager
 
+[comment]: # " File: README.md"
+[comment]: # "  Copyright (c) 2023 Splunk Inc."
+[comment]: # ""
+[comment]: # "  Licensed under Apache 2.0 (https://www.apache.org/licenses/LICENSE-2.0.txt)"
+[comment]: # ""
+### Overview
+
 ### Configuration Variables
 The below configuration variables are required for this Connector to operate.  These variables are specified when configuring a FortiManager asset in SOAR.
 
@@ -25,6 +32,8 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
 [create firewall policy](#action-create-firewall-policy) - Create an ADOM firewall policy  
 [list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies  
+[create address](#action-create-address) - Create a firewall address object  
+[delete address](#action-delete-address) - Delete firewall address object  
 [block ip](#action-block-ip) - Block ADOM level IP addresses  
 [unblock ip](#action-unblock-ip) - Unblock ADOM level IP addresses  
 
@@ -207,7 +216,69 @@ summary.total_objects | numeric |  |   1
 summary.total_objects_successful | numeric |  |   1 
 action_result.data.\*.vpn_dst_node | string |  |  
 action_result.data.\*.vpn_src_node | string |  |  
+action_result.summary.total_firewall_policies | numeric |  |   6   
+
+## action: 'create address'
+Create a firewall address object
+
+Type: **generic**  
+Read only: **False**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level Type | string | 
+**adom** |  optional  | Administrative Domain Name | string | 
+**address_type** |  required  | Type of address to create | string | 
+**address_name** |  required  | Address name | string |  `fortimanager address name` 
+**subnet** |  optional  | IP address and netmask (e.g. 0.0.0.0/32) | string |  `ip`  `netmask` 
+**fqdn** |  optional  | Fully Qualified Domain Name | string | 
+**policy_group_name** |  optional  | Name of policy group to be added to address | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
 action_result.parameter.adom | string |  |   root 
+action_result.parameter.subnet | string |  `ip`  `netmask`  |   0.0.0.0 
+action_result.parameter.policy_group_name | string |  |   group1 
+action_result.data.\*.name | string |  |   test-fqdn 
+action_result.status | string |  |   success  failed 
+action_result.message | string |  |   Status: Successfully created address object  Object already exists 
+action_result.parameter.fqdn | string |  |   gmail.com 
+action_result.parameter.level | string |  |   Global  ADOM 
+action_result.parameter.address_name | string |  `fortimanager address name`  |   test-fqdn  test-subnet1 
+action_result.parameter.address_type | string |  |   FQDN  Subnet 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1  0 
+action_result.summary.status | string |  |   Successfully created address object   
+
+## action: 'delete address'
+Delete firewall address object
+
+Type: **generic**  
+Read only: **False**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type | string | 
+**adom** |  optional  | ADOM name | string | 
+**address_name** |  required  | Name of address object to delete | string |  `fortimanager address name` 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.url | string |  |   /pm/config/adom/root/obj/firewall/address/subnet123 
+action_result.data.\*.status.code | numeric |  |   0 
+action_result.data.\*.status.message | string |  |   OK 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Successfully deleted address object 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.address_name | string |  `fortimanager address name`  |   subnet123 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 
+action_result.summary.status | string |  |   Successfully deleted address object 
 action_result.summary.total_firewall_policies | numeric |  |   6   
 
 ## action: 'block ip'

@@ -487,7 +487,7 @@ class FortimanagerConnector(BaseConnector):
         package_path = param.get('package_path')
 
         if package and package_path:
-            package = '{0}/{1}'.format(package, package_path)
+            package = '{0}/{1}'.format(package_path, package)
 
         policy_name = param['policy_name']
         address_group_name = param['address_group_name']
@@ -576,7 +576,7 @@ class FortimanagerConnector(BaseConnector):
         package_path = param.get('package_path')
 
         if package and package_path:
-            package = '{0}/{1}'.format(package, package_path)
+            package = '{0}/{1}'.format(package_path, package)
 
         policy_name = param['policy_name']
         address_group_name = param['address_group_name']

@@ -1500,7 +1500,8 @@
                     "column_name": "IPs Already Blocked",
                     "column_order": 1,
                     "example_values": [
-                        "192.168.4.4"
+                        "192.168.4.4",
+                        "192.168.20.0/24"
                     ],
                     "contains": [
                         "ip"
@@ -1526,14 +1527,15 @@
                     "data_path": "action_result.message",
                     "data_type": "string",
                     "example_values": [
-                        "Total ips blocked: 1, Total ips already blocked: 1, Total created address objects: 1, Total address object already exists: 0, Total address object failed: 0"
+                        "Total ips blocked: 0, Total ips already blocked: 1, Total created address objects: 0, Total address object already exists: 0, Total address object failed: 0"
                     ]
                 },
                 {
                     "data_path": "action_result.summary.total_ips_blocked",
                     "data_type": "numeric",
                     "example_values": [
-                        1
+                        1,
+                        0
                     ]
                 },
                 {
@@ -1554,7 +1556,8 @@
                     "data_path": "action_result.summary.total_created_address_objects",
                     "data_type": "numeric",
                     "example_values": [
-                        1
+                        1,
+                        0
                     ]
                 },
                 {
@@ -1596,7 +1599,8 @@
                     "data_path": "action_result.parameter.ip_addresses",
                     "data_type": "string",
                     "example_values": [
-                        "192.168.4.4,192.168.14.0/24"
+                        "192.168.4.4,192.168.14.0/24",
+                        "192.168.20.0/24"
                     ]
                 },
                 {
@@ -1618,6 +1622,13 @@
                     "data_type": "numeric",
                     "example_values": [
                         1
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package_path",
+                    "data_type": "string",
+                    "example_values": [
+                        "my_package_folder"
                     ]
                 }
             ],
@@ -1720,7 +1731,8 @@
                     "data_path": "action_result.summary.total_ips_unblocked",
                     "data_type": "numeric",
                     "example_values": [
-                        2
+                        2,
+                        1
                     ]
                 },
                 {
@@ -1762,7 +1774,8 @@
                     "data_path": "action_result.parameter.ip_addresses",
                     "data_type": "string",
                     "example_values": [
-                        "192.168.4.4,192.168.14.0/24"
+                        "192.168.4.4,192.168.14.0/24",
+                        "192.168.20.0/24"
                     ]
                 },
                 {
@@ -1784,6 +1797,13 @@
                     "data_type": "numeric",
                     "example_values": [
                         1
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package_path",
+                    "data_type": "string",
+                    "example_values": [
+                        "my_package_folder"
                     ]
                 }
             ],

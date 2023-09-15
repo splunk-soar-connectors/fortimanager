@@ -297,7 +297,7 @@ class FortimanagerConnector(BaseConnector):
         else:
             return False
 
-    def _handle_block_ip_addresses(self, param):
+    def _handle_block_ip(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
@@ -386,7 +386,7 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.unlock_adom(adom)
             fmg_instance.logout()
 
-    def _handle_unblock_ip_addresses(self, param):
+    def _handle_unblock_ip(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
@@ -485,10 +485,10 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_list_firewall_policies(param)
 
         elif action_id == 'block_ip':
-            ret_val = self._handle_block_ip_addresses(param)
+            ret_val = self._handle_block_ip(param)
 
         elif action_id == 'unblock_ip':
-            ret_val = self._handle_unblock_ip_addresses(param)
+            ret_val = self._handle_unblock_ip(param)
 
         return ret_val
 

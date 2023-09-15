@@ -32,9 +32,12 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
 [create firewall policy](#action-create-firewall-policy) - Create an ADOM firewall policy  
 [list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies  
+[list addresses](#action-list-addresses) - List firewall address objects 
 [create address](#action-create-address) - Create a firewall address object  
 [delete address](#action-delete-address) - Delete firewall address object  
-[list addresses](#action-list-addresses) - List firewall address objects  
+[block ip](#action-block-ip) - Block ADOM level IP addresses  
+[unblock ip](#action-unblock-ip) - Unblock ADOM level IP addresses  
+[delete firewall policy](#action-delete-firewall-policy) - Delete an ADOM firewall policy  
 
 ## action: 'test connectivity'
 Validate the asset configuration for connectivity using supplied configuration
@@ -51,7 +54,7 @@ No Output
 ## action: 'create firewall policy'
 Create an ADOM firewall policy
 
-Type: **investigate**  
+Type: **generic**  
 Read only: **True**
 
 #### Action Parameters
@@ -61,14 +64,14 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **adom** |  optional  | ADOM name | string | 
 **package** |  required  | The Policy Package name or full folder path to create the firewall policy within | string | 
 **name** |  required  | Policy name to create | string | 
-**source_interface** |  required  | Incoming (ingress) interface to specify for the firewall policy | string | 
-**destination_interface** |  required  | Outgoing (egress) interface to specify for the firewall policy | string | 
-**source_address** |  required  | Source IPv4 Address and address group names to specify for the firewall policy | string | 
-**destination_address** |  required  | Destination IPv4 Address and address group names to specify for the firewall policy | string | 
+**source_interface** |  required  | Incoming (ingress) interface to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
+**destination_interface** |  required  | Outgoing (egress) interface to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
+**source_address** |  required  | Source IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
+**destination_address** |  required  | Destination IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
 **action** |  required  | Policy action to specify for the firewall policy. Accept: Allows sessions that match the firewall policy. Deny: Blocks sessions that match the firewall policy. IPSec: Firewall policy becomes a policy-based IPsec VPN policy | string | 
 **status** |  required  | 'Enable' or 'Disable' this firewall policy on your FortiManager instance | string | 
 **schedule** |  required  | Name for the schedule to be associated with the firewall policy (e.g. always, none) | string | 
-**service** |  required  | Service and Service group names to create for the firewall policy | string | 
+**service** |  required  | Service and Service group names to create for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
 **inspection_mode** |  required  | Firewall policy Inspection Mode | string | 
 **log_traffic** |  required  | Enables or disables logging of either all sessions or only security profile sessions | string | 
 
@@ -119,7 +122,7 @@ action_result.data.\*.oid | numeric |  |   5105  5142
 action_result.data.\*.tos | string |  |   0x00 
 action_result.data.\*.dsri | numeric |  |   0 
 action_result.data.\*.name | string |  |   soar-footer-firewall-name 
-action_result.data.\*.uuid | string |  |   c33e106e-4117-51ee-1771-7827f531ca41  987cb312-3d16-51ee-a38e-2a5f3b237725 
+action_result.data.\*.uuid | string |  |   c33e106e-4117-51ee-1771-7827f531ca41  987cb312-3d16-51ee-a38e-2a5f3b237725  328ee00e-5100-51ee-7bf8-0e865287254f 
 action_result.data.\*.wccp | numeric |  |   0 
 action_result.data.\*._byte | numeric |  |   0 
 action_result.data.\*._pkts | numeric |  |   0 
@@ -131,13 +134,13 @@ action_result.data.\*.status | numeric |  |   1
 action_result.data.\*.cgn-eif | numeric |  |   0 
 action_result.data.\*.cgn-eim | numeric |  |   0 
 action_result.data.\*.dstaddr | string |  |   all 
-action_result.data.\*.dstintf | string |  |   any 
+action_result.data.\*.dstintf | string |  |   any  1-A10 
 action_result.data.\*.obj seq | numeric |  |   1 
 action_result.data.\*.rtp-nat | numeric |  |   0 
 action_result.data.\*.service | string |  |   ALL 
 action_result.data.\*.srcaddr | string |  |   all 
-action_result.data.\*.srcintf | string |  |   any 
-action_result.data.\*.policyid | numeric |  |   1074741825  3 
+action_result.data.\*.srcintf | string |  |   any  1-A1 
+action_result.data.\*.policyid | numeric |  |   1074741825  3  1 
 action_result.data.\*.schedule | string |  |   always 
 action_result.data.\*.tos-mask | string |  |   0x00 
 action_result.data.\*._hitcount | numeric |  |   0 
@@ -216,7 +219,69 @@ summary.total_objects_successful | numeric |  |   1
 action_result.data.\*.vpn_dst_node | string |  |  
 action_result.data.\*.vpn_src_node | string |  |  
 action_result.parameter.adom | string |  |   root 
-action_result.summary.total_firewall_policies | numeric |  |   6   
+action_result.summary.total_firewall_policies | numeric |  |   6  1 
+action_result.data.\*.wanopt | numeric |  |   0 
+action_result.data.\*.webcache | numeric |  |   0 
+action_result.data.\*.disclaimer | numeric |  |   0 
+action_result.data.\*.utm-status | numeric |  |   0 
+action_result.data.\*.capture-packet | numeric |  |   0 
+action_result.data.\*.webcache-https | numeric |  |   0 
+action_result.data.\*.ssl-ssh-profile | string |  |   deep-inspection 
+action_result.data.\*.timeout-send-rst | numeric |  |   0 
+action_result.data.\*.auto-asic-offload | numeric |  |   1 
+action_result.data.\*.passive-wan-health-measurement | numeric |  |   0 
+action_result.parameter.package_path | string |  |   firewall-policy-path 
+
+## action: 'list addresses'
+List firewall address objects
+
+Type: **generic**  
+Read only: **True**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type | string | 
+**adom** |  optional  | ADOM name | string | 
+**address_name** |  optional  | Name of address object to retrieve. If none is specified, this action will return all matching values. | string |  `fortimanager address name` 
+**filter_by** |  optional  | Criteria to filter results by. Use the following format to specify filter: [["{attribute}", "==", "{value}"]] | string | 
+**limit** |  optional  | Maximum number of addresses to return. Default is 0, which returns all results. | numeric | 
+**offset** |  optional  | The starting point of the results to be returned. | numeric | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.oid | numeric |  |   3189 
+action_result.data.\*.list | string |  |  
+action_result.data.\*.name | string |  |   EMS_ALL_UNKNOWN_CLIENTS 
+action_result.data.\*.type | string |  |   dynamic 
+action_result.data.\*.uuid | string |  |   6a5e837c-14dd-51ee-0eda-bba486fb4162 
+action_result.data.\*.color | numeric |  |   0 
+action_result.data.\*.dirty | string |  |   clean 
+action_result.data.\*.tagging | string |  |  
+action_result.data.\*.obj-type | string |  |   ip 
+action_result.data.\*.sub-type | string |  |   ems-tag 
+action_result.data.\*.route-tag | numeric |  |   0 
+action_result.data.\*.node-ip-only | string |  |   disable 
+action_result.data.\*.clearpass-spt | string |  |   unknown 
+action_result.data.\*.fabric-object | string |  |   disable 
+action_result.data.\*.dynamic_mapping | string |  |  
+action_result.data.\*.associated-interface | string |  |   any 
+action_result.data.\*.fqdn | string |  |   gmail.com 
+action_result.data.\*.cache-ttl | numeric |  |   0 
+action_result.data.\*.allow-routing | string |  |   disable 
+action_result.data.\*.macaddr | string |  |   00:11:22:33:44:58 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Total address objects returned: 9 
+action_result.summary.total_address_objects_returned | numeric |  |   9 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.address_name | string |  `fortimanager address name`  |  
+action_result.parameter.limit | numeric |  |   0 
+action_result.parameter.offset | string |  |   0 
+action_result.parameter.filter_by | string |  |   [["type", ">=", 2]] 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 
 
 ## action: 'create address'
 Create a firewall address object
@@ -280,8 +345,84 @@ summary.total_objects | numeric |  |   1
 summary.total_objects_successful | numeric |  |   1 
 action_result.summary.status | string |  |   Successfully deleted address object   
 
-## action: 'list addresses'
-List firewall address objects
+## action: 'block ip'
+Block ADOM level IP addresses
+
+Type: **contain**  
+Read only: **True**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type at which to block IP addresses | string | 
+**adom** |  required  | ADOM name. Only required for 'ADOM' blocking of IP addresses | string | 
+**package** |  required  | Policy package name | string | 
+**package_path** |  optional  | The full folder path nested within the policy package | string | 
+**policy_name** |  required  | Specific firewall policy name for blocking IP addresses | string | 
+**address_group_name** |  required  | Specific address group name for for blocking IP addresses | string | 
+**ip_addresses** |  required  | Comma-separated list of IP addresses to block | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.ips_blocked | string |  |   192.168.14.0/24 
+action_result.data.\*.ips_already_blocked | string |  `ip`  |   192.168.4.4  192.168.20.0/24 
+action_result.data.\*.created_address_objects | string |  |   192.168.14.0/24 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Total ips blocked: 0, Total ips already blocked: 1, Total created address objects: 0, Total address object already exists: 0, Total address object failed: 0 
+action_result.summary.total_ips_blocked | numeric |  |   1  0 
+action_result.summary.total_ips_already_blocked | numeric |  |   1 
+action_result.summary.total_address_object_failed | numeric |  |   0 
+action_result.summary.total_created_address_objects | numeric |  |   1  0 
+action_result.summary.total_address_object_already_exists | numeric |  |   0 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.package | string |  |   example_policy_package 
+action_result.parameter.policy_name | string |  |   example-fw_policy 
+action_result.parameter.ip_addresses | string |  |   192.168.4.4,192.168.14.0/24  192.168.20.0/24 
+action_result.parameter.address_group_name | string |  |   example_test_addr_grp 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 
+action_result.parameter.package_path | string |  |   my_package_folder   
+
+## action: 'unblock ip'
+Unblock ADOM level IP addresses
+
+Type: **contain**  
+Read only: **True**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type at which to unblock IP addresses | string | 
+**adom** |  required  | ADOM name. Only required for 'ADOM' unblocking of IP addresses | string | 
+**package** |  required  | Policy package name | string | 
+**package_path** |  optional  | The full folder path nested within the policy package | string | 
+**policy_name** |  required  | Specific firewall policy name for unblocking IP addresses | string | 
+**address_group_name** |  required  | Specific address group name for for unblocking IP addresses | string | 
+**ip_addresses** |  required  | Comma-separated list of IP addresses to unblock | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.ips_unblocked | string |  |   192.168.14.0/24 
+action_result.data.\*.ips_already_unblocked | string |  |   192.168.14.0/24 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Total ips unblocked: 2, Total ips already unblocked: 0 
+action_result.summary.total_ips_unblocked | numeric |  |   2  1 
+action_result.summary.total_ips_already_unblocked | numeric |  |   0 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.package | string |  |   example_policy_package 
+action_result.parameter.policy_name | string |  |   example-fw_policy 
+action_result.parameter.ip_addresses | string |  |   192.168.4.4,192.168.14.0/24  192.168.20.0/24 
+action_result.parameter.address_group_name | string |  |   example_test_addr_grp 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 
+action_result.parameter.package_path | string |  |   my_package_folder   
+
+## action: 'delete firewall policy'
+Delete an ADOM firewall policy
 
 Type: **generic**  
 Read only: **True**
@@ -289,44 +430,23 @@ Read only: **True**
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
-**level** |  required  | Level type | string | 
+**level** |  required  | Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM | string | 
 **adom** |  optional  | ADOM name | string | 
-**address_name** |  optional  | Name of address object to retrieve. If none is specified, this action will return all matching values. | string |  `fortimanager address name` 
-**filter_by** |  optional  | Criteria to filter results by. Use the following format to specify filter: [["{attribute}", "==", "{value}"]] | string | 
-**limit** |  optional  | Maximum number of addresses to return. Default is 0, which returns all results. | numeric | 
-**offset** |  optional  | The starting point of the results to be returned. | numeric | 
+**package** |  required  | The Policy Package name or full folder path of the firewall policy to delete | string | 
+**policy_id** |  required  | Policy ID (can be retrieved from 'List Firewall Policies' action) to delete | string | 
 
 #### Action Output
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 --------- | ---- | -------- | --------------
-action_result.data.\*.oid | numeric |  |   3189 
-action_result.data.\*.list | string |  |  
-action_result.data.\*.name | string |  |   EMS_ALL_UNKNOWN_CLIENTS 
-action_result.data.\*.type | string |  |   dynamic 
-action_result.data.\*.uuid | string |  |   6a5e837c-14dd-51ee-0eda-bba486fb4162 
-action_result.data.\*.color | numeric |  |   0 
-action_result.data.\*.dirty | string |  |   clean 
-action_result.data.\*.tagging | string |  |  
-action_result.data.\*.obj-type | string |  |   ip 
-action_result.data.\*.sub-type | string |  |   ems-tag 
-action_result.data.\*.route-tag | numeric |  |   0 
-action_result.data.\*.node-ip-only | string |  |   disable 
-action_result.data.\*.clearpass-spt | string |  |   unknown 
-action_result.data.\*.fabric-object | string |  |   disable 
-action_result.data.\*.dynamic_mapping | string |  |  
-action_result.data.\*.associated-interface | string |  |   any 
-action_result.data.\*.fqdn | string |  |   gmail.com 
-action_result.data.\*.cache-ttl | numeric |  |   0 
-action_result.data.\*.allow-routing | string |  |   disable 
-action_result.data.\*.macaddr | string |  |   00:11:22:33:44:58 
+action_result.data.\*.url | string |  |   /pm/config/adom/root/pkg/default/firewall/policy/28  /pm/config/adom/root/pkg/default/firewall/policy/29 
+action_result.data.\*.status.code | numeric |  |   0 
+action_result.data.\*.status.message | string |  |   OK 
 action_result.status | string |  |   success 
-action_result.message | string |  |   Total address objects returned: 9 
-action_result.summary.total_address_objects_returned | numeric |  |   9 
-action_result.parameter.adom | string |  |   root 
+action_result.message | string |  |   Status: Successfully deleted firewall policy ID: 29 
+action_result.summary.status | string |  |   Successfully deleted firewall policy ID: 29 
 action_result.parameter.level | string |  |   ADOM 
-action_result.parameter.address_name | string |  `fortimanager address name`  |  
-action_result.parameter.limit | numeric |  |   0 
-action_result.parameter.offset | string |  |   0 
-action_result.parameter.filter_by | string |  |   [["type", ">=", 2]] 
+action_result.parameter.package | string |  |   default 
+action_result.parameter.policy_id | string |  |   28  29 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
+action_result.parameter.adom | string |  |   root 

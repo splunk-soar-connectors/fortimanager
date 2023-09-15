@@ -34,6 +34,8 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies  
 [create address](#action-create-address) - Create a firewall address object  
 [delete address](#action-delete-address) - Delete firewall address object  
+[block ip](#action-block-ip) - Block ADOM level IP addresses  
+[unblock ip](#action-unblock-ip) - Unblock ADOM level IP addresses  
 
 ## action: 'test connectivity'
 Validate the asset configuration for connectivity using supplied configuration
@@ -277,4 +279,80 @@ action_result.parameter.level | string |  |   ADOM
 action_result.parameter.address_name | string |  `fortimanager address name`  |   subnet123 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
-action_result.summary.status | string |  |   Successfully deleted address object 
+action_result.summary.status | string |  |   Successfully deleted address object   
+
+## action: 'block ip'
+Block ADOM level IP addresses
+
+Type: **contain**  
+Read only: **True**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type at which to block IP addresses | string | 
+**adom** |  required  | ADOM name. Only required for 'ADOM' blocking of IP addresses | string | 
+**package** |  required  | Policy package name | string | 
+**package_path** |  optional  | The full folder path nested within the policy package | string | 
+**policy_name** |  required  | Specific firewall policy name for blocking IP addresses | string | 
+**address_group_name** |  required  | Specific address group name for for blocking IP addresses | string | 
+**ip_addresses** |  required  | Comma-separated list of IP addresses to block | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.ips_blocked | string |  |   192.168.14.0/24 
+action_result.data.\*.ips_already_blocked | string |  `ip`  |   192.168.4.4  192.168.20.0/24 
+action_result.data.\*.created_address_objects | string |  |   192.168.14.0/24 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Total ips blocked: 0, Total ips already blocked: 1, Total created address objects: 0, Total address object already exists: 0, Total address object failed: 0 
+action_result.summary.total_ips_blocked | numeric |  |   1  0 
+action_result.summary.total_ips_already_blocked | numeric |  |   1 
+action_result.summary.total_address_object_failed | numeric |  |   0 
+action_result.summary.total_created_address_objects | numeric |  |   1  0 
+action_result.summary.total_address_object_already_exists | numeric |  |   0 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.package | string |  |   example_policy_package 
+action_result.parameter.policy_name | string |  |   example-fw_policy 
+action_result.parameter.ip_addresses | string |  |   192.168.4.4,192.168.14.0/24  192.168.20.0/24 
+action_result.parameter.address_group_name | string |  |   example_test_addr_grp 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 
+action_result.parameter.package_path | string |  |   my_package_folder   
+
+## action: 'unblock ip'
+Unblock ADOM level IP addresses
+
+Type: **contain**  
+Read only: **True**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type at which to unblock IP addresses | string | 
+**adom** |  required  | ADOM name. Only required for 'ADOM' unblocking of IP addresses | string | 
+**package** |  required  | Policy package name | string | 
+**package_path** |  optional  | The full folder path nested within the policy package | string | 
+**policy_name** |  required  | Specific firewall policy name for unblocking IP addresses | string | 
+**address_group_name** |  required  | Specific address group name for for unblocking IP addresses | string | 
+**ip_addresses** |  required  | Comma-separated list of IP addresses to unblock | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.ips_unblocked | string |  |   192.168.14.0/24 
+action_result.data.\*.ips_already_unblocked | string |  |   192.168.14.0/24 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Total ips unblocked: 2, Total ips already unblocked: 0 
+action_result.summary.total_ips_unblocked | numeric |  |   2  1 
+action_result.summary.total_ips_already_unblocked | numeric |  |   0 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.package | string |  |   example_policy_package 
+action_result.parameter.policy_name | string |  |   example-fw_policy 
+action_result.parameter.ip_addresses | string |  |   192.168.4.4,192.168.14.0/24  192.168.20.0/24 
+action_result.parameter.address_group_name | string |  |   example_test_addr_grp 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 
+action_result.parameter.package_path | string |  |   my_package_folder 

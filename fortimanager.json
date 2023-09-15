@@ -1429,6 +1429,391 @@
                 "title": "Delete Address"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "block ip",
+            "identifier": "block_ip",
+            "description": "Block ADOM level IP addresses",
+            "type": "contain",
+            "read_only": true,
+            "undo": "unblock ip",
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to block IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name. Only required for 'ADOM' blocking of IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 1
+                },
+                "package": {
+                    "description": "Policy package name",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 2
+                },
+                "package_path": {
+                    "description": "The full folder path nested within the policy package",
+                    "data_type": "string",
+                    "order": 3
+                },
+                "policy_name": {
+                    "description": "Specific firewall policy name for blocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 4
+                },
+                "address_group_name": {
+                    "description": "Specific address group name for for blocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 5
+                },
+                "ip_addresses": {
+                    "description": "Comma-separated list of IP addresses to block",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 6
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.ips_blocked",
+                    "data_type": "string",
+                    "column_name": "IPs Blocked",
+                    "column_order": 0,
+                    "example_values": [
+                        "192.168.14.0/24"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ips_already_blocked",
+                    "data_type": "string",
+                    "column_name": "IPs Already Blocked",
+                    "column_order": 1,
+                    "example_values": [
+                        "192.168.4.4",
+                        "192.168.20.0/24"
+                    ],
+                    "contains": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.created_address_objects",
+                    "data_type": "string",
+                    "column_name": "Address Objects Created",
+                    "column_order": 2,
+                    "example_values": [
+                        "192.168.14.0/24"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Total ips blocked: 0, Total ips already blocked: 1, Total created address objects: 0, Total address object already exists: 0, Total address object failed: 0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_ips_blocked",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_ips_already_blocked",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_address_object_failed",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_created_address_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_address_object_already_exists",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package",
+                    "data_type": "string",
+                    "example_values": [
+                        "example_policy_package"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.policy_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "example-fw_policy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.ip_addresses",
+                    "data_type": "string",
+                    "example_values": [
+                        "192.168.4.4,192.168.14.0/24",
+                        "192.168.20.0/24"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.address_group_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "example_test_addr_grp"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package_path",
+                    "data_type": "string",
+                    "example_values": [
+                        "my_package_folder"
+                    ]
+                }
+            ],
+            "versions": "EQ(*)",
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "Block Ip"
+            }
+        },
+        {
+            "action": "unblock ip",
+            "identifier": "unblock_ip",
+            "description": "Unblock ADOM level IP addresses",
+            "type": "contain",
+            "read_only": true,
+            "undo": "block ip",
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to unblock IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name. Only required for 'ADOM' unblocking of IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 1
+                },
+                "package": {
+                    "description": "Policy package name",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 2
+                },
+                "package_path": {
+                    "description": "The full folder path nested within the policy package",
+                    "data_type": "string",
+                    "order": 3
+                },
+                "policy_name": {
+                    "description": "Specific firewall policy name for unblocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 4
+                },
+                "address_group_name": {
+                    "description": "Specific address group name for for unblocking IP addresses",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 5
+                },
+                "ip_addresses": {
+                    "description": "Comma-separated list of IP addresses to unblock",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 6
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.ips_unblocked",
+                    "data_type": "string",
+                    "column_name": "IPs Unblocked",
+                    "column_order": 0,
+                    "example_values": [
+                        "192.168.14.0/24"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ips_already_unblocked",
+                    "data_type": "string",
+                    "column_name": "IPs Already Unblocked",
+                    "column_order": 1,
+                    "example_values": [
+                        "192.168.14.0/24"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Total ips unblocked: 2, Total ips already unblocked: 0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_ips_unblocked",
+                    "data_type": "numeric",
+                    "example_values": [
+                        2,
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_ips_already_unblocked",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package",
+                    "data_type": "string",
+                    "example_values": [
+                        "example_policy_package"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.policy_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "example-fw_policy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.ip_addresses",
+                    "data_type": "string",
+                    "example_values": [
+                        "192.168.4.4,192.168.14.0/24",
+                        "192.168.20.0/24"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.address_group_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "example_test_addr_grp"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package_path",
+                    "data_type": "string",
+                    "example_values": [
+                        "my_package_folder"
+                    ]
+                }
+            ],
+            "versions": "EQ(*)",
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "Unblock Ip"
+            }
         }
     ],
     "pip_dependencies": {

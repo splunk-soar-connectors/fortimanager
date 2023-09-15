@@ -24,6 +24,9 @@ ERROR_MSG_UNAVAILABLE = 'Error message unavailable'
 # ADOM Firewall Endpoints
 ADOM_FIREWALL_ENDPOINT = '/pm/config/adom/{adom}/pkg/{pkg}/firewall/policy'
 LIST_ADOM_FIREWALL_POLICY = '/pm/config/adom/{adom}/pkg/{pkg}/firewall/policy'
+ADOM_ADDRESS_GROUP_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/addrgrp/{addrgrp}'
+ADOM_ADD_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'
+
 # Global Firewall Endpoints TODO
 # GLOBAL_FIREWALL_ENDPOINT = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
 # LIST_GLOBAL_FIREWALL_POLICY = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'

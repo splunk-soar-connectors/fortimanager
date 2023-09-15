@@ -1484,7 +1484,7 @@
         }
     ],
     "pip_dependencies": {
-        "pypi": [
+        "wheel": [
             {
                 "module": "pyfmg",
                 "input_file": "wheels/py3/pyfmg-0.8.5.4-py3-none-any.whl"
@@ -1492,7 +1492,7 @@
         ]
     },
     "pip39_dependencies": {
-        "pypi": [
+        "wheel": [
             {
                 "module": "pyfmg",
                 "input_file": "wheels/py3/pyfmg-0.8.5.4-py3-none-any.whl"

@@ -96,6 +96,29 @@ class FortimanagerConnector(BaseConnector):
 
         return error_text
 
+    def _handle_test_connectivity(self, param):
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        self.save_progress("Connecting to endpoint")
+        fmg_instance = None
+
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress("Obtaining system status")
+            response_code, response_data = fmg_instance.get('sys/status')
+        except Exception as e:
+            error_msg = self._get_error_msg_from_exception(e)
+            self.save_progress("Test Connectivity Failed.")
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+        finally:
+            fmg_instance.logout()
+
+        if response_code == 0:
+            self.save_progress("Test Connectivity Passed")
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.save_progress("Test Connectivity Failed.")
+            return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
+
     def _handle_create_firewall_policy(self, param):
 
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
@@ -268,40 +291,6 @@ class FortimanagerConnector(BaseConnector):
         elif isinstance(param_list, str):
             param_list = [x.strip() for x in param_list.split(',')]
         return param_list
-
-    def _handle_test_connectivity(self, param):
-        action_result = self.add_action_result(ActionResult(dict(param)))
-        self.save_progress("Connecting to endpoint")
-
-        fmg_instance = None
-
-        try:
-            fmg_instance = self._login(action_result)
-            self.save_progress("Login successful")
-
-        except Exception as e:
-            self.save_progress("Login failed")
-            self.debug_print("Login failed: {}".format(self._get_error_msg_from_exception(e)))
-            return action_result.set_status(phantom.APP_ERROR, "Login failed: {}".format(self._get_error_msg_from_exception(e)))
-
-        try:
-            self.save_progress("Obtaining system status")
-            response_code, response_data = fmg_instance.get('sys/status')
-
-        except Exception as e:
-            error_msg = self._get_error_msg_from_exception(e)
-            self.save_progress("Test Connectivity Failed.")
-            return action_result.set_status(phantom.APP_ERROR, error_msg)
-
-        finally:
-            fmg_instance.logout()
-
-        if response_code == 0:
-            self.save_progress("Test Connectivity Passed")
-            return action_result.set_status(phantom.APP_SUCCESS)
-        else:
-            self.save_progress("Test Connectivity Failed.")
-            return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
 
     # URLs
     def _handle_list_blocked_urls(self, param):

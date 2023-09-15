@@ -302,23 +302,24 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 --------- | ---- | -------- | --------------
 action_result.data.\*.ips_blocked | string |  |   192.168.14.0/24 
-action_result.data.\*.ips_already_blocked | string |  `ip`  |   192.168.4.4 
+action_result.data.\*.ips_already_blocked | string |  `ip`  |   192.168.4.4  192.168.20.0/24 
 action_result.data.\*.created_address_objects | string |  |   192.168.14.0/24 
 action_result.status | string |  |   success 
-action_result.message | string |  |   Total ips blocked: 1, Total ips already blocked: 1, Total created address objects: 1, Total address object already exists: 0, Total address object failed: 0 
-action_result.summary.total_ips_blocked | numeric |  |   1 
+action_result.message | string |  |   Total ips blocked: 0, Total ips already blocked: 1, Total created address objects: 0, Total address object already exists: 0, Total address object failed: 0 
+action_result.summary.total_ips_blocked | numeric |  |   1  0 
 action_result.summary.total_ips_already_blocked | numeric |  |   1 
 action_result.summary.total_address_object_failed | numeric |  |   0 
-action_result.summary.total_created_address_objects | numeric |  |   1 
+action_result.summary.total_created_address_objects | numeric |  |   1  0 
 action_result.summary.total_address_object_already_exists | numeric |  |   0 
 action_result.parameter.adom | string |  |   root 
 action_result.parameter.level | string |  |   ADOM 
 action_result.parameter.package | string |  |   example_policy_package 
 action_result.parameter.policy_name | string |  |   example-fw_policy 
-action_result.parameter.ip_addresses | string |  |   192.168.4.4,192.168.14.0/24 
+action_result.parameter.ip_addresses | string |  |   192.168.4.4,192.168.14.0/24  192.168.20.0/24 
 action_result.parameter.address_group_name | string |  |   example_test_addr_grp 
 summary.total_objects | numeric |  |   1 
-summary.total_objects_successful | numeric |  |   1   
+summary.total_objects_successful | numeric |  |   1 
+action_result.parameter.package_path | string |  |   my_package_folder   
 
 ## action: 'unblock ip'
 Unblock ADOM level IP addresses
@@ -344,13 +345,14 @@ action_result.data.\*.ips_unblocked | string |  |   192.168.14.0/24
 action_result.data.\*.ips_already_unblocked | string |  |   192.168.14.0/24 
 action_result.status | string |  |   success 
 action_result.message | string |  |   Total ips unblocked: 2, Total ips already unblocked: 0 
-action_result.summary.total_ips_unblocked | numeric |  |   2 
+action_result.summary.total_ips_unblocked | numeric |  |   2  1 
 action_result.summary.total_ips_already_unblocked | numeric |  |   0 
 action_result.parameter.adom | string |  |   root 
 action_result.parameter.level | string |  |   ADOM 
 action_result.parameter.package | string |  |   example_policy_package 
 action_result.parameter.policy_name | string |  |   example-fw_policy 
-action_result.parameter.ip_addresses | string |  |   192.168.4.4,192.168.14.0/24 
+action_result.parameter.ip_addresses | string |  |   192.168.4.4,192.168.14.0/24  192.168.20.0/24 
 action_result.parameter.address_group_name | string |  |   example_test_addr_grp 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
+action_result.parameter.package_path | string |  |   my_package_folder 

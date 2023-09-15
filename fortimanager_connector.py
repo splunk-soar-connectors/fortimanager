@@ -103,14 +103,6 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance = self._login(action_result)
-            self.save_progress("Login successful")
-
-        except Exception as e:
-            self.save_progress("Login failed")
-            self.debug_print("Login failed: {}".format(self._get_error_msg_from_exception(e)))
-            return action_result.set_status(phantom.APP_ERROR, "Login failed: {}".format(self._get_error_msg_from_exception(e)))
-
-        try:
             self.save_progress("Obtaining system status")
             response_code, response_data = fmg_instance.get('sys/status')
 

@@ -284,7 +284,7 @@ class FortimanagerConnector(BaseConnector):
             if lock_code == 0:
                 self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
             else:
-                self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
+                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
                 fmg_instance.logout()
                 return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
@@ -361,7 +361,7 @@ class FortimanagerConnector(BaseConnector):
             if lock_code == 0:
                 self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
             else:
-                self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
+                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
                 fmg_instance.logout()
                 return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 

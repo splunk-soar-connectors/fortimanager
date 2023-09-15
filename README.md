@@ -216,6 +216,7 @@ summary.total_objects | numeric |  |   1
 summary.total_objects_successful | numeric |  |   1 
 action_result.data.\*.vpn_dst_node | string |  |  
 action_result.data.\*.vpn_src_node | string |  |  
+action_result.parameter.adom | string |  |   root 
 action_result.summary.total_firewall_policies | numeric |  |   6   
 
 ## action: 'create address'
@@ -278,8 +279,7 @@ action_result.parameter.level | string |  |   ADOM
 action_result.parameter.address_name | string |  `fortimanager address name`  |   subnet123 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
-action_result.summary.status | string |  |   Successfully deleted address object 
-action_result.summary.total_firewall_policies | numeric |  |   6   
+action_result.summary.status | string |  |   Successfully deleted address object   
 
 ## action: 'block ip'
 Block ADOM level IP addresses

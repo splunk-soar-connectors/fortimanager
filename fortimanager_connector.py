@@ -98,19 +98,16 @@ class FortimanagerConnector(BaseConnector):
     def _handle_test_connectivity(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
         self.save_progress("Connecting to endpoint")
-
         fmg_instance = None
 
         try:
             fmg_instance = self._login(action_result)
             self.save_progress("Obtaining system status")
             response_code, response_data = fmg_instance.get('sys/status')
-
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress("Test Connectivity Failed.")
             return action_result.set_status(phantom.APP_ERROR, error_msg)
-
         finally:
             fmg_instance.logout()
 

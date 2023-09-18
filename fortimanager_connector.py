@@ -57,11 +57,11 @@ class FortimanagerConnector(BaseConnector):
 
     def _login(self, action_result):
         if self._username and self._password:
-            fmg_instance = FortiManager(self._host, self._username, self._password,
-                                        debug=False, verify_ssl=self._verify_server_cert, disable_request_warnings=True)
+            fmg_instance = FortiManager(self._host, self._username, self._password, debug=False,
+                                        verify_ssl=self._verify_server_cert, verbose=True, disable_request_warnings=True)
         elif self._api_key:
-            fmg_instance = FortiManager(self._host, apikey=self._api_key,
-                                        debug=False, verify_ssl=self._verify_server_cert, disable_request_warnings=True)
+            fmg_instance = FortiManager(self._host, apikey=self._api_key, debug=False,
+                                        verify_ssl=self._verify_server_cert, verbose=True, disable_request_warnings=True)
         else:
             raise Exception("The asset configuration requires either an API key or a username and password.")
         fmg_instance.login()
@@ -249,7 +249,70 @@ class FortimanagerConnector(BaseConnector):
 
     # Address Objects
     def _handle_list_addresses(self, param):
-        pass
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+
+        name = param.get('address_name')
+        filter_by = param.get('filter_by')
+        limit = param.get('limit', 0)
+        offset = param.get('offset', 0)
+
+        if level == "ADOM":
+            adom = param.get('adom', 'root')
+            if name:
+                url = SPECIFIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
+            else:
+                url = GENERIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
+
+        fmg_instance = None
+        get_params = {}
+
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress("login successful")
+
+        except Exception as e:
+            self.save_progress(CREATE_ADDRESS_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        try:
+            if name:
+                response_code, response_data = fmg_instance.get(url)
+            else:
+                get_params['range'] = [offset, limit]
+
+                if filter_by:
+                    get_params['filter'] = json.loads(filter_by)
+
+                response_code, response_data = fmg_instance.get(url, **get_params)
+
+        except Exception as e:
+            self.save_progress(LIST_ADDRESSES_FAILED_MSG)
+            self.debug_print("{}: {}".format(LIST_ADDRESSES_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        finally:
+            fmg_instance.logout()
+
+        if response_code == 0:
+            if type(response_data) == list:
+                for addr in response_data:
+                    action_result.add_data(addr)
+
+                summary = {'total_address_objects_returned': len(response_data)}
+                action_result.update_summary(summary)
+            else:
+                action_result.add_data(response_data)
+                summary = {'total_address_objects_returned': 1}
+                action_result.update_summary(summary)
+
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.save_progress(LIST_ADDRESSES_FAILED_MSG)
+            return action_result.set_status(phantom.APP_ERROR, response_data['status']['message'])
 
     def _handle_create_address(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
@@ -263,7 +326,7 @@ class FortimanagerConnector(BaseConnector):
 
         if level == "ADOM":
             adom = param.get('adom', 'root')
-            url = CREATE_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
+            url = GENERIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
 
         fmg_instance = None
         data = {}
@@ -284,7 +347,7 @@ class FortimanagerConnector(BaseConnector):
             if lock_code == 0:
                 self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
             else:
-                self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
+                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
                 fmg_instance.logout()
                 return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
@@ -341,7 +404,7 @@ class FortimanagerConnector(BaseConnector):
 
         if level == "ADOM":
             adom = param.get('adom', 'root')
-            url = DELETE_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
+            url = SPECIFIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
 
         fmg_instance = None
 
@@ -361,7 +424,7 @@ class FortimanagerConnector(BaseConnector):
             if lock_code == 0:
                 self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
             else:
-                self.save_progess(LOCK_FAILED_MSG.format(adom=adom))
+                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
                 fmg_instance.logout()
                 return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
@@ -413,6 +476,8 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_create_address(param)
         elif action_id == 'delete_address':
             ret_val = self._handle_delete_address(param)
+        elif action_id == 'list_addresses':
+            ret_val = self._handle_list_addresses(param)
         elif action_id == 'create_firewall_policy':
             ret_val = self._handle_create_firewall_policy(param)
         elif action_id == 'list_firewall_policies':

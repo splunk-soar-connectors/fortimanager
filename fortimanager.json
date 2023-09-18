@@ -1429,6 +1429,275 @@
                 "title": "Delete Address"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "list addresses",
+            "description": "List firewall address objects",
+            "type": "generic",
+            "identifier": "list_addresses",
+            "read_only": true,
+            "parameters": {
+                "level": {
+                    "description": "Level type",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "address_name": {
+                    "description": "Name of address object to retrieve. If none is specified, this action will return all matching values.",
+                    "data_type": "string",
+                    "primary": true,
+                    "contains": [
+                        "fortimanager address name"
+                    ],
+                    "order": 2
+                },
+                "filter_by": {
+                    "description": "Criteria to filter results by. Use the following format to specify filter: [[\"{attribute}\", \"==\", \"{value}\"]]",
+                    "data_type": "string",
+                    "order": 3
+                },
+                "limit": {
+                    "description": "Maximum number of addresses to return. Default is 0, which returns all results.",
+                    "data_type": "numeric",
+                    "default": "0",
+                    "order": 4
+                },
+                "offset": {
+                    "description": "The starting point of the results to be returned.",
+                    "data_type": "numeric",
+                    "default": "0",
+                    "order": 5
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.oid",
+                    "data_type": "numeric",
+                    "example_values": [
+                        3189
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.list",
+                    "data_type": "string",
+                    "example_values": []
+                },
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string",
+                    "example_values": [
+                        "EMS_ALL_UNKNOWN_CLIENTS"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.type",
+                    "data_type": "string",
+                    "example_values": [
+                        "dynamic"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.uuid",
+                    "data_type": "string",
+                    "example_values": [
+                        "6a5e837c-14dd-51ee-0eda-bba486fb4162"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.color",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dirty",
+                    "data_type": "string",
+                    "example_values": [
+                        "clean"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.tagging",
+                    "data_type": "string",
+                    "example_values": []
+                },
+                {
+                    "data_path": "action_result.data.*.obj-type",
+                    "data_type": "string",
+                    "example_values": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.sub-type",
+                    "data_type": "string",
+                    "example_values": [
+                        "ems-tag"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.route-tag",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.node-ip-only",
+                    "data_type": "string",
+                    "example_values": [
+                        "disable"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.clearpass-spt",
+                    "data_type": "string",
+                    "example_values": [
+                        "unknown"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fabric-object",
+                    "data_type": "string",
+                    "example_values": [
+                        "disable"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dynamic_mapping",
+                    "data_type": "string",
+                    "example_values": []
+                },
+                {
+                    "data_path": "action_result.data.*.associated-interface",
+                    "data_type": "string",
+                    "example_values": [
+                        "any"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fqdn",
+                    "data_type": "string",
+                    "example_values": [
+                        "gmail.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.cache-ttl",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.allow-routing",
+                    "data_type": "string",
+                    "example_values": [
+                        "disable"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.macaddr",
+                    "data_type": "string",
+                    "example_values": [
+                        "00:11:22:33:44:58"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Total address objects returned: 9"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_address_objects_returned",
+                    "data_type": "numeric",
+                    "example_values": [
+                        9
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.address_name",
+                    "data_type": "string",
+                    "contains": [
+                        "fortimanager address name"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.limit",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.offset",
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.filter_by",
+                    "data_type": "string",
+                    "example_values": [
+                        "[[\"type\", \">=\", 2]]"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table",
+                "title": "List Addresses"
+            },
+            "versions": "EQ(*)"
         }
     ],
     "pip_dependencies": {

@@ -57,11 +57,11 @@ class FortimanagerConnector(BaseConnector):
 
     def _login(self, action_result):
         if self._username and self._password:
-            fmg_instance = FortiManager(self._host, self._username, self._password,
-                                        debug=False, verify_ssl=self._verify_server_cert, disable_request_warnings=True)
+            fmg_instance = FortiManager(self._host, self._username, self._password, debug=False,
+                                        verify_ssl=self._verify_server_cert, verbose=True, disable_request_warnings=True)
         elif self._api_key:
-            fmg_instance = FortiManager(self._host, apikey=self._api_key,
-                                        debug=False, verify_ssl=self._verify_server_cert, disable_request_warnings=True)
+            fmg_instance = FortiManager(self._host, apikey=self._api_key, debug=False,
+                                        verify_ssl=self._verify_server_cert, verbose=True, disable_request_warnings=True)
         else:
             raise Exception("The asset configuration requires either an API key or a username and password.")
         fmg_instance.login()
@@ -773,6 +773,8 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_create_address(param)
         elif action_id == 'delete_address':
             ret_val = self._handle_delete_address(param)
+        elif action_id == 'list_addresses':
+            ret_val = self._handle_list_addresses(param)
         elif action_id == 'create_firewall_policy':
             ret_val = self._handle_create_firewall_policy(param)
         elif action_id == 'list_firewall_policies':

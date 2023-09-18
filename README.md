@@ -63,14 +63,14 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **adom** |  optional  | ADOM name | string | 
 **package** |  required  | The Policy Package name or full folder path to create the firewall policy within | string | 
 **name** |  required  | Policy name to create | string | 
-**source_interface** |  required  | Incoming (ingress) interface to specify for the firewall policy. If specifying more than one, enter as a comma separated list | string | 
-**destination_interface** |  required  | Outgoing (egress) interface to specify for the firewall policy. If specifying more than one, enter as a comma separated list | string | 
-**source_address** |  required  | Source IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma separated list | string | 
-**destination_address** |  required  | Destination IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma separated list | string | 
+**source_interface** |  required  | Incoming (ingress) interface to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
+**destination_interface** |  required  | Outgoing (egress) interface to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
+**source_address** |  required  | Source IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
+**destination_address** |  required  | Destination IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
 **action** |  required  | Policy action to specify for the firewall policy. Accept: Allows sessions that match the firewall policy. Deny: Blocks sessions that match the firewall policy. IPSec: Firewall policy becomes a policy-based IPsec VPN policy | string | 
 **status** |  required  | 'Enable' or 'Disable' this firewall policy on your FortiManager instance | string | 
 **schedule** |  required  | Name for the schedule to be associated with the firewall policy (e.g. always, none) | string | 
-**service** |  required  | Service and Service group names to create for the firewall policy. If specifying more than one, enter as a comma separated list | string | 
+**service** |  required  | Service and Service group names to create for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
 **inspection_mode** |  required  | Firewall policy Inspection Mode | string | 
 **log_traffic** |  required  | Enables or disables logging of either all sessions or only security profile sessions | string | 
 

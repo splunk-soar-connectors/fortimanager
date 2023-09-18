@@ -61,7 +61,7 @@
         {
             "action": "create firewall policy",
             "description": "Create an ADOM firewall policy",
-            "type": "investigate",
+            "type": "generic",
             "identifier": "create_firewall_policy",
             "read_only": true,
             "parameters": {
@@ -78,6 +78,7 @@
                 "adom": {
                     "description": "ADOM name",
                     "data_type": "string",
+                    "default": "root",
                     "order": 1
                 },
                 "package": {
@@ -94,28 +95,28 @@
                     "order": 3
                 },
                 "source_interface": {
-                    "description": "Incoming (ingress) interface to specify for the firewall policy",
+                    "description": "Incoming (ingress) interface to specify for the firewall policy. If specifying more than one, enter as a comma-separated list",
                     "data_type": "string",
                     "default": "any",
                     "required": true,
                     "order": 4
                 },
                 "destination_interface": {
-                    "description": "Outgoing (egress) interface to specify for the firewall policy",
+                    "description": "Outgoing (egress) interface to specify for the firewall policy. If specifying more than one, enter as a comma-separated list",
                     "data_type": "string",
                     "default": "any",
                     "required": true,
                     "order": 5
                 },
                 "source_address": {
-                    "description": "Source IPv4 Address and address group names to specify for the firewall policy",
+                    "description": "Source IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list",
                     "data_type": "string",
                     "default": "all",
                     "required": true,
                     "order": 6
                 },
                 "destination_address": {
-                    "description": "Destination IPv4 Address and address group names to specify for the firewall policy",
+                    "description": "Destination IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list",
                     "data_type": "string",
                     "default": "all",
                     "required": true,
@@ -152,7 +153,7 @@
                     "order": 10
                 },
                 "service": {
-                    "description": "Service and Service group names to create for the firewall policy",
+                    "description": "Service and Service group names to create for the firewall policy. If specifying more than one, enter as a comma-separated list",
                     "data_type": "string",
                     "default": "ALL",
                     "required": true,
@@ -353,6 +354,7 @@
                 "adom": {
                     "description": "ADOM name. Only required for 'ADOM' Firewall Policies",
                     "data_type": "string",
+                    "default": "root",
                     "order": 1
                 },
                 "package": {
@@ -416,7 +418,8 @@
                     "data_type": "string",
                     "example_values": [
                         "c33e106e-4117-51ee-1771-7827f531ca41",
-                        "987cb312-3d16-51ee-a38e-2a5f3b237725"
+                        "987cb312-3d16-51ee-a38e-2a5f3b237725",
+                        "328ee00e-5100-51ee-7bf8-0e865287254f"
                     ]
                 },
                 {
@@ -509,7 +512,8 @@
                     "column_name": "To",
                     "column_order": 2,
                     "example_values": [
-                        "any"
+                        "any",
+                        "1-A10"
                     ]
                 },
                 {
@@ -550,7 +554,8 @@
                     "column_name": "From",
                     "column_order": 1,
                     "example_values": [
-                        "any"
+                        "any",
+                        "1-A1"
                     ]
                 },
                 {
@@ -558,7 +563,8 @@
                     "data_type": "numeric",
                     "example_values": [
                         1074741825,
-                        3
+                        3,
+                        1
                     ]
                 },
                 {
@@ -1108,7 +1114,85 @@
                     "data_path": "action_result.summary.total_firewall_policies",
                     "data_type": "numeric",
                     "example_values": [
-                        6
+                        6,
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.wanopt",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.webcache",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.disclaimer",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.utm-status",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.capture-packet",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.webcache-https",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ssl-ssh-profile",
+                    "data_type": "string",
+                    "example_values": [
+                        "deep-inspection"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.timeout-send-rst",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.auto-asic-offload",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.passive-wan-health-measurement",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package_path",
+                    "data_type": "string",
+                    "example_values": [
+                        "firewall-policy-path"
                     ]
                 }
             ],
@@ -1814,6 +1898,138 @@
                 "height": 5,
                 "title": "Unblock Ip"
             }
+        },
+        {
+            "action": "delete firewall policy",
+            "description": "Delete an ADOM firewall policy",
+            "type": "generic",
+            "identifier": "delete_firewall_policy",
+            "read_only": true,
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "package": {
+                    "description": "The Policy Package name or full folder path of the firewall policy to delete",
+                    "data_type": "string",
+                    "required": true,
+                    "default": "default",
+                    "order": 2
+                },
+                "policy_id": {
+                    "description": "Policy ID (can be retrieved from 'List Firewall Policies' action) to delete",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 3
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "/pm/config/adom/root/pkg/default/firewall/policy/28",
+                        "/pm/config/adom/root/pkg/default/firewall/policy/29"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.status.code",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.status.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "OK"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 0,
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Status: Successfully deleted firewall policy ID: 29"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully deleted firewall policy ID: 29"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.package",
+                    "data_type": "string",
+                    "example_values": [
+                        "default"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.policy_id",
+                    "data_type": "string",
+                    "example_values": [
+                        "28",
+                        "29"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ],
     "pip_dependencies": {

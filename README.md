@@ -121,7 +121,7 @@ action_result.data.\*.oid | numeric |  |   5105  5142
 action_result.data.\*.tos | string |  |   0x00 
 action_result.data.\*.dsri | numeric |  |   0 
 action_result.data.\*.name | string |  |   soar-footer-firewall-name 
-action_result.data.\*.uuid | string |  |   c33e106e-4117-51ee-1771-7827f531ca41  987cb312-3d16-51ee-a38e-2a5f3b237725 
+action_result.data.\*.uuid | string |  |   c33e106e-4117-51ee-1771-7827f531ca41  987cb312-3d16-51ee-a38e-2a5f3b237725  328ee00e-5100-51ee-7bf8-0e865287254f 
 action_result.data.\*.wccp | numeric |  |   0 
 action_result.data.\*._byte | numeric |  |   0 
 action_result.data.\*._pkts | numeric |  |   0 
@@ -133,13 +133,13 @@ action_result.data.\*.status | numeric |  |   1
 action_result.data.\*.cgn-eif | numeric |  |   0 
 action_result.data.\*.cgn-eim | numeric |  |   0 
 action_result.data.\*.dstaddr | string |  |   all 
-action_result.data.\*.dstintf | string |  |   any 
+action_result.data.\*.dstintf | string |  |   any  1-A10 
 action_result.data.\*.obj seq | numeric |  |   1 
 action_result.data.\*.rtp-nat | numeric |  |   0 
 action_result.data.\*.service | string |  |   ALL 
 action_result.data.\*.srcaddr | string |  |   all 
-action_result.data.\*.srcintf | string |  |   any 
-action_result.data.\*.policyid | numeric |  |   1074741825  3 
+action_result.data.\*.srcintf | string |  |   any  1-A1 
+action_result.data.\*.policyid | numeric |  |   1074741825  3  1 
 action_result.data.\*.schedule | string |  |   always 
 action_result.data.\*.tos-mask | string |  |   0x00 
 action_result.data.\*._hitcount | numeric |  |   0 
@@ -218,7 +218,18 @@ summary.total_objects_successful | numeric |  |   1
 action_result.data.\*.vpn_dst_node | string |  |  
 action_result.data.\*.vpn_src_node | string |  |  
 action_result.parameter.adom | string |  |   root 
-action_result.summary.total_firewall_policies | numeric |  |   6   
+action_result.summary.total_firewall_policies | numeric |  |   6  1 
+action_result.data.\*.wanopt | numeric |  |   0 
+action_result.data.\*.webcache | numeric |  |   0 
+action_result.data.\*.disclaimer | numeric |  |   0 
+action_result.data.\*.utm-status | numeric |  |   0 
+action_result.data.\*.capture-packet | numeric |  |   0 
+action_result.data.\*.webcache-https | numeric |  |   0 
+action_result.data.\*.ssl-ssh-profile | string |  |   deep-inspection 
+action_result.data.\*.timeout-send-rst | numeric |  |   0 
+action_result.data.\*.auto-asic-offload | numeric |  |   1 
+action_result.data.\*.passive-wan-health-measurement | numeric |  |   0 
+action_result.parameter.package_path | string |  |   firewall-policy-path   
 
 ## action: 'create address'
 Create a firewall address object

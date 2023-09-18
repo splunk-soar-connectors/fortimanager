@@ -36,6 +36,7 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [delete address](#action-delete-address) - Delete firewall address object  
 [block ip](#action-block-ip) - Block ADOM level IP addresses  
 [unblock ip](#action-unblock-ip) - Unblock ADOM level IP addresses  
+[delete firewall policy](#action-delete-firewall-policy) - Delete an ADOM firewall policy  
 
 ## action: 'test connectivity'
 Validate the asset configuration for connectivity using supplied configuration
@@ -52,7 +53,7 @@ No Output
 ## action: 'create firewall policy'
 Create an ADOM firewall policy
 
-Type: **investigate**  
+Type: **generic**  
 Read only: **True**
 
 #### Action Parameters
@@ -62,14 +63,14 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **adom** |  optional  | ADOM name | string | 
 **package** |  required  | The Policy Package name or full folder path to create the firewall policy within | string | 
 **name** |  required  | Policy name to create | string | 
-**source_interface** |  required  | Incoming (ingress) interface to specify for the firewall policy | string | 
-**destination_interface** |  required  | Outgoing (egress) interface to specify for the firewall policy | string | 
-**source_address** |  required  | Source IPv4 Address and address group names to specify for the firewall policy | string | 
-**destination_address** |  required  | Destination IPv4 Address and address group names to specify for the firewall policy | string | 
+**source_interface** |  required  | Incoming (ingress) interface to specify for the firewall policy. If specifying more than one, enter as a comma separated list | string | 
+**destination_interface** |  required  | Outgoing (egress) interface to specify for the firewall policy. If specifying more than one, enter as a comma separated list | string | 
+**source_address** |  required  | Source IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma separated list | string | 
+**destination_address** |  required  | Destination IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma separated list | string | 
 **action** |  required  | Policy action to specify for the firewall policy. Accept: Allows sessions that match the firewall policy. Deny: Blocks sessions that match the firewall policy. IPSec: Firewall policy becomes a policy-based IPsec VPN policy | string | 
 **status** |  required  | 'Enable' or 'Disable' this firewall policy on your FortiManager instance | string | 
 **schedule** |  required  | Name for the schedule to be associated with the firewall policy (e.g. always, none) | string | 
-**service** |  required  | Service and Service group names to create for the firewall policy | string | 
+**service** |  required  | Service and Service group names to create for the firewall policy. If specifying more than one, enter as a comma separated list | string | 
 **inspection_mode** |  required  | Firewall policy Inspection Mode | string | 
 **log_traffic** |  required  | Enables or disables logging of either all sessions or only security profile sessions | string | 
 
@@ -355,4 +356,34 @@ action_result.parameter.ip_addresses | string |  |   192.168.4.4,192.168.14.0/24
 action_result.parameter.address_group_name | string |  |   example_test_addr_grp 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
-action_result.parameter.package_path | string |  |   my_package_folder 
+action_result.parameter.package_path | string |  |   my_package_folder   
+
+## action: 'delete firewall policy'
+Delete an ADOM firewall policy
+
+Type: **generic**  
+Read only: **True**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM | string | 
+**adom** |  optional  | ADOM name | string | 
+**package** |  required  | The Policy Package name or full folder path of the firewall policy to delete | string | 
+**policy_id** |  required  | Policy ID (can be retrieved from 'List Firewall Policies' action) to delete | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.url | string |  |   /pm/config/adom/root/pkg/default/firewall/policy/28  /pm/config/adom/root/pkg/default/firewall/policy/29 
+action_result.data.\*.status.code | numeric |  |   0 
+action_result.data.\*.status.message | string |  |   OK 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Status: Successfully deleted firewall policy ID: 29 
+action_result.summary.status | string |  |   Successfully deleted firewall policy ID: 29 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.package | string |  |   default 
+action_result.parameter.policy_id | string |  |   28  29 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 
+action_result.parameter.adom | string |  |   root 

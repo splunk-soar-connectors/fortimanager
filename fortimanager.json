@@ -1256,7 +1256,8 @@
                     "data_path": "action_result.data.*.oid",
                     "data_type": "numeric",
                     "example_values": [
-                        3189
+                        3189,
+                        5266
                     ]
                 },
                 {
@@ -1268,21 +1269,28 @@
                     "data_path": "action_result.data.*.name",
                     "data_type": "string",
                     "example_values": [
-                        "EMS_ALL_UNKNOWN_CLIENTS"
-                    ]
+                        "EMS_ALL_UNKNOWN_CLIENTS",
+                        "192.168.1.1"
+                    ],
+                    "column_name": "Address Name",
+                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.data.*.type",
                     "data_type": "string",
                     "example_values": [
-                        "dynamic"
-                    ]
+                        "dynamic",
+                        "ipmask"
+                    ],
+                    "column_name": "Address Type",
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.data.*.uuid",
                     "data_type": "string",
                     "example_values": [
-                        "6a5e837c-14dd-51ee-0eda-bba486fb4162"
+                        "6a5e837c-14dd-51ee-0eda-bba486fb4162",
+                        "827d7880-5599-51ee-0445-701f26e672f1"
                     ]
                 },
                 {
@@ -1296,7 +1304,8 @@
                     "data_path": "action_result.data.*.dirty",
                     "data_type": "string",
                     "example_values": [
-                        "clean"
+                        "clean",
+                        "dirty"
                     ]
                 },
                 {
@@ -1363,7 +1372,9 @@
                     "data_type": "string",
                     "example_values": [
                         "gmail.com"
-                    ]
+                    ],
+                    "column_name": "FQDN",
+                    "column_order": 5
                 },
                 {
                     "data_path": "action_result.data.*.cache-ttl",
@@ -1397,7 +1408,8 @@
                     "data_path": "action_result.message",
                     "data_type": "string",
                     "example_values": [
-                        "Total address objects returned: 9"
+                        "Total address objects returned: 9",
+                        "Total address objects: 30"
                     ]
                 },
                 {
@@ -1461,6 +1473,64 @@
                     "data_type": "numeric",
                     "example_values": [
                         1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.subnet",
+                    "data_type": "string",
+                    "example_values": [
+                        "255.255.255.255"
+                    ],
+                    "contains": [
+                        "ip",
+                        "ipmask"
+                    ],
+                    "column_name": "Subnet",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.data.*.comment",
+                    "data_type": "string",
+                    "example_values": [
+                        "IPv4 addresses of Fabric Devices."
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.end-ip",
+                    "data_type": "string",
+                    "example_values": [
+                        "10.212.134.210"
+                    ],
+                    "contains": [
+                        "ip"
+                    ],
+                    "column_name": "End IP",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.data.*.start-ip",
+                    "data_type": "string",
+                    "example_values": [
+                        "10.212.134.200"
+                    ],
+                    "contains": [
+                        "ip"
+                    ],
+                    "column_name": "Start IP",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.data.*.policy-group",
+                    "data_type": "string",
+                    "example_values": [
+                        "test-group"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_address_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        30
                     ]
                 }
             ],
@@ -1844,7 +1914,8 @@
                 },
                 {
                     "data_path": "action_result.data.*.list",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": []
                 },
                 {
                     "data_path": "action_result.data.*.name",
@@ -1853,7 +1924,10 @@
                         "192.168.1.1"
                     ],
                     "column_name": "Address Name",
-                    "column_order": 0
+                    "column_order": 0,
+                    "contains": [
+                        "ip"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.type",
@@ -1892,14 +1966,16 @@
                         "255.255.255.255"
                     ],
                     "contains": [
-                        "ipmask"
+                        "ipmask",
+                        "ip"
                     ],
                     "column_name": "Subnet",
                     "column_order": 2
                 },
                 {
                     "data_path": "action_result.data.*.tagging",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": []
                 },
                 {
                     "data_path": "action_result.data.*.obj-type",
@@ -1945,7 +2021,8 @@
                 },
                 {
                     "data_path": "action_result.data.*.dynamic_mapping",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": []
                 },
                 {
                     "data_path": "action_result.data.*.associated-interface",

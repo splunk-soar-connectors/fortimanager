@@ -355,13 +355,16 @@ class FortimanagerConnector(BaseConnector):
         if response_code == 0:
             if type(response_data) == list:
                 for addr in response_data:
+                    if addr.get('subnet'):
+                        addr['subnet'] = '/'.join(addr.get('subnet'))
+
                     action_result.add_data(addr)
 
-                summary = {'total_address_objects_returned': len(response_data)}
+                summary = {'total_address_objects': len(response_data)}
                 action_result.update_summary(summary)
             else:
                 action_result.add_data(response_data)
-                summary = {'total_address_objects_returned': 1}
+                summary = {'total_address_objects': 1}
                 action_result.update_summary(summary)
 
             return action_result.set_status(phantom.APP_SUCCESS)

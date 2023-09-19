@@ -661,16 +661,16 @@ class FortimanagerConnector(BaseConnector):
             if isinstance(response_data, bool):
                 return action_result.set_status(phantom.APP_ERROR, "Failed to update address group with block IP objects")
 
+            result.update(create_address_objects_result)
             action_result.add_data(result)
-            action_result.add_data(create_address_objects_result)
 
             summary = action_result.update_summary({})
             for key in result:
-                summary[key] = result[key]
+                summary["total_{}".format(key)] = len(result[key])
 
             fmg_instance.commit_changes(adom)
 
-            return action_result.set_status(phantom.APP_SUCCESS, "Block IP action successful")
+            return action_result.set_status(phantom.APP_SUCCESS)
 
         except Exception as e:
             self.save_progress("ADOM level block IP action failed")

@@ -32,9 +32,10 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
 [create firewall policy](#action-create-firewall-policy) - Create an ADOM firewall policy  
 [list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies  
-[list addresses](#action-list-addresses) - List firewall address objects 
+[list addresses](#action-list-addresses) - List firewall address objects  
 [create address](#action-create-address) - Create a firewall address object  
 [delete address](#action-delete-address) - Delete firewall address object  
+[list addresses](#action-list-addresses) - List firewall address objects  
 [block ip](#action-block-ip) - Block ADOM level IP addresses  
 [unblock ip](#action-unblock-ip) - Unblock ADOM level IP addresses  
 [delete firewall policy](#action-delete-firewall-policy) - Delete an ADOM firewall policy  
@@ -230,7 +231,7 @@ action_result.data.\*.ssl-ssh-profile | string |  |   deep-inspection
 action_result.data.\*.timeout-send-rst | numeric |  |   0 
 action_result.data.\*.auto-asic-offload | numeric |  |   1 
 action_result.data.\*.passive-wan-health-measurement | numeric |  |   0 
-action_result.parameter.package_path | string |  |   firewall-policy-path 
+action_result.parameter.package_path | string |  |   firewall-policy-path   
 
 ## action: 'list addresses'
 List firewall address objects
@@ -251,13 +252,13 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 #### Action Output
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 --------- | ---- | -------- | --------------
-action_result.data.\*.oid | numeric |  |   3189 
+action_result.data.\*.oid | numeric |  |   3189  5266 
 action_result.data.\*.list | string |  |  
-action_result.data.\*.name | string |  |   EMS_ALL_UNKNOWN_CLIENTS 
-action_result.data.\*.type | string |  |   dynamic 
-action_result.data.\*.uuid | string |  |   6a5e837c-14dd-51ee-0eda-bba486fb4162 
+action_result.data.\*.name | string |  |   EMS_ALL_UNKNOWN_CLIENTS  192.168.1.1 
+action_result.data.\*.type | string |  |   dynamic  ipmask 
+action_result.data.\*.uuid | string |  |   6a5e837c-14dd-51ee-0eda-bba486fb4162  827d7880-5599-51ee-0445-701f26e672f1 
 action_result.data.\*.color | numeric |  |   0 
-action_result.data.\*.dirty | string |  |   clean 
+action_result.data.\*.dirty | string |  |   clean  dirty 
 action_result.data.\*.tagging | string |  |  
 action_result.data.\*.obj-type | string |  |   ip 
 action_result.data.\*.sub-type | string |  |   ems-tag 
@@ -272,7 +273,7 @@ action_result.data.\*.cache-ttl | numeric |  |   0
 action_result.data.\*.allow-routing | string |  |   disable 
 action_result.data.\*.macaddr | string |  |   00:11:22:33:44:58 
 action_result.status | string |  |   success 
-action_result.message | string |  |   Total address objects returned: 9 
+action_result.message | string |  |   Total address objects returned: 9  Total address objects: 30 
 action_result.summary.total_address_objects_returned | numeric |  |   9 
 action_result.parameter.adom | string |  |   root 
 action_result.parameter.level | string |  |   ADOM 
@@ -282,6 +283,12 @@ action_result.parameter.offset | string |  |   0
 action_result.parameter.filter_by | string |  |   [["type", ">=", 2]] 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
+action_result.data.\*.subnet | string |  `ip`  `ipmask`  |   255.255.255.255 
+action_result.data.\*.comment | string |  |   IPv4 addresses of Fabric Devices. 
+action_result.data.\*.end-ip | string |  `ip`  |   10.212.134.210 
+action_result.data.\*.start-ip | string |  `ip`  |   10.212.134.200 
+action_result.data.\*.policy-group | string |  |   test-group 
+action_result.summary.total_address_objects | numeric |  |   30   
 
 ## action: 'create address'
 Create a firewall address object
@@ -296,7 +303,7 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **adom** |  optional  | Administrative Domain Name | string | 
 **address_type** |  required  | Type of address to create | string | 
 **address_name** |  required  | Address name | string |  `fortimanager address name` 
-**subnet** |  optional  | IP address and netmask (e.g. 0.0.0.0/32) | string |  `ip`  `netmask` 
+**subnet** |  optional  | IP address and netmask (e.g. 0.0.0.0/32) | string |  `ip`  `ipmask` 
 **fqdn** |  optional  | Fully Qualified Domain Name | string | 
 **policy_group_name** |  optional  | Name of policy group to be added to address | string | 
 
@@ -304,7 +311,7 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 --------- | ---- | -------- | --------------
 action_result.parameter.adom | string |  |   root 
-action_result.parameter.subnet | string |  `ip`  `netmask`  |   0.0.0.0 
+action_result.parameter.subnet | string |  `ip`  `ipmask`  |   0.0.0.0 
 action_result.parameter.policy_group_name | string |  |   group1 
 action_result.data.\*.name | string |  |   test-fqdn 
 action_result.status | string |  |   success  failed 
@@ -344,6 +351,62 @@ action_result.parameter.address_name | string |  `fortimanager address name`  | 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
 action_result.summary.status | string |  |   Successfully deleted address object   
+
+## action: 'list addresses'
+List firewall address objects
+
+Type: **generic**  
+Read only: **True**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type | string | 
+**adom** |  optional  | ADOM name | string | 
+**address_name** |  optional  | Name of address object to retrieve. If none is specified, this action will return all matching values. | string |  `fortimanager address name` 
+**filter_by** |  optional  | Criteria to filter results by. Use the following format to specify filter: [["{attribute}", "==", "{value}"]] | string | 
+**limit** |  optional  | Maximum number of addresses to return. Default is 0, which returns all results. | numeric | 
+**offset** |  optional  | The starting point of the results to be returned. | numeric | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.oid | numeric |  |   5266 
+action_result.data.\*.list | string |  |  
+action_result.data.\*.name | string |  `ip`  |   192.168.1.1 
+action_result.data.\*.type | string |  |   ipmask 
+action_result.data.\*.uuid | string |  |   827d7880-5599-51ee-0445-701f26e672f1 
+action_result.data.\*.color | numeric |  |   0 
+action_result.data.\*.dirty | string |  |   dirty 
+action_result.data.\*.subnet | string |  `ipmask`  `ip`  |   255.255.255.255 
+action_result.data.\*.tagging | string |  |  
+action_result.data.\*.obj-type | string |  |   ip 
+action_result.data.\*.route-tag | numeric |  |   0 
+action_result.data.\*.node-ip-only | string |  |   disable 
+action_result.data.\*.allow-routing | string |  |   disable 
+action_result.data.\*.clearpass-spt | string |  |   unknown 
+action_result.data.\*.fabric-object | string |  |   disable 
+action_result.data.\*.dynamic_mapping | string |  |  
+action_result.data.\*.associated-interface | string |  |   any 
+action_result.data.\*.sub-type | string |  |   ems-tag 
+action_result.data.\*.comment | string |  |   IPv4 addresses of Fabric Devices. 
+action_result.data.\*.end-ip | string |  `ip`  |   10.212.134.210 
+action_result.data.\*.start-ip | string |  `ip`  |   10.212.134.200 
+action_result.data.\*.fqdn | string |  |   gmail.com 
+action_result.data.\*.cache-ttl | numeric |  |   0 
+action_result.data.\*.policy-group | string |  |   test-group 
+action_result.data.\*.macaddr | string |  |   00:11:22:33:44:58 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Total address objects: 30 
+action_result.summary.total_address_objects | numeric |  |   30 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.address_name | string |  `fortimanager address name`  |  
+action_result.parameter.filter_by | string |  |  
+action_result.parameter.limit | numeric |  |   0 
+action_result.parameter.offset | string |  |   0 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1   
 
 ## action: 'block ip'
 Block ADOM level IP addresses

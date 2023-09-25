@@ -1284,7 +1284,7 @@
                         "ip",
                         "netmask"
                     ],
-                    "column_name": "Subnet",
+                    "column_name": "IP/Netmask",
                     "column_order": 3
                 },
                 {
@@ -1635,7 +1635,7 @@
                         "netmask",
                         "ip"
                     ],
-                    "column_name": "Subnet",
+                    "column_name": "IP/Netmask",
                     "column_order": 2
                 },
                 {
@@ -1958,7 +1958,7 @@
                         "ip",
                         "ipmask"
                     ],
-                    "column_name": "Subnet",
+                    "column_name": "IP/Netmask",
                     "column_order": 1
                 },
                 {

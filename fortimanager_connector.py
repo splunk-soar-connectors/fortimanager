@@ -525,6 +525,7 @@ class FortimanagerConnector(BaseConnector):
             summary = {'status': UPDATE_ADDRESS_SUCCESS_MSG}
             action_result.update_summary(summary)
             return action_result.set_status(phantom.APP_SUCCESS, UPDATE_ADDRESS_SUCCESS_MSG)
+
         else:
             if response_code == -3:
                 error_msg = 'Object does not exist'

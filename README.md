@@ -363,7 +363,7 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **level** |  required  | Level type | string | 
 **adom** |  optional  | ADOM name | string | 
 **address_name** |  required  | Name of address object to update | string |  `fortimanager address name` 
-**subnet** |  optional  | Updated IP address and netmask (e.g. 0.0.0.0/32) to assign address object | string |  `ip`  `ipmask` 
+**ip_netmask** |  optional  | Updated IP address and netmask (e.g. 0.0.0.0/32) to assign address object | string |  `ip`  `ipmask` 
 **fqdn** |  optional  | Updated Fully Qualified Domain Name to assign address object | string | 
 **policy_group_name** |  optional  | Name of policy group to be added to address | string | 
 
@@ -375,7 +375,7 @@ action_result.status | string |  |   success
 action_result.message | string |  |   Successfully updated addresss object 
 action_result.parameter.adom | string |  |   root 
 action_result.parameter.level | string |  |   ADOM 
-action_result.parameter.subnet | string |  `ip`  `ipmask`  |   1.2.3.4 
+action_result.parameter.ip_netmask | string |  `ip`  `ipmask`  |   1.2.3.4 
 action_result.parameter.address_name | string |  `fortimanager address name`  |   test123  gmail 
 action_result.parameter.fqdn | string |  |   \*gmail.com 
 action_result.parameter.policy_group_name | string |  |   default 

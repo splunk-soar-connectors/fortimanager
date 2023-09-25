@@ -1245,6 +1245,7 @@
                     "order": 3
                 },
                 "ip_netmask": {
+                    "key": "subnet",
                     "description": "IP address or IP address and netmask. Examples of valid formats: 1.1.1.1, 1.1.1.1/32, 1.1.1.1/255.255.255.255",
                     "data_type": "string",
                     "primary": true,

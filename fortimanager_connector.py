@@ -526,8 +526,12 @@ class FortimanagerConnector(BaseConnector):
             action_result.update_summary(summary)
             return action_result.set_status(phantom.APP_SUCCESS, UPDATE_ADDRESS_SUCCESS_MSG)
         else:
+            if response_code == -3:
+                error_msg = 'Object does not exist'
+            else:
+                error_msg = response_data['status']['message']
             self.save_progress(UPDATE_ADDRESS_SUCCESS_MSG)
-            return action_result.set_status(phantom.APP_ERROR, response_data['status']['message'])
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
 
     def _handle_delete_address(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))

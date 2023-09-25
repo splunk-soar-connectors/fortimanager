@@ -1885,7 +1885,7 @@
                     ],
                     "order": 2
                 },
-                "subnet": {
+                "ip_netmask": {
                     "description": "Updated IP address and netmask (e.g. 0.0.0.0/32) to assign address object",
                     "data_type": "string",
                     "primary": true,
@@ -1949,7 +1949,7 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.subnet",
+                    "data_path": "action_result.parameter.ip_netmask",
                     "data_type": "string",
                     "example_values": [
                         "1.2.3.4"

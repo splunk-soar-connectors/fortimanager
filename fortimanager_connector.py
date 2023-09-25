@@ -749,7 +749,7 @@ class FortimanagerConnector(BaseConnector):
             for key in result:
                 summary["total_{}".format(key)] = len(result[key])
 
-            fmg_instance.commit_changes()
+            fmg_instance.commit_changes(adom)
 
             return action_result.set_status(phantom.APP_SUCCESS)
 

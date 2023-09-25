@@ -1519,7 +1519,7 @@
             "identifier": "block_ip",
             "description": "Block ADOM level IP addresses",
             "type": "contain",
-            "read_only": true,
+            "read_only": false,
             "undo": "unblock ip",
             "parameters": {
                 "level": {
@@ -1729,7 +1729,7 @@
             "identifier": "unblock_ip",
             "description": "Unblock ADOM level IP addresses",
             "type": "contain",
-            "read_only": true,
+            "read_only": false,
             "undo": "block ip",
             "parameters": {
                 "level": {
@@ -2026,6 +2026,94 @@
                     ]
                 }
             ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "block url",
+            "identifier": "block_url",
+            "description": "Block ADOM level URLs",
+            "type": "contain",
+            "read_only": false,
+            "undo": "unblock url",
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to block URLs. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "web_filter_profile_name": {
+                    "description": "The Web Filter profile name to use to block URLs",
+                    "data_type": "string",
+                    "required": true,
+                    "default": "default",
+                    "order": 2
+                },
+                "urls": {
+                    "description": "Comma-separated list of URLs to block",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 3
+                }
+            },
+            "output": [],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "unblock url",
+            "identifier": "unblock_url",
+            "description": "Unblock ADOM level URLs",
+            "type": "contain",
+            "read_only": false,
+            "undo": "block url",
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to unblock URLs. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "web_filter_profile_name": {
+                    "description": "The Web Filter profile name to use to unblock URLs",
+                    "data_type": "string",
+                    "required": true,
+                    "default": "default",
+                    "order": 2
+                },
+                "urls": {
+                    "description": "Comma-separated list of URLs to unblock",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 3
+                }
+            },
+            "output": [],
             "render": {
                 "type": "table"
             },

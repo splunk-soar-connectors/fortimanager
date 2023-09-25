@@ -48,3 +48,6 @@ ADDRESS_INVALID_ERROR_MSG = 'The provided address is either invalid or not suppo
 FILTER_ADDRESS_ERROR_MSG = 'The provided filter string is malformed. The proper format is \"<field>\" <comparison operator> \"<value>\"'
 
 FILTER_ADDRESS_REGEX = r"^\"(?P<field>[a-z]+)\"\s*(?P<comp>(\=|\>|\<|\>\=|\<\=|\=\=))\s*\"(?P<value>.+)\""
+
+ADOM_WEB_FILTER_PROFILE_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/profile'
+ADOM_URL_FILTER_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/urlfilter'

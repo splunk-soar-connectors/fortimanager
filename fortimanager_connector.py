@@ -304,14 +304,86 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
 
     # URLs
+    def _get_urlfilter_profile(self, fmg_instance, adom, urlfilter_table_id):
+        urlfilter_profile_endpoint = ADOM_URL_FILTER_ENDPOINT.format(adom) + '/' + str(urlfilter_table_id)
+        response_code, urlfilter_profile = fmg_instance.get(urlfilter_profile_endpoint)
+        if response_code == 0 and urlfilter_profile:
+            return urlfilter_profile
+        else:
+            return False
+
     def _handle_list_blocked_urls(self, param):
         pass
 
     def _handle_block_url(self, param):
-        pass
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+        web_filter_profile_name = param['web_filter_profile_name']
+        urls_to_block = param['urls']
+        try:
+            fmg_instance = self._login(action_result)
+            fmg_instance.lock_adom(adom)
+            # first get the current web filter profile
+            web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
+            if not web_filter_profile:
+                return action_result.set_status(phantom.APP_ERROR, "Web filter profile {} does not exist".format(
+                    web_filter_profile_name))
+            urls_to_block = self._get_param_list(urls_to_block)
+            # get url filter profile
+            urlfilter_table_id = None
+            if 'web' in web_filter_profile[0]:
+                urlfilter_table_id = web_filter_profile[0]['web'].get('urlfilter-table')[0]
+            urlfilter_profile = self._get_urlfilter_profile(fmg_instance, adom, urlfilter_table_id)
+            # block urls
+            if urlfilter_profile:
+                pass
+
+        except Exception as e:
+            self.save_progress("ADOM level block URL action failed")
+            self.debug_print("ADOM level block URL action failed: {}".format(self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
 
     def _handle_unblock_url(self, param):
-        pass
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+        web_filter_profile_name = param['web_filter_profile_name']
+        urls_to_unblock = param['urls']
+        try:
+            fmg_instance = self._login(action_result)
+            fmg_instance.lock_adom(adom)
+            # first get the current web filter profile
+            web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
+            if not web_filter_profile:
+                return action_result.set_status(phantom.APP_ERROR, "Web filter profile {} does not exist".format(
+                    web_filter_profile_name))
+            urls_to_unblock = self._get_param_list(urls_to_unblock)
+
+        except Exception as e:
+            self.save_progress("ADOM level unblock URL action failed")
+            self.debug_print("ADOM level unblock URL action failed: {}".format(self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
 
     # Address Objects
     def _handle_list_addresses(self, param):
@@ -465,14 +537,6 @@ class FortimanagerConnector(BaseConnector):
     def _handle_list_web_filters(self, param):
         pass
 
-    def _get_ip_list(self, ip_list):
-        # IP list can be a string or a list
-        if isinstance(ip_list, list):
-            pass
-        elif isinstance(ip_list, str):
-            ip_list = ip_list.strip(' ').split(',')
-        return ip_list
-
     def _get_current_policy_ips(self, fmg_instance, adom, package, policy_name):
         policy_endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=package)
         filter = ["name", "==", policy_name]
@@ -557,7 +621,7 @@ class FortimanagerConnector(BaseConnector):
 
         policy_name = param['policy_name']
         address_group_name = param['address_group_name']
-        ip_addresses_to_block = self._get_ip_list(param['ip_addresses'])
+        ip_addresses_to_block = self._get_param_list(param['ip_addresses'])
 
         already_blocked_ips = []
         ip_block_list = []
@@ -646,7 +710,7 @@ class FortimanagerConnector(BaseConnector):
 
         policy_name = param['policy_name']
         address_group_name = param['address_group_name']
-        ip_addresses_to_unblock = self._get_ip_list(param['ip_addresses'])
+        ip_addresses_to_unblock = self._get_param_list(param['ip_addresses'])
 
         currently_blocked_ips = []
         ip_unblock_list = []
@@ -707,6 +771,16 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.unlock_adom(adom)
             fmg_instance.logout()
 
+    def _get_web_filter_profile(self, fmg_instance, adom, web_filter_profile_name):
+        web_filter_profile_endpoint = ADOM_WEB_FILTER_PROFILE_ENDPOINT.format(adom=adom)
+        filter = ["name", "==", web_filter_profile_name]
+
+        response_code, web_filter_profile = fmg_instance.get(web_filter_profile_endpoint, filter=filter)
+        if response_code == 0 and web_filter_profile:
+            return web_filter_profile
+        else:
+            return False
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -730,7 +804,11 @@ class FortimanagerConnector(BaseConnector):
         elif action_id == 'unblock_ip':
             ret_val = self._handle_unblock_ip(param)
         elif action_id == 'delete_firewall_policy':
-            ret_val = self._handle_delete_firewall_policy(param)
+            ret_val = self._handle_delete_firewall_policy(param),
+        elif action_id == 'block_url':
+            ret_val = self._handle_block_url(param)
+        elif action_id == 'unblock_url':
+            ret_val = self._handle_unblock_url(param)
 
         return ret_val
 

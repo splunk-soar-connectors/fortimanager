@@ -460,7 +460,7 @@ class FortimanagerConnector(BaseConnector):
         level = param['level']
         name = param['address_name']
 
-        subnet = param.get('subnet')
+        subnet = param.get('ip_netmask')
         fqdn = param.get('fqdn')
         policy_group = param.get('policy_group_name')
 

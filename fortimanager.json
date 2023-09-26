@@ -1560,13 +1560,13 @@
                 "limit": {
                     "description": "Maximum number of addresses to return. Default is 0, which returns all results.",
                     "data_type": "numeric",
-                    "default": "0",
+                    "default": 0,
                     "order": 4
                 },
                 "offset": {
                     "description": "The starting point of the results to be returned.",
                     "data_type": "numeric",
-                    "default": "0",
+                    "default": 0,
                     "order": 5
                 }
             },
@@ -1824,7 +1824,7 @@
                 },
                 {
                     "data_path": "action_result.parameter.offset",
-                    "data_type": "string",
+                    "data_type": "numeric",
                     "example_values": [
                         "0"
                     ]

@@ -1244,13 +1244,14 @@
                     ],
                     "order": 3
                 },
-                "subnet": {
-                    "description": "IP address and netmask (e.g. 0.0.0.0/32)",
+                "ip_netmask": {
+                    "key": "subnet",
+                    "description": "IP address or IP address and netmask. Examples of valid formats: 1.1.1.1, 1.1.1.1/32, 1.1.1.1/255.255.255.255",
                     "data_type": "string",
                     "primary": true,
                     "contains": [
                         "ip",
-                        "ipmask"
+                        "netmask"
                     ],
                     "order": 4
                 },
@@ -1274,16 +1275,16 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.subnet",
+                    "data_path": "action_result.parameter.ip_netmask",
                     "data_type": "string",
                     "example_values": [
                         "0.0.0.0"
                     ],
                     "contains": [
                         "ip",
-                        "ipmask"
+                        "netmask"
                     ],
-                    "column_name": "Subnet",
+                    "column_name": "IP/Netmask",
                     "column_order": 3
                 },
                 {
@@ -1297,6 +1298,9 @@
                 {
                     "data_path": "action_result.data.*.name",
                     "data_type": "string",
+                    "contains": [
+                        "fortimanager address name"
+                    ],
                     "example_values": [
                         "test-fqdn"
                     ]
@@ -1542,6 +1546,7 @@
                 "address_name": {
                     "description": "Name of address object to retrieve. If none is specified, this action will return all matching values.",
                     "data_type": "string",
+                    "primary": true,
                     "contains": [
                         "fortimanager address name"
                     ],
@@ -1555,13 +1560,13 @@
                 "limit": {
                     "description": "Maximum number of addresses to return. Default is 0, which returns all results.",
                     "data_type": "numeric",
-                    "default": "0",
+                    "default": 0,
                     "order": 4
                 },
                 "offset": {
                     "description": "The starting point of the results to be returned.",
                     "data_type": "numeric",
-                    "default": "0",
+                    "default": 0,
                     "order": 5
                 }
             },
@@ -1584,11 +1589,11 @@
                     "example_values": [
                         "192.168.1.1"
                     ],
-                    "column_name": "Address Name",
-                    "column_order": 0,
                     "contains": [
-                        "ip"
-                    ]
+                        "fortimanager address name"
+                    ],
+                    "column_name": "Address Name",
+                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.data.*.type",
@@ -1627,10 +1632,10 @@
                         "255.255.255.255"
                     ],
                     "contains": [
-                        "ipmask",
+                        "netmask",
                         "ip"
                     ],
-                    "column_name": "Subnet",
+                    "column_name": "IP/Netmask",
                     "column_order": 2
                 },
                 {
@@ -1819,7 +1824,7 @@
                 },
                 {
                     "data_path": "action_result.parameter.offset",
-                    "data_type": "string",
+                    "data_type": "numeric",
                     "example_values": [
                         "0"
                     ]
@@ -1844,6 +1849,172 @@
                 "width": 12,
                 "height": 5,
                 "title": "List Addresses"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "update address",
+            "identifier": "update_address",
+            "description": "Update existing firewall address object",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "level": {
+                    "description": "Level type",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "address_name": {
+                    "description": "Name of address object to update",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": true,
+                    "contains": [
+                        "fortimanager address name"
+                    ],
+                    "order": 2
+                },
+                "ip_netmask": {
+                    "description": "Updated IP address and netmask (e.g. 0.0.0.0/32) to assign address object",
+                    "data_type": "string",
+                    "primary": true,
+                    "contains": [
+                        "ip",
+                        "ipmask"
+                    ],
+                    "order": 3
+                },
+                "fqdn": {
+                    "description": "Updated Fully Qualified Domain Name to assign address object",
+                    "data_type": "string",
+                    "order": 4
+                },
+                "policy_group_name": {
+                    "description": "Name of policy group to be added to address",
+                    "data_type": "string",
+                    "order": 5
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string",
+                    "contains": [
+                        "fortimanager address name"
+                    ],
+                    "example_values": [
+                        "test123",
+                        "gmail"
+                    ],
+                    "column_name": "Address Name",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully updated addresss object"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.ip_netmask",
+                    "data_type": "string",
+                    "example_values": [
+                        "1.2.3.4"
+                    ],
+                    "contains": [
+                        "ip",
+                        "ipmask"
+                    ],
+                    "column_name": "IP/Netmask",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.address_name",
+                    "data_type": "string",
+                    "contains": [
+                        "fortimanager address name"
+                    ],
+                    "example_values": [
+                        "test123",
+                        "gmail"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.fqdn",
+                    "data_type": "string",
+                    "example_values": [
+                        "*gmail.com"
+                    ],
+                    "column_name": "FQDN",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.parameter.policy_group_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "default"
+                    ],
+                    "column_name": "Policy Group",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully updated addresss object"
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table",
+                "title": "Update Address"
             },
             "versions": "EQ(*)"
         },

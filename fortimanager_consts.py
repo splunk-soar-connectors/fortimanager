@@ -45,6 +45,8 @@ DELETE_ADDRESS_SUCCESS_MSG = 'Successfully deleted address object'
 DELETE_ADDRESS_FAILED_MSG = 'Failed to delete address object'
 LIST_ADDRESSES_SUCCESS_MSG = 'Successfully retrieved address object(s)'
 LIST_ADDRESSES_FAILED_MSG = 'Failed to retrieve address object(s)'
+UPDATE_ADDRESS_SUCCESS_MSG = 'Successfully updated address object'
+UPDATE_ADDRESS_FAILED_MSG = 'Failed to update address object'
 
 ADDRESS_INVALID_ERROR_MSG = 'The provided address is either invalid or not supported'
 FILTER_ADDRESS_ERROR_MSG = 'The provided filter string is malformed. The proper format is \"<field>\" <comparison operator> \"<value>\"'

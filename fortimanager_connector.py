@@ -363,6 +363,9 @@ class FortimanagerConnector(BaseConnector):
                 summary = {'total_address_objects': len(response_data)}
                 action_result.update_summary(summary)
             else:
+                if response_data.get('subnet'):
+                    response_data['subnet'] = '/'.join(response_data.get('subnet'))
+
                 action_result.add_data(response_data)
                 summary = {'total_address_objects': 1}
                 action_result.update_summary(summary)
@@ -420,7 +423,7 @@ class FortimanagerConnector(BaseConnector):
             data['name'] = name
 
             if addr_type == 'Subnet':
-                ip_addr = param.get('subnet')
+                ip_addr = param.get('ip_netmask')
                 data['subnet'] = ipaddress.IPv4Interface(ip_addr).with_netmask.split('/')
                 data['type'] = 'ipmask'
 
@@ -451,7 +454,85 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, response_data['status']['message'])
 
     def _handle_update_address(self, param):
-        pass
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        name = param['address_name']
+
+        subnet = param.get('ip_netmask')
+        fqdn = param.get('fqdn')
+        policy_group = param.get('policy_group_name')
+
+        if level == "ADOM":
+            adom = param.get('adom', 'root')
+            url = SPECIFIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
+
+        fmg_instance = None
+        data = {}
+
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress("login successful")
+
+        except Exception as e:
+            self.save_progress(UPDATE_ADDRESS_FAILED_MSG)
+            self.debug_print("{}: {}".format(UPDATE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        # acquire lock
+        try:
+            lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+            if lock_code == 0:
+                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+            else:
+                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+        except Exception as e:
+            self.save_progress(UPDATE_ADDRESS_FAILED_MSG)
+            self.debug_print("{}: {}".format(UPDATE_ADDRESS_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            fmg_instance.logout()
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        # then actually update address
+        try:
+            if subnet:
+                data['subnet'] = ipaddress.IPv4Interface(subnet).with_netmask.split('/')
+
+            if fqdn:
+                data['fqdn'] = fqdn
+
+            if policy_group:
+                data['policy-group'] = policy_group
+
+            response_code, response_data = fmg_instance.update(url, **data)
+            fmg_instance.commit_changes(adom)
+
+        except Exception as e:
+            self.save_progress(UPDATE_ADDRESS_FAILED_MSG)
+            self.debug_print("{}: {}".format(UPDATE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+
+        if response_code == 0:
+            action_result.add_data(response_data)
+            summary = {'status': UPDATE_ADDRESS_SUCCESS_MSG}
+            action_result.update_summary(summary)
+            return action_result.set_status(phantom.APP_SUCCESS, UPDATE_ADDRESS_SUCCESS_MSG)
+
+        else:
+            if response_code == -3:
+                error_msg = 'Object does not exist'
+            else:
+                error_msg = response_data['status']['message']
+            self.save_progress(UPDATE_ADDRESS_SUCCESS_MSG)
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
 
     def _handle_delete_address(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
@@ -778,6 +859,8 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_delete_address(param)
         elif action_id == 'list_addresses':
             ret_val = self._handle_list_addresses(param)
+        elif action_id == 'update_address':
+            ret_val = self._handle_update_address(param)
         elif action_id == 'create_firewall_policy':
             ret_val = self._handle_create_firewall_policy(param)
         elif action_id == 'list_firewall_policies':

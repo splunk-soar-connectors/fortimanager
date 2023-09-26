@@ -347,7 +347,7 @@ action_result.parameter.level | string |  |   ADOM
 action_result.parameter.address_name | string |  `fortimanager address name`  |  
 action_result.parameter.filter_by | string |  |  
 action_result.parameter.limit | numeric |  |   0 
-action_result.parameter.offset | string |  |   0 
+action_result.parameter.offset | numeric |  |   0 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1   
 

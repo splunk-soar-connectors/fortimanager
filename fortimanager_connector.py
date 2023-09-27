@@ -398,7 +398,10 @@ class FortimanagerConnector(BaseConnector):
                 response_code, response_data = fmg_instance.update(update_urlfilter_endpoint, data=data)
                 if response_code == 0:
                     fmg_instance.commit_changes(adom)
-                    return action_result.set_status(phantom.APP_SUCCESS)
+                    action_result.add_data(response_data)
+                    summary = action_result.update_summary({})
+                    summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
+                    return action_result.set_status(phantom.APP_SUCCESS, ADOM_BLOCK_URL_SUCCESS_MSG)
 
             else:
                 # create a new urlfilter profile
@@ -412,6 +415,10 @@ class FortimanagerConnector(BaseConnector):
                     response_code, response_data = fmg_instance.update(web_filter_endpoint, data=data)
                     if response_code == 0:
                         fmg_instance.commit_changes(adom)
+                        action_result.add_data(response_data)
+                        summary = action_result.update_summary({})
+                        summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
+                        return action_result.set_status(phantom.APP_SUCCESS, ADOM_BLOCK_URL_SUCCESS_MSG)
                     else:
                         return action_result.set_status(phantom.APP_ERROR, ADOM_ADD_URL_FILTER_PROFILE_ERROR_MSG)
                 else:
@@ -493,7 +500,10 @@ class FortimanagerConnector(BaseConnector):
                 response_code, response_data = fmg_instance.update(update_urlfilter_endpoint, data=data)
                 if response_code == 0:
                     fmg_instance.commit_changes(adom)
-                    return action_result.set_status(phantom.APP_SUCCESS)
+                    action_result.add_data(response_data)
+                    summary = action_result.update_summary({})
+                    summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
+                    return action_result.set_status(phantom.APP_SUCCESS, ADOM_UNBLOCK_URL_SUCCESS_MSG)
 
         except Exception as e:
             self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)

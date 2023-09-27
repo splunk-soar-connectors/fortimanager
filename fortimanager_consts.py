@@ -57,7 +57,7 @@ ADOM_URL_FILTER_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/urlfilter'
 # URLs
 ADOM_BLOCK_URL_SUCCESS_MSG = 'Successfully blocked URL'
 ADOM_BLOCK_URL_FAILED_MSG = 'Failed to block URL'
-ADOM_BLOCK_URL_WILDCARD_ERROR_MSG = 'Wildcard URL must include a "*".'
+ADOM_BLOCK_URL_WILDCARD_ERROR_MSG = "Wildcard URL must include a '*'."
 ADOM_BLOCK_URL_EXISTS_ERROR_MSG = 'URL already exists in URL filter list'
 ADOM_UNBLOCK_URL_SUCCESS_MSG = 'Successfully unblocked URL'
 ADOM_UNBLOCK_URL_FAILED_MSG = 'Failed to unblock URL'
@@ -66,5 +66,7 @@ ADOM_WEB_FILTER_PROFILE_DNE_ERROR_MSG = 'Web filter profile {web_filter_profile_
 ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG = 'Malformed web filter profile'
 ADOM_ADD_URL_FILTER_PROFILE_ERROR_MSG = 'Failed to add URL filter profile to web profile'
 ADOM_CREATE_URL_FILTER_PROFILE_ERROR_MSG = 'Failed to create a new URL filter profile'
+ADOM_URL_DNE_WEB_FILTER_PROFILE_ERROR_MSG = 'URL does not exist in web filter profile'
+
 # Misc Messages
 INVALID_LEVEL_ERROR_MSG = 'Invalid level provided. Please select "ADOM" from the dropdown.'

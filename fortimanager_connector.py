@@ -405,7 +405,7 @@ class FortimanagerConnector(BaseConnector):
 
             else:
                 # create a new urlfilter profile
-                data['entries'].append(url_entry)
+                data['entries'] = [url_entry]
                 urlfilter_profile = self._set_urlfilter_profile(fmg_instance, adom, urlfilter_table_id, data)
                 if 'id' in urlfilter_profile:
                     # add it to the webfilter urlfilter-table entries
@@ -415,7 +415,7 @@ class FortimanagerConnector(BaseConnector):
                     response_code, response_data = fmg_instance.update(web_filter_endpoint, data=data)
                     if response_code == 0:
                         fmg_instance.commit_changes(adom)
-                        action_result.add_data(response_data)
+                        action_result.add_data(urlfilter_profile)
                         summary = action_result.update_summary({})
                         summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
                         return action_result.set_status(phantom.APP_SUCCESS, ADOM_BLOCK_URL_SUCCESS_MSG)

@@ -313,7 +313,6 @@ class FortimanagerConnector(BaseConnector):
             return False
 
     def _set_urlfilter_profile(self, fmg_instance, adom, urlfilter_table_id, data):
-        # urlfilter_profile_endpoint = ADOM_URL_FILTER_ENDPOINT.format(adom=adom) + '/' + str(urlfilter_table_id)
         urlfilter_profile_endpoint = ADOM_URL_FILTER_ENDPOINT.format(adom=adom)
         response_code, urlfilter_profile = fmg_instance.add(urlfilter_profile_endpoint, **data)
         if response_code == 0:
@@ -334,14 +333,14 @@ class FortimanagerConnector(BaseConnector):
         if level == 'ADOM':
             adom = param.get('adom', 'root')
         else:
-            return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from the dropdown.')
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
         web_filter_profile_name = param['web_filter_profile_name']
         url_to_block = param['url']
         url_type = param['type']
 
         if url_type == 'wildcard' and '*' not in url_to_block:
-            return action_result.set_status(phantom.APP_ERROR, 'Wildcard URL must include a "*".')
+            return action_result.set_status(phantom.APP_ERROR, ADOM_BLOCK_URL_WILDCARD_ERROR_MSG)
 
         fmg_instance = None
 
@@ -357,22 +356,22 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance = self._login(action_result)
-            self.save_progress("login successful")
+            self.save_progress(LOGIN_SUCCESS_MSG)
 
             fmg_instance.lock_adom(adom)
 
             # first get the current web filter profile
             web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
             if not web_filter_profile:
-                return action_result.set_status(phantom.APP_ERROR, "Web filter profile {} does not exist".format(
-                    web_filter_profile_name))
+                return action_result.set_status(phantom.APP_ERROR,
+                                                ADOM_WEB_FILTER_PROFILE_DNE_ERROR_MSG.format(web_filter_profile_name=web_filter_profile_name))
 
             # get url filter profile attached to the web filter profile if there is one
             urlfilter_table_id = None
             if 'web' in web_filter_profile[0]:
                 urlfilter_table_id = web_filter_profile[0]['web'].get('urlfilter-table')
             else:
-                return action_result.set_status(phantom.APP_ERROR, 'malformed web filter profile')
+                return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
 
             if urlfilter_table_id:
                 if isinstance(urlfilter_table_id, list):
@@ -381,7 +380,7 @@ class FortimanagerConnector(BaseConnector):
                 if urlfilter_profile:
                     data = urlfilter_profile
                 else:
-                    return action_result.set_status(phantom.APP_ERROR, 'Malformed urlfilter profile')
+                    return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
 
                 data.pop('oid', None)
                 entries = data.get('entries', [])
@@ -389,7 +388,7 @@ class FortimanagerConnector(BaseConnector):
                     for entry in entries:
                         [entry.pop(key, None) for key in ['obj seq', 'oid']]
                         if entry.get('url') == url_to_block:
-                            return action_result.set_status(phantom.APP_ERROR, '{} already exists in URL filter list')
+                            return action_result.set_status(phantom.APP_ERROR, ADOM_BLOCK_URL_EXISTS_ERROR_MSG)
                     data['entries'] = entries
 
                 data['entries'].append(url_entry)
@@ -414,13 +413,13 @@ class FortimanagerConnector(BaseConnector):
                     if response_code == 0:
                         fmg_instance.commit_changes(adom)
                     else:
-                        return action_result.set_status(phantom.APP_ERROR, "Failed to add urlfilter profile to web profile")
+                        return action_result.set_status(phantom.APP_ERROR, ADOM_ADD_URL_FILTER_PROFILE_ERROR_MSG)
                 else:
-                    return action_result.set_status(phantom.APP_ERROR, "Failed to create a new urlfilter profile, block url failed")
+                    return action_result.set_status(phantom.APP_ERROR, ADOM_CREATE_URL_FILTER_PROFILE_ERROR_MSG)
 
         except Exception as e:
-            self.save_progress("ADOM level block URL action failed")
-            self.debug_print("ADOM level block URL action failed: {}".format(self._get_error_msg_from_exception(e)))
+            self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
+            self.debug_print('{}: {}'.format(ADOM_BLOCK_URL_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
         finally:
             fmg_instance.unlock_adom(adom)
@@ -438,7 +437,7 @@ class FortimanagerConnector(BaseConnector):
             if not adom:
                 adom = 'root'
         else:
-            return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from the dropdown.')
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
         web_filter_profile_name = param['web_filter_profile_name']
         url_to_unblock = param['url']
@@ -454,15 +453,15 @@ class FortimanagerConnector(BaseConnector):
             # first get the current web filter profile
             web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
             if not web_filter_profile:
-                return action_result.set_status(phantom.APP_ERROR, "Web filter profile {} does not exist".format(
-                    web_filter_profile_name))
+                return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_DNE_ERROR_MSG.format(
+                    web_filter_profile_name=web_filter_profile_name))
 
             # get url filter profile attached to the web filter profile if there is one
             urlfilter_table_id = None
             if 'web' in web_filter_profile[0]:
                 urlfilter_table_id = web_filter_profile[0]['web'].get('urlfilter-table')
             else:
-                return action_result.set_status(phantom.APP_ERROR, 'malformed web filter profile')
+                return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
 
             if urlfilter_table_id:
                 if isinstance(urlfilter_table_id, list):
@@ -471,7 +470,7 @@ class FortimanagerConnector(BaseConnector):
                 if urlfilter_profile:
                     data = urlfilter_profile
                 else:
-                    return action_result.set_status(phantom.APP_ERROR, 'Malformed urlfilter profile')
+                    return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
 
                 data.pop('oid', None)
                 entries = data.get('entries', [])
@@ -485,9 +484,9 @@ class FortimanagerConnector(BaseConnector):
                         del(entries[found])
                         data['entries'] = entries
                     else:
-                        return action_result.set_status(phantom.APP_ERROR, 'URL does not exist in web filter profile')
+                        return action_result.set_status(phantom.APP_ERROR, ADOM_URL_DNE_WEB_FILTER_PROFILE_ERROR_MSG)
                 else:
-                    return action_result.set_status(phantom.APP_ERROR, 'URL does not exist in web filter profile')
+                    return action_result.set_status(phantom.APP_ERROR, ADOM_URL_DNE_WEB_FILTER_PROFILE_ERROR_MSG)
 
                 # update attached urlfilter profile
                 update_urlfilter_endpoint = ADOM_URL_FILTER_ENDPOINT.format(adom=adom) + '/' + str(urlfilter_table_id)
@@ -497,8 +496,8 @@ class FortimanagerConnector(BaseConnector):
                     return action_result.set_status(phantom.APP_SUCCESS)
 
         except Exception as e:
-            self.save_progress("ADOM level unblock URL action failed")
-            self.debug_print("ADOM level unblock URL action failed: {}".format(self._get_error_msg_from_exception(e)))
+            self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
+            self.debug_print('{}: {}'.format(ADOM_BLOCK_URL_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
         finally:
             fmg_instance.unlock_adom(adom)

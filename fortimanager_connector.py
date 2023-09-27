@@ -502,7 +502,7 @@ class FortimanagerConnector(BaseConnector):
                     fmg_instance.commit_changes(adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
-                    summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
+                    summary['status'] = ADOM_UNBLOCK_URL_SUCCESS_MSG
                     return action_result.set_status(phantom.APP_SUCCESS, ADOM_UNBLOCK_URL_SUCCESS_MSG)
 
         except Exception as e:

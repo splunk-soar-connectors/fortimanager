@@ -2062,11 +2062,23 @@
                     "default": "default",
                     "order": 2
                 },
-                "urls": {
-                    "description": "Comma-separated list of URLs to block",
+                "url": {
+                    "description": "URL to block",
                     "data_type": "string",
                     "required": true,
                     "order": 3
+                },
+                "type": {
+                    "description": "Type of URL format. Wildcard must include a '*'",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "simple",
+                        "regex",
+                        "wildcard"
+                    ],
+                    "default": "simple",
+                    "order": 4
                 }
             },
             "output": [],
@@ -2106,8 +2118,8 @@
                     "default": "default",
                     "order": 2
                 },
-                "urls": {
-                    "description": "Comma-separated list of URLs to unblock",
+                "url": {
+                    "description": "URL to unblock",
                     "data_type": "string",
                     "required": true,
                     "order": 3

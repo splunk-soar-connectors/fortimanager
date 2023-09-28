@@ -32,6 +32,7 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
 [create firewall policy](#action-create-firewall-policy) - Create an ADOM firewall policy  
 [list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies  
+[update firewall policy](#action-update-firewall-policy) - Update an ADOM firewall policy  
 [create address](#action-create-address) - Create a firewall address object  
 [delete address](#action-delete-address) - Delete firewall address object  
 [list addresses](#action-list-addresses) - List firewall address objects  
@@ -58,7 +59,7 @@ No Output
 Create an ADOM firewall policy
 
 Type: **generic**  
-Read only: **True**
+Read only: **False**
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
@@ -67,10 +68,10 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **adom** |  optional  | ADOM name | string | 
 **package** |  required  | The Policy Package name or full folder path to create the firewall policy within | string | 
 **name** |  required  | Policy name to create | string | 
-**source_interface** |  required  | Incoming (ingress) interface to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
-**destination_interface** |  required  | Outgoing (egress) interface to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
-**source_address** |  required  | Source IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
-**destination_address** |  required  | Destination IPv4 Address and address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
+**source_interface** |  required  | Incoming (ingress) interface to specify for the firewall policy. Interfaces must already exist in the FortiManager server. If specifying more than one, enter as a comma-separated list | string | 
+**destination_interface** |  required  | Outgoing (egress) interface to specify for the firewall policy. Interfaces must already exist in the FortiManager server. If specifying more than one, enter as a comma-separated list | string | 
+**source_address** |  required  | Source IPv4 Addresses, address objects, and/or address group names to specify for the firewall policy. If providing new address objects that are NOT of type Subnet (IPv4/Netmask format) or any new address groups that do not already exist in the FortiManager server, the action will fail. If specifying more than one, enter as a comma-separated list | string | 
+**destination_address** |  required  | Destination IPv4 Addresses, address objects, and/or address group names to specify for the firewall policy. If providing new address objects that are NOT of type Subnet (IPv4/Netmask format) or any new address groups that do not already exist in the FortiManager server, the action will fail. If specifying more than one, enter as a comma-separated list | string | 
 **action** |  required  | Policy action to specify for the firewall policy. Accept: Allows sessions that match the firewall policy. Deny: Blocks sessions that match the firewall policy. IPSec: Firewall policy becomes a policy-based IPsec VPN policy | string | 
 **status** |  required  | 'Enable' or 'Disable' this firewall policy on your FortiManager instance | string | 
 **schedule** |  required  | Name for the schedule to be associated with the firewall policy (e.g. always, none) | string | 
@@ -81,7 +82,7 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 #### Action Output
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 --------- | ---- | -------- | --------------
-action_result.data.\*.policyid | numeric |  |   1074741829  10  11 
+action_result.data.\*.policyid | numeric |  `fortimanager firewall policy id`  |   10  11 
 action_result.status | string |  |   success 
 action_result.message | string |  |   Status: Successfully added firewall policy 
 action_result.summary.status | string |  |   Successfully added firewall policy 
@@ -234,6 +235,54 @@ action_result.data.\*.timeout-send-rst | numeric |  |   0
 action_result.data.\*.auto-asic-offload | numeric |  |   1 
 action_result.data.\*.passive-wan-health-measurement | numeric |  |   0 
 action_result.parameter.package_path | string |  |   firewall-policy-path   
+
+## action: 'update firewall policy'
+Update an ADOM firewall policy
+
+Type: **generic**  
+Read only: **False**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type at which to update the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM | string | 
+**adom** |  optional  | ADOM name | string | 
+**package** |  required  | The Policy Package name or full folder path to update the firewall policy within | string | 
+**name** |  required  | The policy name that will be updated. Note: this does not update the policy name itself | string | 
+**source_interface** |  optional  | Incoming (ingress) interface to add to the firewall policy. Interfaces must already exist in the FortiManager server. If specifying more than one, enter as a comma-separated list | string | 
+**destination_interface** |  optional  | Outgoing (egress) interface to specify for the firewall policy. Interfaces must already exist in the FortiManager server. If specifying more than one, enter as a comma-separated list | string | 
+**source_address** |  optional  | Source IPv4 Addresses, address objects, and/or address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
+**destination_address** |  optional  | Destination IPv4 Addresses, address objects, and/or address group names to specify for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
+**action** |  optional  | Policy action to specify for the firewall policy. Accept: Allows sessions that match the firewall policy. Deny: Blocks sessions that match the firewall policy. IPSec: Firewall policy becomes a policy-based IPsec VPN policy | string | 
+**status** |  optional  | 'Enable' or 'Disable' this firewall policy on your FortiManager instance | string | 
+**schedule** |  optional  | Name for the schedule to be associated with the firewall policy (e.g. always, none) | string | 
+**service** |  optional  | Service and Service group names to create for the firewall policy. If specifying more than one, enter as a comma-separated list | string | 
+**inspection_mode** |  optional  | Firewall policy Inspection Mode | string | 
+**log_traffic** |  optional  | Enables or disables logging of either all sessions or only security profile sessions | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.policyid | numeric |  `fortimanager firewall policy id`  |   2 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Status: Successfully updated firewall policy 
+action_result.summary.status | string |  |   Successfully updated firewall policy 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.name | string |  |   fmg-firewall-policy 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.package | string |  |   default 
+action_result.parameter.source_address | string |  |   8.8.2.1, gmail.com, 5.2.3.1 
+action_result.parameter.source_interface | string |  |   wan, wan1 
+action_result.parameter.destination_interface | string |  |   wan1 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 
+action_result.parameter.action | string |  |   ipsec 
+action_result.parameter.status | string |  |   enable 
+action_result.parameter.service | string |  |   ALL 
+action_result.parameter.schedule | string |  |   always 
+action_result.parameter.log_traffic | string |  |   disable 
+action_result.parameter.inspection_mode | string |  |   flow 
+action_result.parameter.destination_address | string |  |   2.2.2.2   
 
 ## action: 'create address'
 Create a firewall address object
@@ -465,7 +514,7 @@ action_result.parameter.package_path | string |  |   my_package_folder
 Delete an ADOM firewall policy
 
 Type: **generic**  
-Read only: **True**
+Read only: **False**
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
@@ -473,7 +522,7 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **level** |  required  | Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM | string | 
 **adom** |  optional  | ADOM name | string | 
 **package** |  required  | The Policy Package name or full folder path of the firewall policy to delete | string | 
-**policy_id** |  required  | Policy ID (can be retrieved from 'List Firewall Policies' action) to delete | string | 
+**policy_id** |  required  | Policy ID (can be retrieved from 'List Firewall Policies' action) to delete | string |  `fortimanager firewall policy id` 
 
 #### Action Output
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
@@ -486,7 +535,7 @@ action_result.message | string |  |   Status: Successfully deleted firewall poli
 action_result.summary.status | string |  |   Successfully deleted firewall policy ID: 29 
 action_result.parameter.level | string |  |   ADOM 
 action_result.parameter.package | string |  |   default 
-action_result.parameter.policy_id | string |  |   28  29 
+action_result.parameter.policy_id | string |  `fortimanager firewall policy id`  |   28  29 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
 action_result.parameter.adom | string |  |   root   

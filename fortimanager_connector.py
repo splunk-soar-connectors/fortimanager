@@ -160,8 +160,8 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance = self._login(action_result)
             self.save_progress("login successful")
         except Exception as e:
-            self.save_progress(CREATE_FIREWALL_FAILURE_MSG)
-            self.debug_print("{}: {}".format(CREATE_FIREWALL_FAILURE_MSG, self._get_error_msg_from_exception(e)))
+            self.save_progress(CREATE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_FIREWALL_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, None)
 
         # acquire lock
@@ -175,8 +175,8 @@ class FortimanagerConnector(BaseConnector):
                 fmg_instance.logout()
                 return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
         except Exception as e:
-            self.save_progress(CREATE_FIREWALL_FAILURE_MSG)
-            self.debug_print("{}: {}".format(CREATE_FIREWALL_FAILURE_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            self.save_progress(CREATE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_FIREWALL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
             fmg_instance.logout()
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
@@ -189,7 +189,7 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.commit_changes(adom)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
-            self.save_progress(CREATE_FIREWALL_FAILURE_MSG)
+            self.save_progress(CREATE_FIREWALL_FAILED_MSG)
             self.debug_print("Create Firewall Policy action failed: {}".format(error_msg))
             fmg_instance.unlock_adom(adom)
             fmg_instance.logout()
@@ -292,8 +292,8 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance = self._login(action_result)
             self.save_progress("login successful")
         except Exception as e:
-            self.save_progress(UPDATE_FIREWALL_FAILURE_MSG)
-            self.debug_print("{}: {}".format(UPDATE_FIREWALL_FAILURE_MSG, self._get_error_msg_from_exception(e)))
+            self.save_progress(UPDATE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(UPDATE_FIREWALL_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, None)
 
         # acquire lock
@@ -307,8 +307,8 @@ class FortimanagerConnector(BaseConnector):
                 fmg_instance.logout()
                 return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
         except Exception as e:
-            self.save_progress(UPDATE_FIREWALL_FAILURE_MSG)
-            self.debug_print("{}: {}".format(UPDATE_FIREWALL_FAILURE_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            self.save_progress(UPDATE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(UPDATE_FIREWALL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
             fmg_instance.logout()
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
@@ -322,7 +322,7 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.commit_changes(adom)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
-            self.save_progress(UPDATE_FIREWALL_FAILURE_MSG)
+            self.save_progress(UPDATE_FIREWALL_FAILED_MSG)
             self.debug_print("Update Firewall Policy action failed: {}".format(error_msg))
             fmg_instance.unlock_adom(adom)
             fmg_instance.logout()
@@ -436,8 +436,8 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance = self._login(action_result)
             self.save_progress("login successful")
         except Exception as e:
-            self.save_progress(DELETE_FIREWALL_FAILURE_MSG)
-            self.debug_print("{}: {}".format(DELETE_FIREWALL_FAILURE_MSG, self._get_error_msg_from_exception(e)))
+            self.save_progress(DELETE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(DELETE_FIREWALL_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, None)
 
         # acquire lock
@@ -451,8 +451,8 @@ class FortimanagerConnector(BaseConnector):
                 fmg_instance.logout()
                 return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
         except Exception as e:
-            self.save_progress(DELETE_FIREWALL_FAILURE_MSG)
-            self.debug_print("{}: {}".format(DELETE_FIREWALL_FAILURE_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            self.save_progress(DELETE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(DELETE_FIREWALL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
             fmg_instance.logout()
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
@@ -461,7 +461,7 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.commit_changes(adom)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
-            self.save_progress(DELETE_FIREWALL_FAILURE_MSG)
+            self.save_progress(DELETE_FIREWALL_FAILED_MSG)
             self.debug_print("Delete Firewall Policy action failed: {}".format(error_msg))
             fmg_instance.unlock_adom(adom)
             fmg_instance.logout()

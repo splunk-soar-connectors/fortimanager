@@ -19,6 +19,7 @@ LOGIN_URL = '/sys/login/user'
 TEST_CONNECTIVITY_URL = '/sys/status'
 
 LOGIN_ERROR_MSG = 'login failed'
+LOGIN_SUCCESS_MSG = 'login successful'
 ERROR_MSG_UNAVAILABLE = 'Error message unavailable'
 
 # ADOM Firewall Endpoints
@@ -50,3 +51,26 @@ UPDATE_ADDRESS_FAILED_MSG = 'Failed to update address object'
 
 ADDRESS_INVALID_ERROR_MSG = 'The provided address is either invalid or not supported'
 FILTER_ADDRESS_ERROR_MSG = 'The provided filter string is malformed. The proper format is \"<field>\" <comparison operator> \"<value>\"'
+
+FILTER_ADDRESS_REGEX = r"^\"(?P<field>[a-z]+)\"\s*(?P<comp>(\=|\>|\<|\>\=|\<\=|\=\=))\s*\"(?P<value>.+)\""
+
+# Web filter endpoints for block/unblock urls
+ADOM_WEB_FILTER_PROFILE_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/profile'
+ADOM_URL_FILTER_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/urlfilter'
+
+# URLs
+ADOM_BLOCK_URL_SUCCESS_MSG = 'Successfully blocked URL'
+ADOM_BLOCK_URL_FAILED_MSG = 'Failed to block URL'
+ADOM_BLOCK_URL_WILDCARD_ERROR_MSG = "Wildcard URL must include a '*'."
+ADOM_BLOCK_URL_EXISTS_ERROR_MSG = 'URL already exists in URL filter list'
+ADOM_UNBLOCK_URL_SUCCESS_MSG = 'Successfully unblocked URL'
+ADOM_UNBLOCK_URL_FAILED_MSG = 'Failed to unblock URL'
+
+ADOM_WEB_FILTER_PROFILE_DNE_ERROR_MSG = 'Web filter profile {web_filter_profile_name} does not exist'
+ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG = 'Malformed web filter profile'
+ADOM_ADD_URL_FILTER_PROFILE_ERROR_MSG = 'Failed to add URL filter profile to web profile'
+ADOM_CREATE_URL_FILTER_PROFILE_ERROR_MSG = 'Failed to create a new URL filter profile'
+ADOM_URL_DNE_WEB_FILTER_PROFILE_ERROR_MSG = 'URL does not exist in URL filter list'
+
+# Misc Messages
+INVALID_LEVEL_ERROR_MSG = 'Invalid level provided. Please select "ADOM" from the dropdown.'

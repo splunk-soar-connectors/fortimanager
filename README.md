@@ -39,6 +39,8 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [block ip](#action-block-ip) - Block ADOM level IP addresses  
 [unblock ip](#action-unblock-ip) - Unblock ADOM level IP addresses  
 [delete firewall policy](#action-delete-firewall-policy) - Delete an ADOM firewall policy  
+[block url](#action-block-url) - Block ADOM level URLs  
+[unblock url](#action-unblock-url) - Unblock ADOM level URLs  
 
 ## action: 'test connectivity'
 Validate the asset configuration for connectivity using supplied configuration
@@ -387,7 +389,7 @@ action_result.summary.status | string |  |   Successfully updated addresss objec
 Block ADOM level IP addresses
 
 Type: **contain**  
-Read only: **True**
+Read only: **False**
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
@@ -427,7 +429,7 @@ action_result.parameter.package_path | string |  |   my_package_folder
 Unblock ADOM level IP addresses
 
 Type: **contain**  
-Read only: **True**
+Read only: **False**
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
@@ -487,4 +489,62 @@ action_result.parameter.package | string |  |   default
 action_result.parameter.policy_id | string |  |   28  29 
 summary.total_objects | numeric |  |   1 
 summary.total_objects_successful | numeric |  |   1 
+action_result.parameter.adom | string |  |   root   
+
+## action: 'block url'
+Block ADOM level URLs
+
+Type: **contain**  
+Read only: **False**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type at which to block URLs. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM | string | 
+**adom** |  optional  | ADOM name | string | 
+**web_filter_profile_name** |  required  | The Web Filter profile name to use to block URLs | string | 
+**url** |  required  | URL to block | string | 
+**type** |  required  | Type of URL format. Wildcard must include a '\*' | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.status | string |  |   failed  success 
+action_result.message | string |  |   URL already exists in URL filter list  Status: Successfully blocked URL 
+action_result.parameter.url | string |  |   www.example1.com  www.example.com  \*.example.com  ^forti.\*\\.com 
 action_result.parameter.adom | string |  |   root 
+action_result.parameter.type | string |  |   simple  wildcard  regex 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.web_filter_profile_name | string |  |   default 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   0  1 
+action_result.data.\*.id | numeric |  |   11 
+action_result.summary.status | string |  |   Successfully blocked URL   
+
+## action: 'unblock url'
+Unblock ADOM level URLs
+
+Type: **contain**  
+Read only: **False**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type at which to unblock URLs. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM | string | 
+**adom** |  optional  | ADOM name | string | 
+**web_filter_profile_name** |  required  | The Web Filter profile name to use to unblock URLs | string | 
+**url** |  required  | URL to unblock | string | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.id | numeric |  |   11 
+action_result.status | string |  |   success  failed 
+action_result.message | string |  |   Status: Successfully unblocked URL  URL does not exist in URL filter list 
+action_result.summary.status | string |  |   Successfully unblocked URL 
+action_result.parameter.url | string |  |   www.example.com  \*.example.com  ^forti.\*\\.com 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.web_filter_profile_name | string |  |   default 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1  0 

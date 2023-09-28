@@ -293,14 +293,267 @@ class FortimanagerConnector(BaseConnector):
         return param_list
 
     # URLs
+    def _get_urlfilter_profile(self, fmg_instance, adom, urlfilter_table_id):
+        urlfilter_profile_endpoint = ADOM_URL_FILTER_ENDPOINT.format(adom=adom) + '/' + str(urlfilter_table_id)
+        response_code, urlfilter_profile = fmg_instance.get(urlfilter_profile_endpoint)
+        if response_code == 0 and urlfilter_profile:
+            return urlfilter_profile
+        else:
+            return False
+
+    def _set_urlfilter_profile(self, fmg_instance, adom, urlfilter_table_id, data):
+        urlfilter_profile_endpoint = ADOM_URL_FILTER_ENDPOINT.format(adom=adom)
+        response_code, urlfilter_profile = fmg_instance.add(urlfilter_profile_endpoint, **data)
+        if response_code == 0:
+            return urlfilter_profile
+        else:
+            return False
+
     def _handle_list_blocked_urls(self, param):
         pass
 
     def _handle_block_url(self, param):
-        pass
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom', 'root')
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
+
+        web_filter_profile_name = param['web_filter_profile_name']
+        url_to_block = param['url']
+        url_type = param['type']
+
+        if url_type == 'wildcard' and '*' not in url_to_block:
+            return action_result.set_status(phantom.APP_ERROR, ADOM_BLOCK_URL_WILDCARD_ERROR_MSG)
+
+        fmg_instance = None
+
+        data = {}
+        url_entry = {
+            "url": url_to_block,
+            "type": url_type,
+            "action": "block",
+            "status": "enable"
+        }
+
+        urlfilter_profile = None
+
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress(LOGIN_SUCCESS_MSG)
+
+            # acquire lock
+            try:
+                lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+                if lock_code == 0:
+                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+                else:
+                    self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                    fmg_instance.logout()
+                    return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+            except Exception as e:
+                self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
+                self.debug_print("{}: {}".format(ADOM_BLOCK_URL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+            # first get the current web filter profile
+            web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
+            if not web_filter_profile:
+                return action_result.set_status(phantom.APP_ERROR,
+                                                ADOM_WEB_FILTER_PROFILE_DNE_ERROR_MSG.format(web_filter_profile_name=web_filter_profile_name))
+
+            # get url filter profile attached to the web filter profile if there is one
+            urlfilter_table_id = None
+            if 'web' in web_filter_profile[0]:
+                urlfilter_table_id = web_filter_profile[0]['web'].get('urlfilter-table')
+            else:
+                return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
+
+            if urlfilter_table_id:
+                if isinstance(urlfilter_table_id, list):
+                    urlfilter_table_id = urlfilter_table_id[0]
+                urlfilter_profile = self._get_urlfilter_profile(fmg_instance, adom, urlfilter_table_id)
+                if urlfilter_profile:
+                    data = urlfilter_profile
+                else:
+                    return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
+
+                data.pop('oid', None)
+                entries = data.get('entries', [])
+                if entries:
+                    for entry in entries:
+                        [entry.pop(key, None) for key in ['obj seq', 'oid']]
+                        if entry.get('url') == url_to_block:
+                            return action_result.set_status(phantom.APP_ERROR, ADOM_BLOCK_URL_EXISTS_ERROR_MSG)
+                    data['entries'] = entries
+
+                data['entries'].append(url_entry)
+
+                # update attached urlfilter profile
+                update_urlfilter_endpoint = "{}/{}".format(ADOM_URL_FILTER_ENDPOINT.format(adom=adom), str(urlfilter_table_id))
+                response_code, response_data = fmg_instance.update(update_urlfilter_endpoint, data=data)
+                if response_code == 0:
+                    fmg_instance.commit_changes(adom)
+                    action_result.add_data(response_data)
+                    summary = action_result.update_summary({})
+                    summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
+                    return action_result.set_status(phantom.APP_SUCCESS)
+                else:
+                    self.save_progress("Failed.")
+                    if response_data.get('status'):
+                        error_msg = response_data['status'].get('message', 'Unknown')
+                    else:
+                        error_msg = 'Unknown'
+                    return action_result.set_status(phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_BLOCK_URL_FAILED_MSG, error_msg))
+
+            else:
+                # create a new urlfilter profile
+                data['entries'] = [url_entry]
+                urlfilter_profile = self._set_urlfilter_profile(fmg_instance, adom, urlfilter_table_id, data)
+                if 'id' in urlfilter_profile:
+                    # add the id to the webfilter urlfilter-table entries
+                    web_filter_endpoint = "{}/{}/{}".format(ADOM_WEB_FILTER_PROFILE_ENDPOINT.format(adom=adom), web_filter_profile_name, "web")
+                    data = { "urlfilter-table": urlfilter_profile['id'] }
+
+                    response_code, response_data = fmg_instance.update(web_filter_endpoint, data=data)
+                    if response_code == 0:
+                        fmg_instance.commit_changes(adom)
+                        action_result.add_data(urlfilter_profile)
+                        summary = action_result.update_summary({})
+                        summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
+                        return action_result.set_status(phantom.APP_SUCCESS)
+                    else:
+                        self.save_progress("Failed.")
+                        if response_data.get('status'):
+                            error_msg = response_data['status'].get('message', 'Unknown')
+                        else:
+                            error_msg = 'Unknown'
+                        return action_result.set_status(
+                            phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_ADD_URL_FILTER_PROFILE_ERROR_MSG, error_msg))
+                else:
+                    return action_result.set_status(phantom.APP_ERROR, ADOM_CREATE_URL_FILTER_PROFILE_ERROR_MSG)
+
+        except Exception as e:
+            self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
+            self.debug_print('{}: {}'.format(ADOM_BLOCK_URL_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
 
     def _handle_unblock_url(self, param):
-        pass
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
+
+        web_filter_profile_name = param['web_filter_profile_name']
+        url_to_unblock = param['url']
+
+        fmg_instance = None
+
+        data = {}
+        urlfilter_profile = None
+
+        try:
+            fmg_instance = self._login(action_result)
+
+            # acquire lock
+            try:
+                lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+                if lock_code == 0:
+                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+                else:
+                    self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                    fmg_instance.logout()
+                    return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+            except Exception as e:
+                self.save_progress(ADOM_UNBLOCK_URL_FAILED_MSG)
+                self.debug_print("{}: {}".format(ADOM_UNBLOCK_URL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+            # first get the current web filter profile
+            web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
+            if not web_filter_profile:
+                return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_DNE_ERROR_MSG.format(
+                    web_filter_profile_name=web_filter_profile_name))
+
+            # get url filter profile attached to the web filter profile if there is one
+            urlfilter_table_id = None
+            if 'web' in web_filter_profile[0]:
+                urlfilter_table_id = web_filter_profile[0]['web'].get('urlfilter-table')
+            else:
+                return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
+
+            if urlfilter_table_id:
+                if isinstance(urlfilter_table_id, list):
+                    urlfilter_table_id = urlfilter_table_id[0]
+                urlfilter_profile = self._get_urlfilter_profile(fmg_instance, adom, urlfilter_table_id)
+                if urlfilter_profile:
+                    data = urlfilter_profile
+                else:
+                    return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
+
+                data.pop('oid', None)
+                entries = data.get('entries', [])
+                found = False
+                if entries:
+                    for entry in entries[:]:
+                        if entry.get('url') == url_to_unblock:
+                            entries.remove(entry)
+                            found = True
+                        else:
+                            [entry.pop(key, None) for key in ['obj seq', 'oid']]
+                    if not found:
+                        return action_result.set_status(phantom.APP_ERROR, ADOM_URL_DNE_WEB_FILTER_PROFILE_ERROR_MSG)
+
+                # url filter profile block list is empty
+                else:
+                    return action_result.set_status(phantom.APP_ERROR, ADOM_URL_DNE_WEB_FILTER_PROFILE_ERROR_MSG)
+
+                # update attached urlfilter profile
+                update_urlfilter_endpoint = "{}/{}".format(ADOM_URL_FILTER_ENDPOINT.format(adom=adom), str(urlfilter_table_id))
+                response_code, response_data = fmg_instance.update(update_urlfilter_endpoint, data=data)
+                if response_code == 0:
+                    fmg_instance.commit_changes(adom)
+                    action_result.add_data(response_data)
+                    summary = action_result.update_summary({})
+                    summary['status'] = ADOM_UNBLOCK_URL_SUCCESS_MSG
+                    return action_result.set_status(phantom.APP_SUCCESS)
+                else:
+                    self.save_progress("Failed.")
+                    if response_data.get('status'):
+                        error_msg = response_data['status'].get('message', 'Unknown')
+                    else:
+                        error_msg = 'Unknown'
+            return action_result.set_status(phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_UNBLOCK_URL_FAILED_MSG, error_msg))
+
+        except Exception as e:
+            self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
+            self.debug_print('{}: {}'.format(ADOM_BLOCK_URL_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
 
     # Address Objects
     def _handle_list_addresses(self, param):
@@ -601,14 +854,6 @@ class FortimanagerConnector(BaseConnector):
     def _handle_list_web_filters(self, param):
         pass
 
-    def _get_ip_list(self, ip_list):
-        # IP list can be a string or a list
-        if isinstance(ip_list, list):
-            pass
-        elif isinstance(ip_list, str):
-            ip_list = ip_list.strip(' ').split(',')
-        return ip_list
-
     def _get_current_policy_ips(self, fmg_instance, adom, package, policy_name):
         policy_endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=package)
         filter = ["name", "==", policy_name]
@@ -693,7 +938,7 @@ class FortimanagerConnector(BaseConnector):
 
         policy_name = param['policy_name']
         address_group_name = param['address_group_name']
-        ip_addresses_to_block = self._get_ip_list(param['ip_addresses'])
+        ip_addresses_to_block = self._get_param_list(param['ip_addresses'])
 
         already_blocked_ips = []
         ip_block_list = []
@@ -782,7 +1027,7 @@ class FortimanagerConnector(BaseConnector):
 
         policy_name = param['policy_name']
         address_group_name = param['address_group_name']
-        ip_addresses_to_unblock = self._get_ip_list(param['ip_addresses'])
+        ip_addresses_to_unblock = self._get_param_list(param['ip_addresses'])
 
         currently_blocked_ips = []
         ip_unblock_list = []
@@ -843,6 +1088,16 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.unlock_adom(adom)
             fmg_instance.logout()
 
+    def _get_web_filter_profile(self, fmg_instance, adom, web_filter_profile_name):
+        web_filter_profile_endpoint = ADOM_WEB_FILTER_PROFILE_ENDPOINT.format(adom=adom)
+        filter = ["name", "==", web_filter_profile_name]
+
+        response_code, web_filter_profile = fmg_instance.get(web_filter_profile_endpoint, filter=filter)
+        if response_code == 0 and web_filter_profile:
+            return web_filter_profile
+        else:
+            return False
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -870,7 +1125,11 @@ class FortimanagerConnector(BaseConnector):
         elif action_id == 'unblock_ip':
             ret_val = self._handle_unblock_ip(param)
         elif action_id == 'delete_firewall_policy':
-            ret_val = self._handle_delete_firewall_policy(param)
+            ret_val = self._handle_delete_firewall_policy(param),
+        elif action_id == 'block_url':
+            ret_val = self._handle_block_url(param)
+        elif action_id == 'unblock_url':
+            ret_val = self._handle_unblock_url(param)
 
         return ret_val
 

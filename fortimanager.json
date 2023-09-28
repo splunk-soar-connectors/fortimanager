@@ -2023,7 +2023,7 @@
             "identifier": "block_ip",
             "description": "Block ADOM level IP addresses",
             "type": "contain",
-            "read_only": true,
+            "read_only": false,
             "undo": "unblock ip",
             "parameters": {
                 "level": {
@@ -2233,7 +2233,7 @@
             "identifier": "unblock_ip",
             "description": "Unblock ADOM level IP addresses",
             "type": "contain",
-            "read_only": true,
+            "read_only": false,
             "undo": "block ip",
             "parameters": {
                 "level": {
@@ -2527,6 +2527,268 @@
                     "data_type": "string",
                     "example_values": [
                         "root"
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "block url",
+            "identifier": "block_url",
+            "description": "Block ADOM level URLs",
+            "type": "contain",
+            "read_only": false,
+            "undo": "unblock url",
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to block URLs. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "web_filter_profile_name": {
+                    "description": "The Web Filter profile name to use to block URLs",
+                    "data_type": "string",
+                    "required": true,
+                    "default": "default",
+                    "order": 2
+                },
+                "url": {
+                    "description": "URL to block",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 3
+                },
+                "type": {
+                    "description": "Type of URL format. Wildcard must include a '*'",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "simple",
+                        "regex",
+                        "wildcard"
+                    ],
+                    "default": "simple",
+                    "order": 4
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "failed",
+                        "success"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "URL already exists in URL filter list",
+                        "Status: Successfully blocked URL"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "www.example1.com",
+                        "www.example.com",
+                        "*.example.com",
+                        "^forti.*\\.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.type",
+                    "data_type": "string",
+                    "example_values": [
+                        "simple",
+                        "wildcard",
+                        "regex"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.web_filter_profile_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "default"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.id",
+                    "data_type": "numeric",
+                    "example_values": [
+                        11
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully blocked URL"
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "unblock url",
+            "identifier": "unblock_url",
+            "description": "Unblock ADOM level URLs",
+            "type": "contain",
+            "read_only": false,
+            "undo": "block url",
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to unblock URLs. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "web_filter_profile_name": {
+                    "description": "The Web Filter profile name to use to unblock URLs",
+                    "data_type": "string",
+                    "required": true,
+                    "default": "default",
+                    "order": 2
+                },
+                "url": {
+                    "description": "URL to unblock",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 3
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.id",
+                    "data_type": "numeric",
+                    "example_values": [
+                        11
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Status: Successfully unblocked URL",
+                        "URL does not exist in URL filter list"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully unblocked URL"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "www.example.com",
+                        "*.example.com",
+                        "^forti.*\\.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.web_filter_profile_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "default"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1,
+                        0
                     ]
                 }
             ],

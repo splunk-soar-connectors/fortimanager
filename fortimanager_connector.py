@@ -358,7 +358,22 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance = self._login(action_result)
             self.save_progress(LOGIN_SUCCESS_MSG)
 
-            fmg_instance.lock_adom(adom)
+            # acquire lock
+            try:
+                lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+                if lock_code == 0:
+                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+                else:
+                    self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                    fmg_instance.logout()
+                    return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+            except Exception as e:
+                self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
+                self.debug_print("{}: {}".format(ADOM_BLOCK_URL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
             # first get the current web filter profile
             web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
@@ -394,22 +409,29 @@ class FortimanagerConnector(BaseConnector):
                 data['entries'].append(url_entry)
 
                 # update attached urlfilter profile
-                update_urlfilter_endpoint = ADOM_URL_FILTER_ENDPOINT.format(adom=adom) + '/' + str(urlfilter_table_id)
+                update_urlfilter_endpoint = "{}/{}".format(ADOM_URL_FILTER_ENDPOINT.format(adom=adom), str(urlfilter_table_id))
                 response_code, response_data = fmg_instance.update(update_urlfilter_endpoint, data=data)
                 if response_code == 0:
                     fmg_instance.commit_changes(adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
                     summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
-                    return action_result.set_status(phantom.APP_SUCCESS, ADOM_BLOCK_URL_SUCCESS_MSG)
+                    return action_result.set_status(phantom.APP_SUCCESS)
+                else:
+                    self.save_progress("Failed.")
+                    if response_data.get('status'):
+                        error_msg = response_data['status'].get('message', 'Unknown')
+                    else:
+                        error_msg = 'Unknown'
+                    return action_result.set_status(phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_BLOCK_URL_FAILED_MSG, error_msg))
 
             else:
                 # create a new urlfilter profile
                 data['entries'] = [url_entry]
                 urlfilter_profile = self._set_urlfilter_profile(fmg_instance, adom, urlfilter_table_id, data)
                 if 'id' in urlfilter_profile:
-                    # add it to the webfilter urlfilter-table entries
-                    web_filter_endpoint = ADOM_WEB_FILTER_PROFILE_ENDPOINT.format(adom=adom) + "/{}/{}".format(web_filter_profile_name, "web")
+                    # add the id to the webfilter urlfilter-table entries
+                    web_filter_endpoint = "{}/{}/{}".format(ADOM_WEB_FILTER_PROFILE_ENDPOINT.format(adom=adom), web_filter_profile_name, "web")
                     data = { "urlfilter-table": urlfilter_profile['id'] }
 
                     response_code, response_data = fmg_instance.update(web_filter_endpoint, data=data)
@@ -418,9 +440,15 @@ class FortimanagerConnector(BaseConnector):
                         action_result.add_data(urlfilter_profile)
                         summary = action_result.update_summary({})
                         summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
-                        return action_result.set_status(phantom.APP_SUCCESS, ADOM_BLOCK_URL_SUCCESS_MSG)
+                        return action_result.set_status(phantom.APP_SUCCESS)
                     else:
-                        return action_result.set_status(phantom.APP_ERROR, ADOM_ADD_URL_FILTER_PROFILE_ERROR_MSG)
+                        self.save_progress("Failed.")
+                        if response_data.get('status'):
+                            error_msg = response_data['status'].get('message', 'Unknown')
+                        else:
+                            error_msg = 'Unknown'
+                        return action_result.set_status(
+                            phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_ADD_URL_FILTER_PROFILE_ERROR_MSG, error_msg))
                 else:
                     return action_result.set_status(phantom.APP_ERROR, ADOM_CREATE_URL_FILTER_PROFILE_ERROR_MSG)
 
@@ -456,7 +484,24 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance = self._login(action_result)
-            fmg_instance.lock_adom(adom)
+
+            # acquire lock
+            try:
+                lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+                if lock_code == 0:
+                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+                else:
+                    self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                    fmg_instance.logout()
+                    return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+            except Exception as e:
+                self.save_progress(ADOM_UNBLOCK_URL_FAILED_MSG)
+                self.debug_print("{}: {}".format(ADOM_UNBLOCK_URL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
             # first get the current web filter profile
             web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
             if not web_filter_profile:
@@ -483,27 +528,35 @@ class FortimanagerConnector(BaseConnector):
                 entries = data.get('entries', [])
                 found = False
                 if entries:
-                    for index, entry in enumerate(entries):
-                        [entry.pop(key, None) for key in ['obj seq', 'oid']]
+                    for entry in entries[:]:
                         if entry.get('url') == url_to_unblock:
-                            found = index
-                    if found:
-                        del(entries[found])
-                        data['entries'] = entries
-                    else:
+                            entries.remove(entry)
+                            found = True
+                        else:
+                            [entry.pop(key, None) for key in ['obj seq', 'oid']]
+                    if not found:
                         return action_result.set_status(phantom.APP_ERROR, ADOM_URL_DNE_WEB_FILTER_PROFILE_ERROR_MSG)
+
+                # url filter profile block list is empty
                 else:
                     return action_result.set_status(phantom.APP_ERROR, ADOM_URL_DNE_WEB_FILTER_PROFILE_ERROR_MSG)
 
                 # update attached urlfilter profile
-                update_urlfilter_endpoint = ADOM_URL_FILTER_ENDPOINT.format(adom=adom) + '/' + str(urlfilter_table_id)
+                update_urlfilter_endpoint = "{}/{}".format(ADOM_URL_FILTER_ENDPOINT.format(adom=adom), str(urlfilter_table_id))
                 response_code, response_data = fmg_instance.update(update_urlfilter_endpoint, data=data)
                 if response_code == 0:
                     fmg_instance.commit_changes(adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
                     summary['status'] = ADOM_UNBLOCK_URL_SUCCESS_MSG
-                    return action_result.set_status(phantom.APP_SUCCESS, ADOM_UNBLOCK_URL_SUCCESS_MSG)
+                    return action_result.set_status(phantom.APP_SUCCESS)
+                else:
+                    self.save_progress("Failed.")
+                    if response_data.get('status'):
+                        error_msg = response_data['status'].get('message', 'Unknown')
+                    else:
+                        error_msg = 'Unknown'
+            return action_result.set_status(phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_UNBLOCK_URL_FAILED_MSG, error_msg))
 
         except Exception as e:
             self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)

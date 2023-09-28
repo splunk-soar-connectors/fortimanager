@@ -2085,9 +2085,8 @@
                 {
                     "data_path": "action_result.status",
                     "data_type": "string",
-                    "column_name": "Status",
-                    "column_order": 0,
                     "example_values": [
+                        "failed",
                         "success"
                     ]
                 },
@@ -2095,16 +2094,18 @@
                     "data_path": "action_result.message",
                     "data_type": "string",
                     "example_values": [
-                        "Successfully blocked URL"
+                        "URL already exists in URL filter list",
+                        "Status: Successfully blocked URL"
                     ]
                 },
                 {
                     "data_path": "action_result.parameter.url",
                     "data_type": "string",
                     "example_values": [
+                        "www.example1.com",
                         "www.example.com",
                         "*.example.com",
-                        "www.(.?).example.com"
+                        "^forti.*\\.com"
                     ]
                 },
                 {
@@ -2148,14 +2149,13 @@
                     "data_path": "summary.total_objects_successful",
                     "data_type": "numeric",
                     "example_values": [
+                        0,
                         1
                     ]
                 },
                 {
                     "data_path": "action_result.data.*.id",
                     "data_type": "numeric",
-                    "column_name": "Url Filter Table Id",
-                    "column_order": 1,
                     "example_values": [
                         11
                     ]
@@ -2213,16 +2213,30 @@
             },
             "output": [
                 {
+                    "data_path": "action_result.data.*.id",
+                    "data_type": "numeric",
+                    "example_values": [
+                        11
+                    ]
+                },
+                {
                     "data_path": "action_result.status",
                     "data_type": "string",
-                    "column_name": "Status",
-                    "column_order": 0,
                     "example_values": [
-                        "success"
+                        "success",
+                        "failed"
                     ]
                 },
                 {
                     "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Status: Successfully unblocked URL",
+                        "URL does not exist in URL filter list"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
                     "data_type": "string",
                     "example_values": [
                         "Successfully unblocked URL"
@@ -2234,7 +2248,7 @@
                     "example_values": [
                         "www.example.com",
                         "*.example.com",
-                        "www.(.?).example.com"
+                        "^forti.*\\.com"
                     ]
                 },
                 {
@@ -2269,23 +2283,8 @@
                     "data_path": "summary.total_objects_successful",
                     "data_type": "numeric",
                     "example_values": [
-                        1
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.id",
-                    "data_type": "numeric",
-                    "column_name": "Url Filter Table Id",
-                    "column_order": 1,
-                    "example_values": [
-                        11
-                    ]
-                },
-                {
-                    "data_path": "action_result.summary.status",
-                    "data_type": "string",
-                    "example_values": [
-                        "Successfully blocked URL"
+                        1,
+                        0
                     ]
                 }
             ],

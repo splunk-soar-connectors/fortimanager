@@ -127,13 +127,15 @@ class FortimanagerConnector(BaseConnector):
         fmg_instance = None
         level = param['level']
         pkg = param['package']
+        src_addresses = self._get_param_list(param['source_address'])
+        dst_addresses = self._get_param_list(param['destination_address'])
         data = {
                     'name': param['name'],
                     'srcintf': self._get_param_list(param['source_interface']),
                     'dstintf': self._get_param_list(param['destination_interface']),
                     'service': self._get_param_list(param['service']),
-                    'srcaddr': self._get_param_list(param['source_address']),
-                    'dstaddr': self._get_param_list(param['destination_address']),
+                    'srcaddr': src_addresses,
+                    'dstaddr': dst_addresses,
                     'action': param['action'],
                     'status': param['status'],
                     'inspection-mode': param['inspection_mode'],
@@ -145,20 +147,49 @@ class FortimanagerConnector(BaseConnector):
             if not adom:
                 adom = 'root'
             endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg)
+        elif level != 'ADOM':
+            return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
         #     adom = 'global'
         #     policy_type = param['policy_type']
         #     endpoint = GLOBAL_FIREWALL_ENDPOINT.format(pkg=pkg, policy_type=policy_type)
 
+        # login to FortiManager
         try:
             fmg_instance = self._login(action_result)
-            fmg_instance.lock_adom(adom)
+            self.save_progress("login successful")
+        except Exception as e:
+            self.save_progress(CREATE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_FIREWALL_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        # acquire lock
+        try:
+            lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+            if lock_code == 0:
+                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+            else:
+                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+        except Exception as e:
+            self.save_progress(CREATE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_FIREWALL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            fmg_instance.logout()
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        # create firewall policy
+        try:
+            # create source and destination address objects
+            self._create_address_objects(fmg_instance, adom, src_addresses)
+            self._create_address_objects(fmg_instance, adom, dst_addresses)
             response_code, response_data = fmg_instance.add(endpoint, **data)
             fmg_instance.commit_changes(adom)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
-            self.save_progress("Create Firewall Policy action failed")
+            self.save_progress(CREATE_FIREWALL_FAILED_MSG)
             self.debug_print("Create Firewall Policy action failed: {}".format(error_msg))
             fmg_instance.unlock_adom(adom)
             fmg_instance.logout()
@@ -173,10 +204,143 @@ class FortimanagerConnector(BaseConnector):
         else:
             self.save_progress("Failed.")
             if response_data.get('status'):
-                error_msg = response_data['status'].get('message', 'Unknown')
+                error_msg = response_data['status'].get('message', 'Invalid parameters.')
             else:
-                error_msg = 'Unknown'
+                error_msg = 'Invalid parameters'
             return action_result.set_status(phantom.APP_ERROR, "Failed to create firewall policy. Reason: {}".format(error_msg))
+
+    def _handle_update_firewall_policy(self, param):
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        fmg_instance = None
+        pkg = param['package']
+        level = param['level']
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+            endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg)
+        elif level != 'ADOM':
+            return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
+        # Global Feature TODO
+        # elif level == 'Global':
+        #     adom = 'global'
+        #     policy_type = param['policy_type']
+        #     endpoint = GLOBAL_FIREWALL_ENDPOINT.format(pkg=pkg, policy_type=policy_type)
+
+        # Build out the firewall parameters to update
+        name = param['name']
+        srcintf = param.get('source_interface')
+        dstintf = param.get('destination_interface')
+        service = param.get('service')
+        srcaddr = param.get('source_address')
+        dstaddr = param.get('destination_address')
+        action = param.get('action')
+        status = param.get('status')
+        inspection_mode = param.get('inspection_mode')
+        log_traffic = param.get('log_traffic')
+        schedule = param.get('schedule')
+        # get the payload of the firewall policy to update
+        data = {}
+        try:
+            fmg_instance = self._login(action_result)
+            data = {
+                'filter': [
+                    [
+                        "name", "==", "{}".format(name)
+                    ]
+                ]}
+            response_code, firewall_policy = fmg_instance.get(endpoint, **data)
+        except Exception as e:
+            error_msg = self._get_error_msg_from_exception(e)
+            self.save_progress("Failed to get firewall policy payload")
+            self.debug_print("Failed to get firewall policy payload {}".format(error_msg))
+            fmg_instance.logout()
+            return action_result.set_status(phantom.APP_ERROR, None)
+        data = {}
+        data['name'] = name
+        if srcintf:
+            data['srcintf'] = self._get_param_list(srcintf)
+        if dstintf:
+            data['dstintf'] = self._get_param_list(dstintf)
+        if service:
+            data['service'] = self._get_param_list(service)
+        if srcaddr:
+            src_addresses = self._get_param_list(srcaddr)
+            data['srcaddr'] = src_addresses
+        if dstaddr:
+            dst_addresses = self._get_param_list(dstaddr)
+            data['dstaddr'] = dst_addresses
+        if action:
+            data['action'] = action
+        if status:
+            data['status'] = status
+        if inspection_mode:
+            data['inspection-mode'] = inspection_mode
+        if log_traffic:
+            data['logtraffic'] = log_traffic
+        if schedule:
+            data['schedule'] = schedule
+        data = dict(list(firewall_policy[0].items()) + list(data.items()))
+        for key in ['obj seq', 'oid', 'pkg', 'policy', 'level_type', 'policy_type', 'method']:
+            data.pop(key, None)
+
+        # login to FortiManager
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress("login successful")
+        except Exception as e:
+            self.save_progress(UPDATE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(UPDATE_FIREWALL_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        # acquire lock
+        try:
+            lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+            if lock_code == 0:
+                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+            else:
+                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+        except Exception as e:
+            self.save_progress(UPDATE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(UPDATE_FIREWALL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            fmg_instance.logout()
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        try:
+            # create source and destination address objects
+            if srcaddr:
+                self._create_address_objects(fmg_instance, adom, src_addresses)
+            if dstaddr:
+                self._create_address_objects(fmg_instance, adom, dst_addresses)
+            response_code, response_data = fmg_instance.update(endpoint, **data)
+            fmg_instance.commit_changes(adom)
+        except Exception as e:
+            error_msg = self._get_error_msg_from_exception(e)
+            self.save_progress(UPDATE_FIREWALL_FAILED_MSG)
+            self.debug_print("Update Firewall Policy action failed: {}".format(error_msg))
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+            return action_result.set_status(phantom.APP_ERROR, None)
+        fmg_instance.unlock_adom(adom)
+        fmg_instance.logout()
+        if response_code == 0:
+            action_result.add_data(response_data)
+            summary = action_result.update_summary({})
+            summary['status'] = 'Successfully updated firewall policy'
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.save_progress("Failed.")
+            if response_data.get('status'):
+                error_msg = response_data['status'].get('message', 'Invalid parameters.')
+            else:
+                error_msg = 'Invalid parameters.'
+            return action_result.set_status(phantom.APP_ERROR, "Failed to update firewall policy. Reason: {}".format(error_msg))
 
     def _handle_list_firewall_policies(self, param):
 
@@ -195,6 +359,8 @@ class FortimanagerConnector(BaseConnector):
             if not adom:
                 adom = 'root'
             endpoint = LIST_ADOM_FIREWALL_POLICY.format(adom=adom, pkg=pkg)
+        elif level != 'ADOM':
+            return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
         #     endpoint = LIST_GLOBAL_FIREWALL_POLICY.format(pkg=pkg, policy_type=param.get('policy_type'))
@@ -226,6 +392,11 @@ class FortimanagerConnector(BaseConnector):
                     firewall_policy['action'] = 'deny'
                 elif firewall_policy.get('action') == 2:
                     firewall_policy['action'] = 'IPsec'
+                # checks to see if firewall policy uses ipv6 instead of ipv4
+                if not firewall_policy.get('srcaddr') and firewall_policy.get('srcaddr6'):
+                    firewall_policy['srcaddr'] = firewall_policy['srcaddr6']
+                if not firewall_policy.get('dstaddr') and firewall_policy.get('dstaddr6'):
+                    firewall_policy['dstaddr'] = firewall_policy['dstaddr6']
                 action_result.add_data(firewall_policy)
             summary = action_result.update_summary({})
             summary['total_firewall_policies'] = len(firewall_policies)
@@ -233,9 +404,9 @@ class FortimanagerConnector(BaseConnector):
         else:
             self.save_progress("Failed.")
             if firewall_policies.get('status'):
-                error_msg = firewall_policies['status'].get('message', 'Unknown')
+                error_msg = firewall_policies['status'].get('message', 'Invalid parameters.')
             else:
-                error_msg = 'Unknown'
+                error_msg = 'Invalid parameters.'
             return action_result.set_status(phantom.APP_ERROR, "Failed to retrieve firewall policies. Reason: {}".format(error_msg))
 
     def _handle_delete_firewall_policy(self, param):
@@ -252,19 +423,45 @@ class FortimanagerConnector(BaseConnector):
             if not adom:
                 adom = 'root'
             endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg) + '/' + policy_id
+        elif level != 'ADOM':
+            return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
         #     adom = 'global'
         #     policy_type = param['policy_type']
         #     endpoint = GLOBAL_FIREWALL_ENDPOINT.format(pkg=pkg, policy_type=policy_type)
+
+        # login to FortiManager
         try:
             fmg_instance = self._login(action_result)
-            fmg_instance.lock_adom(adom)
+            self.save_progress("login successful")
+        except Exception as e:
+            self.save_progress(DELETE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(DELETE_FIREWALL_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        # acquire lock
+        try:
+            lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+            if lock_code == 0:
+                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+            else:
+                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+        except Exception as e:
+            self.save_progress(DELETE_FIREWALL_FAILED_MSG)
+            self.debug_print("{}: {}".format(DELETE_FIREWALL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            fmg_instance.logout()
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        try:
             response_code, response_data = fmg_instance.delete(endpoint)
             fmg_instance.commit_changes(adom)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
-            self.save_progress("Delete Firewall Policy action failed")
+            self.save_progress(DELETE_FIREWALL_FAILED_MSG)
             self.debug_print("Delete Firewall Policy action failed: {}".format(error_msg))
             fmg_instance.unlock_adom(adom)
             fmg_instance.logout()
@@ -279,9 +476,9 @@ class FortimanagerConnector(BaseConnector):
         else:
             self.save_progress("Failed.")
             if response_data.get('status'):
-                error_msg = response_data['status'].get('message', 'Unknown')
+                error_msg = response_data['status'].get('message', 'Invalid parameters.')
             else:
-                error_msg = 'Unknown'
+                error_msg = 'Invalid parameters.'
             return action_result.set_status(phantom.APP_ERROR, "Failed to delete firewall policy. Reason: {}".format(error_msg))
 
     def _get_param_list(self, param_list):
@@ -409,9 +606,9 @@ class FortimanagerConnector(BaseConnector):
                 else:
                     self.save_progress("Failed.")
                     if response_data.get('status'):
-                        error_msg = response_data['status'].get('message', 'Unknown')
+                        error_msg = response_data['status'].get('message', 'Invalid parameters.')
                     else:
-                        error_msg = 'Unknown'
+                        error_msg = 'Invalid parameters.'
                     return action_result.set_status(phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_BLOCK_URL_FAILED_MSG, error_msg))
 
             else:
@@ -433,9 +630,9 @@ class FortimanagerConnector(BaseConnector):
                     else:
                         self.save_progress("Failed.")
                         if response_data.get('status'):
-                            error_msg = response_data['status'].get('message', 'Unknown')
+                            error_msg = response_data['status'].get('message', 'Invalid parameters.')
                         else:
-                            error_msg = 'Unknown'
+                            error_msg = 'Invalid parameters.'
                         return action_result.set_status(
                             phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_ADD_URL_FILTER_PROFILE_ERROR_MSG, error_msg))
                 else:
@@ -542,9 +739,9 @@ class FortimanagerConnector(BaseConnector):
                 else:
                     self.save_progress("Failed.")
                     if response_data.get('status'):
-                        error_msg = response_data['status'].get('message', 'Unknown')
+                        error_msg = response_data['status'].get('message', 'Invalid parameters.')
                     else:
-                        error_msg = 'Unknown'
+                        error_msg = 'Invalid parameters.'
             return action_result.set_status(phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_UNBLOCK_URL_FAILED_MSG, error_msg))
 
         except Exception as e:
@@ -886,6 +1083,10 @@ class FortimanagerConnector(BaseConnector):
                    'address_object_failed': [] }
 
         for ip in ip_block_list:
+            try:
+                ipaddress.IPv4Network(ip)
+            except ipaddress.AddressValueError:
+                continue
             ip_object = vars(ipaddress.IPv4Network(ip))
 
             ip_address = str(ip_object.get('network_address'))
@@ -1125,7 +1326,9 @@ class FortimanagerConnector(BaseConnector):
         elif action_id == 'unblock_ip':
             ret_val = self._handle_unblock_ip(param)
         elif action_id == 'delete_firewall_policy':
-            ret_val = self._handle_delete_firewall_policy(param),
+            ret_val = self._handle_delete_firewall_policy(param)
+        elif action_id == 'update_firewall_policy':
+            ret_val = self._handle_update_firewall_policy(param)
         elif action_id == 'block_url':
             ret_val = self._handle_block_url(param)
         elif action_id == 'unblock_url':

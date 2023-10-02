@@ -1056,7 +1056,7 @@ class FortimanagerConnector(BaseConnector):
         filter = ["name", "==", policy_name]
 
         response_code, response_data = fmg_instance.get(policy_endpoint, filter=filter)
-        if response_code == 0 and response_data[0]:
+        if response_code == 0 and len(response_data) > 0:
             current_policy = response_data[0]
             if not current_policy:
                 return False
@@ -1130,6 +1130,8 @@ class FortimanagerConnector(BaseConnector):
             adom = param.get('adom')
             if not adom:
                 adom = 'root'
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
         package = param['package']
         package_path = param.get('package_path')
@@ -1151,12 +1153,29 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance = self._login(action_result)
-            fmg_instance.lock_adom(adom)
+            self.save_progress(LOGIN_SUCCESS_MSG)
+
+            # acquire lock
+            try:
+                lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+                if lock_code == 0:
+                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+                else:
+                    self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                    fmg_instance.logout()
+                    return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+            except Exception as e:
+                self.save_progress(ADOM_BLOCK_IP_FAILED_MSG)
+                self.debug_print("{}: {}".format(ADOM_BLOCK_IP_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
             # get the current policy IP addresses
             already_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
             if isinstance(already_blocked_ips, bool):
-                return action_result.set_status(phantom.APP_ERROR, 'Policy does not exist')
+                return action_result.set_status(phantom.APP_ERROR, 'Failed to get already blocked IPs, please check input parameters.')
 
             if address_group_name not in already_blocked_ips:
                 return action_result.set_status(
@@ -1219,6 +1238,8 @@ class FortimanagerConnector(BaseConnector):
             adom = param.get('adom')
             if not adom:
                 adom = 'root'
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
         package = param['package']
         package_path = param.get('package_path')
@@ -1240,10 +1261,29 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance = self._login(action_result)
-            fmg_instance.lock_adom(adom)
+            self.save_progress(LOGIN_SUCCESS_MSG)
+
+            # acquire lock
+            try:
+                lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+                if lock_code == 0:
+                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+                else:
+                    self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                    fmg_instance.logout()
+                    return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+            except Exception as e:
+                self.save_progress(ADOM_UNBLOCK_IP_FAILED_MSG)
+                self.debug_print("{}: {}".format(ADOM_UNBLOCK_IP_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
             # first get the current policy IP addresses
             currently_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
+            if isinstance(currently_blocked_ips, bool):
+                return action_result.set_status(phantom.APP_ERROR, 'Failed to get currently blocked IPs, please check input parameters.')
 
             if address_group_name not in currently_blocked_ips:
                 return action_result.set_status(

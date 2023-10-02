@@ -1175,7 +1175,7 @@ class FortimanagerConnector(BaseConnector):
             # get the current policy IP addresses
             already_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
             if isinstance(already_blocked_ips, bool):
-                return action_result.set_status(phantom.APP_ERROR, 'Failed to get already blocked IPs, please check input parameters.')
+                return action_result.set_status(phantom.APP_ERROR, 'Failed to complete action, please check input parameters.')
 
             if address_group_name not in already_blocked_ips:
                 return action_result.set_status(
@@ -1283,7 +1283,7 @@ class FortimanagerConnector(BaseConnector):
             # first get the current policy IP addresses
             currently_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
             if isinstance(currently_blocked_ips, bool):
-                return action_result.set_status(phantom.APP_ERROR, 'Failed to get currently blocked IPs, please check input parameters.')
+                return action_result.set_status(phantom.APP_ERROR, 'Failed to complete action, please check input parameters.')
 
             if address_group_name not in currently_blocked_ips:
                 return action_result.set_status(

@@ -61,6 +61,10 @@ FILTER_ADDRESS_REGEX = r"^\"(?P<field>[a-z]+)\"\s*(?P<comp>(\=|\>|\<|\>\=|\<\=|\
 ADOM_WEB_FILTER_PROFILE_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/profile'
 ADOM_URL_FILTER_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/urlfilter'
 
+# IPs
+ADOM_BLOCK_IP_FAILED_MSG = 'Failed to block IP address(es)'
+ADOM_UNBLOCK_IP_FAILED_MSG = 'Failed to unblock IP address(es)'
+
 # URLs
 ADOM_BLOCK_URL_SUCCESS_MSG = 'Successfully blocked URL'
 ADOM_BLOCK_URL_FAILED_MSG = 'Failed to block URL'

@@ -36,8 +36,7 @@ DELETE_FIREWALL_FAILED_MSG = 'Failed to delete firewall policy'
 # LIST_GLOBAL_FIREWALL_POLICY = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
 
 LOCK_SUCCESS_MSG = '{adom} ADOM locked successfully'
-LOCK_FAILED_MSG = 'Failed to lock {adom} ADOM'
-LOCK_RETRY_FAILED_MSG = 'Failed to lock {adom} ADOM after {retries} retries'
+LOCK_FAILED_MSG = 'Failed to lock {adom} ADOM either because an exception occurred, or the ADOM has been locked by another user/session, or the ADOM entered does not exist.'
 
 # Firewall addresses
 GENERIC_ADOM_IPV4_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'
@@ -51,11 +50,6 @@ LIST_ADDRESSES_SUCCESS_MSG = 'Successfully retrieved address object(s)'
 LIST_ADDRESSES_FAILED_MSG = 'Failed to retrieve address object(s)'
 UPDATE_ADDRESS_SUCCESS_MSG = 'Successfully updated address object'
 UPDATE_ADDRESS_FAILED_MSG = 'Failed to update address object'
-
-ADDRESS_INVALID_ERROR_MSG = 'The provided address is either invalid or not supported'
-FILTER_ADDRESS_ERROR_MSG = 'The provided filter string is malformed. The proper format is \"<field>\" <comparison operator> \"<value>\"'
-
-FILTER_ADDRESS_REGEX = r"^\"(?P<field>[a-z]+)\"\s*(?P<comp>(\=|\>|\<|\>\=|\<\=|\=\=))\s*\"(?P<value>.+)\""
 
 # Web filter endpoints for block/unblock urls
 ADOM_WEB_FILTER_PROFILE_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/profile'

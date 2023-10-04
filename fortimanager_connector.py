@@ -96,6 +96,24 @@ class FortimanagerConnector(BaseConnector):
 
         return error_text
 
+    def acquire_lock(self, fmg_instance, adom):
+        try:
+            lock_code, lock_data = fmg_instance.lock_adom(adom)
+
+            if lock_code == 0:
+                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
+            else:
+                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+                fmg_instance.logout()
+
+        except Exception as e:
+            self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
+            self.debug_print("{}: {}".format(LOCK_FAILED_MSG.format(adom=adom), self._get_error_msg_from_exception(e)))
+            fmg_instance.logout()
+            return False
+
+        return lock_code == 0
+
     def _handle_test_connectivity(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
         self.save_progress("Connecting to endpoint")
@@ -779,9 +797,14 @@ class FortimanagerConnector(BaseConnector):
             self.save_progress("login successful")
 
         except Exception as e:
-            self.save_progress(CREATE_ADDRESS_FAILED_MSG)
-            self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            self.save_progress(LIST_ADDRESSES_FAILED_MSG)
+            self.debug_print("{}: {}".format(LIST_ADDRESSES_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, None)
+
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(LIST_ADDRESSES_FAILED_MSG)
+            self.debug_print("{}: {}".format(LIST_ADDRESSES_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
         try:
             if name:
@@ -852,21 +875,10 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, None)
 
         # acquire lock
-        try:
-            lock_code, lock_data = fmg_instance.lock_adom(adom)
-
-            if lock_code == 0:
-                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-            else:
-                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
-                fmg_instance.logout()
-                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-
-        except Exception as e:
-            self.save_progress(CREATE_ADDRESS_FAILED_MSG)
-            self.debug_print("{}: {}".format(CREATE_ADDRESS_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
-            fmg_instance.logout()
-            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(LIST_ADDRESSES_FAILED_MSG)
+            self.debug_print("{}: {}".format(LIST_ADDRESSES_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
         # then actually create address
         try:
@@ -931,21 +943,10 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, None)
 
         # acquire lock
-        try:
-            lock_code, lock_data = fmg_instance.lock_adom(adom)
-
-            if lock_code == 0:
-                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-            else:
-                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
-                fmg_instance.logout()
-                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-
-        except Exception as e:
+        if not self.acquire_lock(fmg_instance, adom):
             self.save_progress(UPDATE_ADDRESS_FAILED_MSG)
             self.debug_print("{}: {}".format(UPDATE_ADDRESS_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
-            fmg_instance.logout()
-            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
         # then actually update address
         try:
@@ -1007,21 +1008,10 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, None)
 
         # acquire lock
-        try:
-            lock_code, lock_data = fmg_instance.lock_adom(adom)
-
-            if lock_code == 0:
-                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-            else:
-                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
-                fmg_instance.logout()
-                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-
-        except Exception as e:
+        if not self.acquire_lock(fmg_instance, adom):
             self.save_progress(DELETE_ADDRESS_FAILED_MSG)
             self.debug_print("{}: {}".format(DELETE_ADDRESS_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
-            fmg_instance.logout()
-            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
         # then actually delete address
         try:

@@ -36,7 +36,8 @@ DELETE_FIREWALL_FAILED_MSG = 'Failed to delete firewall policy'
 # LIST_GLOBAL_FIREWALL_POLICY = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'
 
 LOCK_SUCCESS_MSG = '{adom} ADOM locked successfully'
-LOCK_FAILED_MSG = 'Failed to lock {adom} ADOM either because an exception occurred, or the ADOM has been locked by another user/session, or the ADOM entered does not exist.'
+LOCK_FAILED_MSG = 'Failed to lock {adom} ADOM either because an exception occurred, \
+    or the ADOM has been locked by another user/session, or the ADOM entered does not exist.'
 
 # Firewall addresses
 GENERIC_ADOM_IPV4_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'

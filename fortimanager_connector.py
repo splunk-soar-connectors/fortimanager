@@ -183,20 +183,10 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, None)
 
         # acquire lock
-        try:
-            lock_code, lock_data = fmg_instance.lock_adom(adom)
-
-            if lock_code == 0:
-                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-            else:
-                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
-                fmg_instance.logout()
-                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-        except Exception as e:
+        if not self.acquire_lock(fmg_instance, adom):
             self.save_progress(CREATE_FIREWALL_FAILED_MSG)
             self.debug_print("{}: {}".format(CREATE_FIREWALL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
-            fmg_instance.logout()
-            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
         # create firewall policy
         try:
@@ -315,20 +305,10 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, None)
 
         # acquire lock
-        try:
-            lock_code, lock_data = fmg_instance.lock_adom(adom)
-
-            if lock_code == 0:
-                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-            else:
-                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
-                fmg_instance.logout()
-                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-        except Exception as e:
+        if not self.acquire_lock(fmg_instance, adom):
             self.save_progress(UPDATE_FIREWALL_FAILED_MSG)
             self.debug_print("{}: {}".format(UPDATE_FIREWALL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
-            fmg_instance.logout()
-            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
         try:
             # create source and destination address objects
@@ -459,20 +439,10 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, None)
 
         # acquire lock
-        try:
-            lock_code, lock_data = fmg_instance.lock_adom(adom)
-
-            if lock_code == 0:
-                self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-            else:
-                self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
-                fmg_instance.logout()
-                return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-        except Exception as e:
+        if not self.acquire_lock(fmg_instance, adom):
             self.save_progress(DELETE_FIREWALL_FAILED_MSG)
             self.debug_print("{}: {}".format(DELETE_FIREWALL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
-            fmg_instance.logout()
-            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
         try:
             response_code, response_data = fmg_instance.delete(endpoint)
@@ -561,24 +531,18 @@ class FortimanagerConnector(BaseConnector):
         try:
             fmg_instance = self._login(action_result)
             self.save_progress(LOGIN_SUCCESS_MSG)
+        except Exception as e:
+            self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
+            self.debug_print("{}: {}".format(ADOM_BLOCK_URL_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
 
-            # acquire lock
-            try:
-                lock_code, lock_data = fmg_instance.lock_adom(adom)
+        # acquire lock
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
+            self.debug_print("{}: {}".format(ADOM_BLOCK_URL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
-                if lock_code == 0:
-                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-                else:
-                    self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
-                    fmg_instance.logout()
-                    return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-
-            except Exception as e:
-                self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
-                self.debug_print("{}: {}".format(ADOM_BLOCK_URL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
-                fmg_instance.logout()
-                return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
-
+        try:
             # first get the current web filter profile
             web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
             if not web_filter_profile:
@@ -688,24 +652,19 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance = self._login(action_result)
+            self.save_progress(LOGIN_SUCCESS_MSG)
+        except Exception as e:
+            self.save_progress(ADOM_UNBLOCK_URL_FAILED_MSG)
+            self.debug_print("{}: {}".format(ADOM_UNBLOCK_URL_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
 
-            # acquire lock
-            try:
-                lock_code, lock_data = fmg_instance.lock_adom(adom)
+        # acquire lock
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(ADOM_UNBLOCK_URL_FAILED_MSG)
+            self.debug_print("{}: {}".format(ADOM_UNBLOCK_URL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
-                if lock_code == 0:
-                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-                else:
-                    self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
-                    fmg_instance.logout()
-                    return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-
-            except Exception as e:
-                self.save_progress(ADOM_UNBLOCK_URL_FAILED_MSG)
-                self.debug_print("{}: {}".format(ADOM_UNBLOCK_URL_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
-                fmg_instance.logout()
-                return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
-
+        try:
             # first get the current web filter profile
             web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
             if not web_filter_profile:
@@ -1144,24 +1103,18 @@ class FortimanagerConnector(BaseConnector):
         try:
             fmg_instance = self._login(action_result)
             self.save_progress(LOGIN_SUCCESS_MSG)
+        except Exception as e:
+            self.save_progress(ADOM_BLOCK_IP_FAILED_MSG)
+            self.debug_print("{}: {}".format(ADOM_BLOCK_IP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
 
-            # acquire lock
-            try:
-                lock_code, lock_data = fmg_instance.lock_adom(adom)
+        # acquire lock
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(ADOM_BLOCK_IP_FAILED_MSG)
+            self.debug_print("{}: {}".format(ADOM_BLOCK_IP_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
-                if lock_code == 0:
-                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-                else:
-                    self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
-                    fmg_instance.logout()
-                    return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-
-            except Exception as e:
-                self.save_progress(ADOM_BLOCK_IP_FAILED_MSG)
-                self.debug_print("{}: {}".format(ADOM_BLOCK_IP_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
-                fmg_instance.logout()
-                return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
-
+        try:
             # get the current policy IP addresses
             already_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
             if isinstance(already_blocked_ips, bool):
@@ -1209,7 +1162,7 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_SUCCESS)
 
         except Exception as e:
-            self.save_progress("ADOM level block IP action failed")
+            self.save_progress(ADOM_BLOCK_IP_FAILED_MSG)
             self.debug_print("ADOM level block IP action failed: {}".format(self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
@@ -1252,24 +1205,18 @@ class FortimanagerConnector(BaseConnector):
         try:
             fmg_instance = self._login(action_result)
             self.save_progress(LOGIN_SUCCESS_MSG)
+        except Exception as e:
+            self.save_progress(ADOM_UNBLOCK_IP_FAILED_MSG)
+            self.debug_print("{}: {}".format(ADOM_UNBLOCK_IP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
 
-            # acquire lock
-            try:
-                lock_code, lock_data = fmg_instance.lock_adom(adom)
+        # acquire lock
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(ADOM_UNBLOCK_IP_FAILED_MSG)
+            self.debug_print("{}: {}".format(ADOM_UNBLOCK_IP_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
-                if lock_code == 0:
-                    self.save_progress(LOCK_SUCCESS_MSG.format(adom=adom))
-                else:
-                    self.save_progress(LOCK_FAILED_MSG.format(adom=adom))
-                    fmg_instance.logout()
-                    return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-
-            except Exception as e:
-                self.save_progress(ADOM_UNBLOCK_IP_FAILED_MSG)
-                self.debug_print("{}: {}".format(ADOM_UNBLOCK_IP_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
-                fmg_instance.logout()
-                return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
-
+        try:
             # first get the current policy IP addresses
             currently_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
             if isinstance(currently_blocked_ips, bool):

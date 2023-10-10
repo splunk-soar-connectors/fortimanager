@@ -1479,6 +1479,7 @@
             "description": "Create a firewall address object",
             "type": "generic",
             "read_only": false,
+            "undo": "delete address",
             "parameters": {
                 "level": {
                     "description": "Level Type",
@@ -1672,6 +1673,7 @@
             "type": "generic",
             "identifier": "delete_address",
             "read_only": false,
+            "undo": "create address",
             "parameters": {
                 "level": {
                     "description": "Level type",
@@ -1871,7 +1873,7 @@
                     "data_path": "action_result.data.*.type",
                     "data_type": "string",
                     "example_values": [
-                        "ipmask"
+                        "netmask"
                     ],
                     "column_name": "Address Type",
                     "column_order": 1
@@ -2163,7 +2165,7 @@
                     "primary": true,
                     "contains": [
                         "ip",
-                        "ipmask"
+                        "netmask"
                     ],
                     "order": 3
                 },
@@ -2228,7 +2230,7 @@
                     ],
                     "contains": [
                         "ip",
-                        "ipmask"
+                        "netmask"
                     ],
                     "column_name": "IP/Netmask",
                     "column_order": 1

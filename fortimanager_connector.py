@@ -26,7 +26,7 @@ import phantom.app as phantom
 import requests
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
-from pyFMG.fortimgr import FortiManager
+from pyFMG.fortimgr import FMGValidSessionException, FortiManager
 
 # Usage of the consts file is recommended
 from fortimanager_consts import *
@@ -64,7 +64,12 @@ class FortimanagerConnector(BaseConnector):
                                         verify_ssl=self._verify_server_cert, verbose=True, disable_request_warnings=True)
         else:
             raise Exception("The asset configuration requires either an API key or a username and password.")
-        fmg_instance.login()
+
+        try:
+            fmg_instance.login()
+        except FMGValidSessionException:
+            raise Exception("Login to FortiManager failed. Please check credentials.")
+
         return fmg_instance
 
     def _format_url(self, url):
@@ -121,21 +126,30 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             fmg_instance = self._login(action_result)
-            self.save_progress("Obtaining system status")
-            response_code, response_data = fmg_instance.get('sys/status')
+            self.save_progress("login successful")
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress("Test Connectivity Failed.")
             return action_result.set_status(phantom.APP_ERROR, error_msg)
+
+        try:
+            self.save_progress("Obtaining system status")
+            response_code, response_data = fmg_instance.get('sys/status')
+
+            if response_code == 0:
+                self.save_progress("Test Connectivity Passed")
+                return action_result.set_status(phantom.APP_SUCCESS)
+            else:
+                self.save_progress("Test Connectivity Failed.")
+                return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
+
+        except Exception as e:
+            error_msg = self._get_error_msg_from_exception(e)
+            self.save_progress("Test Connectivity Failed.")
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+
         finally:
             fmg_instance.logout()
-
-        if response_code == 0:
-            self.save_progress("Test Connectivity Passed")
-            return action_result.set_status(phantom.APP_SUCCESS)
-        else:
-            self.save_progress("Test Connectivity Failed.")
-            return action_result.set_status(phantom.APP_ERROR, "Test Connectivity Failed")
 
     def _handle_create_firewall_policy(self, param):
 

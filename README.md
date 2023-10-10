@@ -380,7 +380,7 @@ DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 action_result.data.\*.oid | numeric |  |   5266 
 action_result.data.\*.list | string |  |  
 action_result.data.\*.name | string |  `fortimanager address name`  |   192.168.1.1 
-action_result.data.\*.type | string |  |   ipmask 
+action_result.data.\*.type | string |  |   netmask 
 action_result.data.\*.uuid | string |  |   827d7880-5599-51ee-0445-701f26e672f1 
 action_result.data.\*.color | numeric |  |   0 
 action_result.data.\*.dirty | string |  |   dirty 
@@ -426,7 +426,7 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **level** |  required  | Level type | string | 
 **adom** |  optional  | ADOM name | string | 
 **address_name** |  required  | Name of address object to update | string |  `fortimanager address name` 
-**ip_netmask** |  optional  | Updated IP address and netmask (e.g. 0.0.0.0/32) to assign address object | string |  `ip`  `ipmask` 
+**ip_netmask** |  optional  | Updated IP address and netmask (e.g. 0.0.0.0/32) to assign address object | string |  `ip`  `netmask` 
 **fqdn** |  optional  | Updated Fully Qualified Domain Name to assign address object | string | 
 **policy_group_name** |  optional  | Name of policy group to be added to address | string | 
 
@@ -438,7 +438,7 @@ action_result.status | string |  |   success
 action_result.message | string |  |   Successfully updated addresss object 
 action_result.parameter.adom | string |  |   root 
 action_result.parameter.level | string |  |   ADOM 
-action_result.parameter.ip_netmask | string |  `ip`  `ipmask`  |   1.2.3.4 
+action_result.parameter.ip_netmask | string |  `ip`  `netmask`  |   1.2.3.4 
 action_result.parameter.address_name | string |  `fortimanager address name`  |   test123  gmail 
 action_result.parameter.fqdn | string |  |   \*gmail.com 
 action_result.parameter.policy_group_name | string |  |   default 

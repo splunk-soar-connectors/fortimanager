@@ -955,7 +955,7 @@ class FortimanagerConnector(BaseConnector):
                 error_msg = 'Object does not exist'
             else:
                 error_msg = response_data['status']['message']
-            self.save_progress(UPDATE_ADDRESS_SUCCESS_MSG)
+            self.save_progress(UPDATE_ADDRESS_FAILED_MSG)
             return action_result.set_status(phantom.APP_ERROR, error_msg)
 
     def _handle_delete_address(self, param):
@@ -1290,6 +1290,129 @@ class FortimanagerConnector(BaseConnector):
         else:
             return False
 
+    def _handle_create_address_group(self, param):
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
+
+        addr_group_name = param['address_group_name']
+        members = [m.strip() for m in param['members'].split(',')]
+
+        fmg_instance = None
+
+        url = GENERIC_ADOM_IPV4_ADDRESS_GROUP_ENDPOINT.format(adom=adom)
+
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress(LOGIN_SUCCESS_MSG)
+        except Exception as e:
+            self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_GROUP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        # acquire lock
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_GROUP_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+        try:
+            # get params
+            data = {
+                'name': addr_group_name,
+                'member': members
+            }
+
+            response_code, response_data = fmg_instance.add(url, **data)
+            fmg_instance.commit_changes(adom)
+
+        except Exception as e:
+            self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_GROUP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+
+        if response_code == 0:
+            action_result.add_data(response_data)
+            summary = {'status': CREATE_ADDRESS_GROUP_SUCCESS_MSG}
+            action_result.update_summary(summary)
+            return action_result.set_status(phantom.APP_SUCCESS, CREATE_ADDRESS_GROUP_SUCCESS_MSG)
+
+        else:
+            error_msg = response_data['status']['message']
+            self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+
+    def _handle_delete_address_group(self, param):
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
+
+        addr_group_name = param['address_group_name']
+
+        fmg_instance = None
+
+        url = SPECIFIC_ADOM_IPV4_ADDRESS_GROUP_ENDPOINT.format(adom=adom, name=addr_group_name)
+
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress(LOGIN_SUCCESS_MSG)
+        except Exception as e:
+            self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(DELETE_ADDRESS_GROUP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        # acquire lock
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(DELETE_ADDRESS_GROUP_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+        try:
+            response_code, response_data = fmg_instance.delete(url)
+            fmg_instance.commit_changes(adom)
+
+        except Exception as e:
+            self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_GROUP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+
+        if response_code == 0:
+            action_result.add_data(response_data)
+            summary = {'status': DELETE_ADDRESS_GROUP_SUCCESS_MSG}
+            action_result.update_summary(summary)
+            return action_result.set_status(phantom.APP_SUCCESS, DELETE_ADDRESS_GROUP_SUCCESS_MSG)
+
+        else:
+            error_msg = response_data['status']['message']
+            self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -1324,6 +1447,10 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_block_url(param)
         elif action_id == 'unblock_url':
             ret_val = self._handle_unblock_url(param)
+        elif action_id == 'create_address_group':
+            ret_val = self._handle_create_address_group(param)
+        elif action_id == 'delete_address_group':
+            ret_val = self._handle_delete_address_group(param)
 
         return ret_val
 

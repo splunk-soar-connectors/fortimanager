@@ -52,6 +52,15 @@ LIST_ADDRESSES_FAILED_MSG = 'Failed to retrieve address object(s)'
 UPDATE_ADDRESS_SUCCESS_MSG = 'Successfully updated address object'
 UPDATE_ADDRESS_FAILED_MSG = 'Failed to update address object'
 
+# Address groups
+GENERIC_ADOM_IPV4_ADDRESS_GROUP_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/addrgrp'
+SPECIFIC_ADOM_IPV4_ADDRESS_GROUP_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/addrgrp/{name}'
+
+CREATE_ADDRESS_GROUP_SUCCESS_MSG = 'Successfully created address group'
+CREATE_ADDRESS_GROUP_FAILED_MSG = 'Failed to create address group'
+DELETE_ADDRESS_GROUP_SUCCESS_MSG = 'Successfully deleted address group'
+DELETE_ADDRESS_GROUP_FAILED_MSG = 'Failed to delete address group'
+
 # Web filter endpoints for block/unblock urls
 ADOM_WEB_FILTER_PROFILE_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/profile'
 ADOM_URL_FILTER_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/urlfilter'

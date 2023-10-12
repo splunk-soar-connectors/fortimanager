@@ -3085,6 +3085,185 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "create address group",
+            "identifier": "create_address_group",
+            "description": "Create address group",
+            "type": "generic",
+            "read_only": false,
+            "undo": "delete address group",
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to create the address group. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform the action against that particular ADOM",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "address_group_name": {
+                    "description": "Unique name of address group you want to create",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": true,
+                    "contains": [
+                        "fortimanager address group name"
+                    ],
+                    "order": 2
+                },
+                "members": {
+                    "description": "Comma-separated list of address objects or address groups to add to the address group",
+                    "data_type": "string",
+                    "required": true,
+                    "allow_list": true,
+                    "primary": true,
+                    "contains": [
+                        "fortimanager address name"
+                    ],
+                    "order": 3
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string",
+                    "example_values": [
+                        "test-group-adom"
+                    ],
+                    "contains": [
+                        "fortimanager address group name"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ],
+                    "column_name": "Status",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully created address group"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully created address group"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.members",
+                    "data_type": "string",
+                    "example_values": [
+                        "all, testingmac"
+                    ],
+                    "contains": [
+                        "fortimanager address name"
+                    ],
+                    "column_name": "Members",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.address_group_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "test-group-adom"
+                    ],
+                    "contains": [
+                        "fortimanager address group name"
+                    ],
+                    "column_name": "Address Group Name",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "delete address group",
+            "identifier": "delete_address_group",
+            "description": "Delete address group",
+            "type": "generic",
+            "read_only": false,
+            "undo": "create address group",
+            "parameters": {
+                "level": {
+                    "description": "Level type at which to create the address group. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform the action against that particular ADOM",
+                    "data_type": "string",
+                    "required": true,
+                    "value_list": [
+                        "ADOM"
+                    ],
+                    "default": "ADOM",
+                    "order": 0
+                },
+                "adom": {
+                    "description": "ADOM name",
+                    "data_type": "string",
+                    "default": "root",
+                    "order": 1
+                },
+                "address_group_name": {
+                    "description": "Unique name of address group you want to create",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": true,
+                    "contains": [
+                        "fortimanager address group name"
+                    ],
+                    "order": 2
+                }
+            },
+            "output": [],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ],
     "pip_dependencies": {

@@ -302,6 +302,8 @@ Create a firewall address object
 Type: **generic**  
 Read only: **False**
 
+This action can be used to create an address object of either subnet or FQDN type. When specifying an address name, make sure that it is unique. FortiManager requires every address object to have a distinct name, or else the action will fail.
+
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
@@ -364,6 +366,8 @@ List firewall address objects
 Type: **generic**  
 Read only: **True**
 
+This action can be used to retrieve one specific address object or multiple address objects.<br><br>The filter_by parameter in the list addresses action can take multiple filtering criteria. For example, to filter by multiple address types you can use the following: `[["type", "==", "subnet"],["type", "==", "fqdn"]]`. Note that when using multiple criteria, only one needs to be true in order for the address object to be returned in the results. Therefore, using the previous example, the action will return address objects of both type subnet and FQDN.<br><br>When running the list addresses action adhoc, you can directly type in something like `[["type", "==", "subnet"],["type", "==", "fqdn"]]` into the filter_by parameter. However, if you are incorporating this action into a Classic Playbook, you must directly edit the action's code block in the playbook code editor and enclose the value in quotes, formatting the value like so: `"[["type", "==", "subnet"]]"`. This issue does not persist for Modern Playbooks.
+
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
@@ -419,6 +423,8 @@ Update existing firewall address object
 
 Type: **generic**  
 Read only: **False**
+
+This action can be used to update an existing firewall address object. Note that you can only update the IP/Netmask value if the address is of type Subnet. Similarly, you can only update the FQDN value if the address is of type FQDN. This action does not currently support changing the address type of an address object.
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS

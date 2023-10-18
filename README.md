@@ -73,6 +73,8 @@ Create an ADOM firewall policy
 Type: **generic**  
 Read only: **False**
 
+This action can be used to create a firewall policy within FortiManager. When specifying a firewall policy name, make sure that it is unique. FortiManager requires every firewall policy to have a distinct name, or else the action will fail.
+
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
@@ -120,6 +122,8 @@ List ADOM firewall policies
 
 Type: **investigate**  
 Read only: **True**
+
+This action can be used to retrieve one specific firewall policy or multiple firewall policies. To filter for a specific firewall policy, provide the policy's name and if you would like to display all policies within a package, simply leave the policy name parameter blank.
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
@@ -253,6 +257,8 @@ Update an ADOM firewall policy
 
 Type: **generic**  
 Read only: **False**
+
+This action can be used to update an existing firewall policy. Whichever parameters you wish to change, make sure to provide all the values since this action will overwrite all the values. If you leave a parameter blank, it will not be changed.
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
@@ -533,6 +539,8 @@ Delete an ADOM firewall policy
 
 Type: **generic**  
 Read only: **False**
+
+This action can be used to delete a firewall policy within FortiManager. You must provide the policy ID of the firewall policy you wish to delete. This policy ID can be retrieved from the list firewall policies action.
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS

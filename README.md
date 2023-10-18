@@ -464,6 +464,8 @@ Block ADOM level IP addresses
 Type: **contain**  
 Read only: **False**
 
+This action can be used to block IPV4 addresses. By specifying either a single IP address or multiple addresses as a comma-separated list, this action will create address objects if they don't already exist. The address objects will then be added to the specified address group. If the address group does not exist, the action will fail.
+
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
@@ -503,6 +505,8 @@ Unblock ADOM level IP addresses
 
 Type: **contain**  
 Read only: **False**
+
+This action can be used to unblock IPV4 addresses. By specifying either a single IP address or multiple addresses as a comma-separated list, this action will remove any address objects from the specified address group but will NOT delete the address objects from FortiManager. If the address group does not exist, the action will fail.
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
@@ -572,6 +576,8 @@ Block ADOM level URLs
 Type: **contain**  
 Read only: **False**
 
+This action can be used to block a URL. A URL of type 'simple' will exactly match a URL, while a 'wildcard' or 'regex' URL can be configured to match different permutations. The URL will be added to the specified web filter profile if it exists, otherwise the action will fail.
+
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
@@ -601,6 +607,8 @@ Unblock ADOM level URLs
 
 Type: **contain**  
 Read only: **False**
+
+This action can be used to unblock a URL. If the URL exists in the web filter profile, it will be removed. If the specified web filter profile does not exist, the action will fail.
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS

@@ -61,6 +61,7 @@
         {
             "action": "create firewall policy",
             "description": "Create an ADOM firewall policy",
+            "verbose": "This action can be used to create a firewall policy within FortiManager. When specifying a firewall policy name, make sure that it is unique. FortiManager requires every firewall policy to have a distinct name, or else the action will fail.",
             "type": "generic",
             "identifier": "create_firewall_policy",
             "read_only": false,
@@ -340,6 +341,7 @@
         {
             "action": "list firewall policies",
             "description": "List ADOM firewall policies",
+            "verbose": "This action can be used to retrieve one specific firewall policy or multiple firewall policies. To filter for a specific firewall policy, provide the policy's name and if you would like to display all policies within a package, simply leave the policy name parameter blank.",
             "type": "investigate",
             "identifier": "list_firewall_policies",
             "read_only": true,
@@ -1207,6 +1209,7 @@
         {
             "action": "update firewall policy",
             "description": "Update an ADOM firewall policy",
+            "verbose": "This action can be used to update an existing firewall policy. Whichever parameters you wish to change, make sure to provide all the values since this action will overwrite all the values. If you leave a parameter blank, it will not be changed.",
             "type": "generic",
             "identifier": "update_firewall_policy",
             "read_only": false,
@@ -2683,6 +2686,7 @@
         {
             "action": "delete firewall policy",
             "description": "Delete an ADOM firewall policy",
+            "verbose": "This action can be used to delete a firewall policy within FortiManager. You must provide the policy ID of the firewall policy you wish to delete. This policy ID can be retrieved from the list firewall policies action.",
             "type": "generic",
             "identifier": "delete_firewall_policy",
             "undo": "create firewall policy",

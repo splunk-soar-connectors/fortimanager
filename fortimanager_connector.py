@@ -275,6 +275,10 @@ class FortimanagerConnector(BaseConnector):
                     ]
                 ]}
             response_code, firewall_policy = fmg_instance.get(endpoint, **data)
+            if not firewall_policy or response_code != 0:
+                self.save_progress("Failed to update firewall policy. Please verify parameters.")
+                fmg_instance.logout()
+                return action_result.set_status(phantom.APP_ERROR, None)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress("Failed to get firewall policy payload")

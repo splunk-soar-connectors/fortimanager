@@ -52,6 +52,9 @@ LIST_ADDRESSES_FAILED_MSG = 'Failed to retrieve address object(s)'
 UPDATE_ADDRESS_SUCCESS_MSG = 'Successfully updated address object'
 UPDATE_ADDRESS_FAILED_MSG = 'Failed to update address object'
 
+FQDN_REGEX = r'(?=^.{1,253}$)(^(((?!-)[a-zA-Z0-9-]{1,63}(?<!-))|((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})$)'
+INVALID_ADDRESS_FORMAT = 'The following address objects could not be created due to invalid address format. \
+    This app currently only supports creating Subnet/IP/Netmask and FQDN address objects: {addresses}.'
 # Address groups
 GENERIC_ADOM_IPV4_ADDRESS_GROUP_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/addrgrp'
 SPECIFIC_ADOM_IPV4_ADDRESS_GROUP_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/addrgrp/{name}'
@@ -60,6 +63,8 @@ CREATE_ADDRESS_GROUP_SUCCESS_MSG = 'Successfully created address group'
 CREATE_ADDRESS_GROUP_FAILED_MSG = 'Failed to create address group'
 DELETE_ADDRESS_GROUP_SUCCESS_MSG = 'Successfully deleted address group'
 DELETE_ADDRESS_GROUP_FAILED_MSG = 'Failed to delete address group'
+
+MEMBER_VALIDATION_ERROR = 'Some addresses could not be added to the address group because they were invalid.'
 
 # Web filter endpoints for block/unblock urls
 ADOM_WEB_FILTER_PROFILE_ENDPOINT = '/pm/config/adom/{adom}/obj/webfilter/profile'

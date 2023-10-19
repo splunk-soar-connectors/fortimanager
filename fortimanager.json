@@ -3090,6 +3090,7 @@
             "action": "create address group",
             "identifier": "create_address_group",
             "description": "Create address group",
+            "verbose": "This action can be used to create a new address group. When specifying an address name, make sure that it is unique. FortiManager requires every address group to have a distinct name, or else the action will fail.",
             "type": "generic",
             "read_only": false,
             "undo": "delete address group",
@@ -3137,7 +3138,8 @@
                     "data_path": "action_result.data.*.name",
                     "data_type": "string",
                     "example_values": [
-                        "test-group-adom"
+                        "test-group-adom",
+                        "addrgroup2"
                     ],
                     "contains": [
                         "fortimanager address group name"
@@ -3150,7 +3152,7 @@
                         "success"
                     ],
                     "column_name": "Status",
-                    "column_order": 2
+                    "column_order": 3
                 },
                 {
                     "data_path": "action_result.message",
@@ -3184,19 +3186,18 @@
                     "data_path": "action_result.parameter.members",
                     "data_type": "string",
                     "example_values": [
-                        "all, testingmac"
+                        "all, 1.2.3.7"
                     ],
                     "contains": [
                         "fortimanager address name"
-                    ],
-                    "column_name": "Members",
-                    "column_order": 1
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.address_group_name",
                     "data_type": "string",
                     "example_values": [
-                        "test-group-adom"
+                        "test-group-adom",
+                        "addrgroup2"
                     ],
                     "contains": [
                         "fortimanager address group name"
@@ -3217,6 +3218,34 @@
                     "example_values": [
                         1
                     ]
+                },
+                {
+                    "data_path": "action_result.data.*.members_added",
+                    "data_type": "string",
+                    "example_values": [
+                        "1.2.3.7"
+                    ],
+                    "contains": [
+                        "fortimanager address name"
+                    ],
+                    "column_name": "Members",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.data.*.address_object_already_exists",
+                    "data_type": "string",
+                    "example_values": [
+                        "1.2.3.7"
+                    ],
+                    "contains": [
+                        "fortimanager address name"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.address_object_failed",
+                    "data_type": "string",
+                    "column_name": "Members Not Added",
+                    "column_order": 2
                 }
             ],
             "render": {
@@ -3228,6 +3257,7 @@
             "action": "delete address group",
             "identifier": "delete_address_group",
             "description": "Delete address group",
+            "verbose": "This action deletes an existing address group. Make sure the address group name entered is valid and exists on your FortiManager asset. If an invalid address group name is used, the action will fail.",
             "type": "generic",
             "read_only": false,
             "undo": "create address group",
@@ -3259,7 +3289,92 @@
                     "order": 2
                 }
             },
-            "output": [],
+            "output": [
+                {
+                    "data_path": "action_result.data.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "/pm/config/adom/root/obj/firewall/addrgrp/test-group-adom"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.status.code",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.status.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "OK"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success"
+                    ],
+                    "column_name": "Status",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully deleted address group"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Successfully deleted address group"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.adom",
+                    "data_type": "string",
+                    "example_values": [
+                        "root"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.level",
+                    "data_type": "string",
+                    "example_values": [
+                        "ADOM"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.address_group_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "test-group-adom"
+                    ],
+                    "contains": [
+                        "fortimanager address group name"
+                    ],
+                    "column_name": "Address Group Name",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                }
+            ],
             "render": {
                 "type": "table"
             },

@@ -54,6 +54,8 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [delete firewall policy](#action-delete-firewall-policy) - Delete an ADOM firewall policy  
 [block url](#action-block-url) - Block ADOM level URLs  
 [unblock url](#action-unblock-url) - Unblock ADOM level URLs  
+[create address group](#action-create-address-group) - Create address group  
+[delete address group](#action-delete-address-group) - Delete address group  
 
 ## action: 'test connectivity'
 Validate the asset configuration for connectivity using supplied configuration
@@ -614,4 +616,67 @@ action_result.parameter.adom | string |  |   root
 action_result.parameter.level | string |  |   ADOM 
 action_result.parameter.web_filter_profile_name | string |  |   default 
 summary.total_objects | numeric |  |   1 
-summary.total_objects_successful | numeric |  |   1  0 
+summary.total_objects_successful | numeric |  |   1  0   
+
+## action: 'create address group'
+Create address group
+
+Type: **generic**  
+Read only: **False**
+
+This action can be used to create a new address group. When specifying an address name, make sure that it is unique. FortiManager requires every address group to have a distinct name, or else the action will fail.
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type at which to create the address group. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform the action against that particular ADOM | string | 
+**adom** |  optional  | ADOM name | string | 
+**address_group_name** |  required  | Unique name of address group you want to create | string |  `fortimanager address group name` 
+**members** |  required  | Comma-separated list of address objects or address groups to add to the address group | string |  `fortimanager address name` 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.name | string |  `fortimanager address group name`  |   test-group-adom  addrgroup2 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Successfully created address group 
+action_result.summary.status | string |  |   Successfully created address group 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.members | string |  `fortimanager address name`  |   all, 1.2.3.7 
+action_result.parameter.address_group_name | string |  `fortimanager address group name`  |   test-group-adom  addrgroup2 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 
+action_result.data.\*.members_added | string |  `fortimanager address name`  |   1.2.3.7 
+action_result.data.\*.address_object_already_exists | string |  `fortimanager address name`  |   1.2.3.7 
+action_result.data.\*.address_object_failed | string |  |    
+
+## action: 'delete address group'
+Delete address group
+
+Type: **generic**  
+Read only: **False**
+
+This action deletes an existing address group. Make sure the address group name entered is valid and exists on your FortiManager asset. If an invalid address group name is used, the action will fail.
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level type at which to create the address group. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform the action against that particular ADOM | string | 
+**adom** |  optional  | ADOM name | string | 
+**address_group_name** |  required  | Unique name of address group you want to create | string |  `fortimanager address group name` 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.url | string |  |   /pm/config/adom/root/obj/firewall/addrgrp/test-group-adom 
+action_result.data.\*.status.code | numeric |  |   0 
+action_result.data.\*.status.message | string |  |   OK 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Successfully deleted address group 
+action_result.summary.status | string |  |   Successfully deleted address group 
+action_result.parameter.adom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.address_group_name | string |  `fortimanager address group name`  |   test-group-adom 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 

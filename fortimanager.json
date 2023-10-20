@@ -3228,7 +3228,7 @@
                     "contains": [
                         "fortimanager address name"
                     ],
-                    "column_name": "Members",
+                    "column_name": "Members Added",
                     "column_order": 1
                 },
                 {

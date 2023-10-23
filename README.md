@@ -653,7 +653,7 @@ Create address group
 Type: **generic**  
 Read only: **False**
 
-This action can be used to create a new address group. When specifying an address group name, make sure that it is unique. FortiManager requires every address group to have a distinct name, or else the action will fail.<br><br>The members parameter accepts names of exising address object, IP/netmask addresses, and FQDN addresses in a comma-separated list. If the IP/netmask or FQDN address does not exist on FortiManager, this action will automatically create an address object with the respective address value and add it to the address group.
+This action can be used to create a new address group. When specifying an address group name, make sure that it is unique. FortiManager requires every address group to have a distinct name, or else the action will fail.<br><br>The `members` parameter accepts names of exising address objects, IP/netmask addresses, and FQDN addresses in a comma-separated list. If the IP/netmask or FQDN address does not exist on FortiManager, this action will automatically create an address object with the respective address value and add it to the address group.
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS

@@ -653,7 +653,7 @@ Create address group
 Type: **generic**  
 Read only: **False**
 
-This action can be used to create a new address group. When specifying an address name, make sure that it is unique. FortiManager requires every address group to have a distinct name, or else the action will fail.
+This action can be used to create a new address group. When specifying an address group name, make sure that it is unique. FortiManager requires every address group to have a distinct name, or else the action will fail.<br><br>The members parameter accepts names of exising address object, IP/netmask addresses, and FQDN addresses in a comma-separated list. If the IP/netmask or FQDN address does not exist on FortiManager, this action will automatically create an address object with the respective address value and add it to the address group.
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
@@ -661,7 +661,7 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **level** |  required  | Level type at which to create the address group. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform the action against that particular ADOM | string | 
 **adom** |  optional  | ADOM name | string | 
 **address_group_name** |  required  | Unique name of address group you want to create | string |  `fortimanager address group name` 
-**members** |  required  | Comma-separated list of address objects or address groups to add to the address group | string |  `fortimanager address name` 
+**members** |  required  | Comma-separated list of address objects or address groups to add to the address group. Accepted values include FortiManager address object names, IP/netmask, and FQDN | string |  `fortimanager address name` 
 
 #### Action Output
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES

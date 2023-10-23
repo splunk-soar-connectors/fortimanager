@@ -955,7 +955,7 @@ class FortimanagerConnector(BaseConnector):
                 error_msg = 'Object does not exist'
             else:
                 error_msg = response_data['status']['message']
-            self.save_progress(UPDATE_ADDRESS_SUCCESS_MSG)
+            self.save_progress(UPDATE_ADDRESS_FAILED_MSG)
             return action_result.set_status(phantom.APP_ERROR, error_msg)
 
     def _handle_delete_address(self, param):
@@ -1068,6 +1068,34 @@ class FortimanagerConnector(BaseConnector):
                 result['address_object_already_exists'].append(ip)
             else:
                 result['address_object_failed'].append((ip, status_message))
+
+        return result
+
+    def _create_fqdn_address_objects(self, fmg_instance, adom, fqdn_list):
+        url = GENERIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
+
+        result = { 'created_address_objects': [],
+                   'address_object_already_exists': [],
+                   'address_object_failed': [] }
+
+        for fqdn in fqdn_list:
+            data = {
+                'name': fqdn,
+                'fqdn': fqdn,
+                'type': fqdn
+            }
+
+            response_code, response_data = fmg_instance.add(url, **data)
+            status_message = None
+            if 'status' in response_data:
+                status_message = response_data['status'].get('message')
+
+            if response_code == 0:
+                result['created_address_objects'].append(fqdn)
+            elif status_message == 'Object already exists':
+                result['address_object_already_exists'].append(fqdn)
+            else:
+                result['address_object_failed'].append((fqdn, status_message))
 
         return result
 
@@ -1290,6 +1318,194 @@ class FortimanagerConnector(BaseConnector):
         else:
             return False
 
+    def _get_address_object(self, fmg_instance, adom, addr_name):
+        url = SPECIFIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=addr_name)
+
+        response_code, response_data = fmg_instance.get(url)
+
+        if response_code == 0 and response_data:
+            return response_data
+        else:
+            return False
+
+    def is_ipv4(self, ip):
+        try:
+            ipaddress.IPv4Interface(ip)
+            return True
+        except ValueError:
+            return False
+
+    def is_fqdn(self, fqdn):
+        return re.match(re.compile(FQDN_REGEX), fqdn)
+
+    def _handle_create_address_group(self, param):
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
+
+        addr_group_name = param['address_group_name']
+        members = [m.strip() for m in param['members'].split(',')]
+
+        fmg_instance = None
+
+        url = GENERIC_ADOM_IPV4_ADDRESS_GROUP_ENDPOINT.format(adom=adom)
+
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress(LOGIN_SUCCESS_MSG)
+        except Exception as e:
+            self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_GROUP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        # acquire lock
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_GROUP_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+        subnet_addrs = []
+        fqdn_addrs = []
+        invalid_addrs = []
+        members_cleaned = []
+
+        for addr in members:
+            addr_exists = bool(self._get_address_object(fmg_instance, adom, addr))
+            if addr_exists:
+                members_cleaned.append(addr)
+            elif self.is_ipv4(addr):
+                subnet_addrs.append(addr)
+            elif self.is_fqdn(addr):
+                fqdn_addrs.append(addr)
+            else:
+                invalid_addrs.append(addr)
+                if invalid_addrs:
+                    self.debug_print(INVALID_ADDRESS_FORMAT.format(addresses=invalid_addrs))
+
+        try:
+            subnet_results = self._create_address_objects(fmg_instance, adom, subnet_addrs)
+            fqdn_results = self._create_fqdn_address_objects(fmg_instance, adom, fqdn_addrs)
+            fmg_instance.commit_changes(adom)
+        except Exception as e:
+            self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_GROUP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        result = {
+            'created_address_objects': subnet_results['created_address_objects'] + fqdn_results['created_address_objects'],
+            'address_object_already_exists': members_cleaned[:],
+            'address_object_failed': subnet_results['address_object_failed'] + fqdn_results['address_object_failed'] + invalid_addrs
+        }
+
+        members_cleaned += subnet_results['created_address_objects'] + fqdn_results['created_address_objects']
+
+        try:
+            # get params
+            data = {
+                'name': addr_group_name,
+                'member': members_cleaned
+            }
+
+            response_code, response_data = fmg_instance.add(url, **data)
+            fmg_instance.commit_changes(adom)
+
+        except Exception as e:
+            self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_GROUP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+
+        if response_code == 0:
+            result.update(response_data)
+            result['members_added'] = members_cleaned
+            action_result.add_data(result)
+
+            summary = {'status': CREATE_ADDRESS_GROUP_SUCCESS_MSG}
+            action_result.update_summary(summary)
+
+            msg = CREATE_ADDRESS_GROUP_SUCCESS_MSG
+            if result['address_object_failed']:
+                msg = "{}. {}".format(CREATE_ADDRESS_GROUP_SUCCESS_MSG, MEMBER_VALIDATION_ERROR)
+
+            return action_result.set_status(phantom.APP_SUCCESS, msg)
+
+        else:
+            error_msg = response_data['status']['message']
+            self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+
+    def _handle_delete_address_group(self, param):
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
+
+        addr_group_name = param['address_group_name']
+
+        fmg_instance = None
+
+        url = SPECIFIC_ADOM_IPV4_ADDRESS_GROUP_ENDPOINT.format(adom=adom, name=addr_group_name)
+
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress(LOGIN_SUCCESS_MSG)
+        except Exception as e:
+            self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(DELETE_ADDRESS_GROUP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        # acquire lock
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(DELETE_ADDRESS_GROUP_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+        try:
+            response_code, response_data = fmg_instance.delete(url)
+            fmg_instance.commit_changes(adom)
+
+        except Exception as e:
+            self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
+            self.debug_print("{}: {}".format(CREATE_ADDRESS_GROUP_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+
+        if response_code == 0:
+            action_result.add_data(response_data)
+            summary = {'status': DELETE_ADDRESS_GROUP_SUCCESS_MSG}
+            action_result.update_summary(summary)
+            return action_result.set_status(phantom.APP_SUCCESS, DELETE_ADDRESS_GROUP_SUCCESS_MSG)
+
+        else:
+            error_msg = response_data['status']['message']
+            self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -1324,6 +1540,10 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_block_url(param)
         elif action_id == 'unblock_url':
             ret_val = self._handle_unblock_url(param)
+        elif action_id == 'create_address_group':
+            ret_val = self._handle_create_address_group(param)
+        elif action_id == 'delete_address_group':
+            ret_val = self._handle_delete_address_group(param)
 
         return ret_val
 

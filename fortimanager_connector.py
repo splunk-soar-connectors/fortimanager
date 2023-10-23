@@ -1437,7 +1437,10 @@ class FortimanagerConnector(BaseConnector):
             summary = {'status': CREATE_ADDRESS_GROUP_SUCCESS_MSG}
             action_result.update_summary(summary)
 
-            msg = "{}. {}".format(CREATE_ADDRESS_GROUP_SUCCESS_MSG, MEMBER_VALIDATION_ERROR) if result['address_object_failed'] else CREATE_ADDRESS_GROUP_SUCCESS_MSG
+            msg = CREATE_ADDRESS_GROUP_SUCCESS_MSG
+            if result['address_object_failed']:
+                msg = "{}. {}".format(CREATE_ADDRESS_GROUP_SUCCESS_MSG, MEMBER_VALIDATION_ERROR)
+
             return action_result.set_status(phantom.APP_SUCCESS, msg)
 
         else:

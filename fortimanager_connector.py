@@ -1082,7 +1082,7 @@ class FortimanagerConnector(BaseConnector):
             data = {
                 'name': fqdn,
                 'fqdn': fqdn,
-                'type': fqdn
+                'type': 'fqdn'
             }
 
             response_code, response_data = fmg_instance.add(url, **data)
@@ -1379,8 +1379,9 @@ class FortimanagerConnector(BaseConnector):
         members_cleaned = []
 
         for addr in members:
-            addr_exists = bool(self._get_address_object(fmg_instance, adom, addr))
-            if addr_exists:
+            if self._get_address_object(fmg_instance, adom, addr):
+                members_cleaned.append(addr)
+            elif self._get_address_group(fmg_instance, addr, adom):
                 members_cleaned.append(addr)
             elif self.is_ipv4(addr):
                 subnet_addrs.append(addr)

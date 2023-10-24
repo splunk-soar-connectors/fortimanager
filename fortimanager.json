@@ -3098,7 +3098,7 @@
             "action": "create address group",
             "identifier": "create_address_group",
             "description": "Create address group",
-            "verbose": "This action can be used to create a new address group. When specifying an address group name, make sure that it is unique. FortiManager requires every address group to have a distinct name, or else the action will fail.<br><br>The `members` parameter accepts names of exising address objects, IP/netmask addresses, and FQDN addresses in a comma-separated list. If the IP/netmask or FQDN address does not exist on FortiManager, this action will automatically create an address object with the respective address value and add it to the address group.",
+            "verbose": "This action can be used to create a new address group. When specifying an address group name, make sure that it is unique. FortiManager requires every address group to have a distinct name, or else the action will fail.<br><br>The `members` parameter accepts names of existing address objects and address groups, IP/netmask addresses, and FQDN addresses in a comma-separated list. If the IP/netmask or FQDN address does not exist on FortiManager, this action will automatically create an address object with the respective address value and add it to the address group.",
             "type": "generic",
             "read_only": false,
             "undo": "delete address group",

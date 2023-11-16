@@ -6,7 +6,7 @@ Connector Version: 1.0.1
 Product Vendor: Fortinet  
 Product Name: FortiManager  
 Product Version Supported (regex): ".\*"  
-Minimum Product Version: 6.0.0  
+Minimum Product Version: 6.1.0  
 
 FortiManager
 

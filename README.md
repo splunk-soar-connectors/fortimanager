@@ -2,13 +2,13 @@
 # FortiManager
 
 Publisher: Splunk  
-Connector Version: 1.0.2  
+Connector Version: 1.0.3  
 Product Vendor: Fortinet  
 Product Name: FortiManager  
 Product Version Supported (regex): ".\*"  
 Minimum Product Version: 6.1.0  
 
-FortiManager
+This app performs firewall configuration and security policy management actions in FortiManager
 
 [comment]: # "File: README.md"
 [comment]: # "Copyright (c) 2023 Splunk Inc."

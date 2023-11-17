@@ -1,7 +1,7 @@
 {
     "appid": "3d1ce7b2-0064-4e9a-882b-a37584d1e4f7",
     "name": "FortiManager",
-    "description": "FortiManager",
+    "description": "This app performs firewall configuration and security policy management actions in FortiManager",
     "type": "network security",
     "product_vendor": "Fortinet",
     "logo": "logo_fortinet.svg",

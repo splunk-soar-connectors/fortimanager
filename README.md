@@ -8,7 +8,7 @@ Product Name: FortiManager
 Product Version Supported (regex): ".\*"  
 Minimum Product Version: 6.1.0  
 
-FortiManager
+This app performs firewall configuration and security policy management actions in FortiManager
 
 [comment]: # "File: README.md"
 [comment]: # "Copyright (c) 2023 Splunk Inc."

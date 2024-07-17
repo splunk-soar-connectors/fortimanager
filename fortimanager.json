@@ -68,7 +68,7 @@
             "undo": "delete firewall policy",
             "lock": {
                 "enabled": true,
-                "data_path": "parameters.adom"
+                "data_path": "parameters.level"
             },
             "parameters": {
                 "level": {
@@ -1490,7 +1490,7 @@
             "undo": "delete address",
             "lock": {
                 "enabled": true,
-                "data_path": "parameters.adom"
+                "data_path": "parameters.level"
             },
             "parameters": {
                 "level": {
@@ -1815,7 +1815,7 @@
             "read_only": true,
             "lock": {
                 "enabled": true,
-                "data_path": "parameters.adom"
+                "data_path": "parameters.level"
             },
             "parameters": {
                 "level": {
@@ -2320,7 +2320,7 @@
             "undo": "unblock ip",
             "lock": {
                 "enabled": true,
-                "data_path": "parameters.adom"
+                "data_path": "parameters.level"
             },
             "parameters": {
                 "level": {

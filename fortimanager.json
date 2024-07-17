@@ -66,6 +66,10 @@
             "identifier": "create_firewall_policy",
             "read_only": false,
             "undo": "delete firewall policy",
+            "lock": {
+                "enabled": true,
+                "data_path": "parameters.adom"
+            },
             "parameters": {
                 "level": {
                     "description": "Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",
@@ -1484,6 +1488,10 @@
             "type": "generic",
             "read_only": false,
             "undo": "delete address",
+            "lock": {
+                "enabled": true,
+                "data_path": "parameters.adom"
+            },
             "parameters": {
                 "level": {
                     "description": "Level Type",
@@ -1805,6 +1813,10 @@
             "type": "generic",
             "identifier": "list_addresses",
             "read_only": true,
+            "lock": {
+                "enabled": true,
+                "data_path": "parameters.adom"
+            },
             "parameters": {
                 "level": {
                     "description": "Level type",
@@ -2306,6 +2318,10 @@
             "type": "contain",
             "read_only": false,
             "undo": "unblock ip",
+            "lock": {
+                "enabled": true,
+                "data_path": "parameters.adom"
+            },
             "parameters": {
                 "level": {
                     "description": "Level type at which to block IP addresses",

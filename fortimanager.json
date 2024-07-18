@@ -1686,6 +1686,10 @@
             "identifier": "delete_address",
             "read_only": false,
             "undo": "create address",
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            },
             "parameters": {
                 "level": {
                     "description": "Level type",
@@ -2150,6 +2154,10 @@
             "verbose": "This action can be used to update an existing firewall address object. Note that you can only update the IP/Netmask value if the address is of type Subnet. Similarly, you can only update the FQDN value if the address is of type FQDN. This action does not currently support changing the address type of an address object.",
             "type": "generic",
             "read_only": false,
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            },
             "parameters": {
                 "level": {
                     "description": "Level type",
@@ -2533,6 +2541,10 @@
             "type": "contain",
             "read_only": false,
             "undo": "block ip",
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            },
             "parameters": {
                 "level": {
                     "description": "Level type at which to unblock IP addresses",
@@ -2709,6 +2721,10 @@
             "identifier": "delete_firewall_policy",
             "undo": "create firewall policy",
             "read_only": false,
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            },
             "parameters": {
                 "level": {
                     "description": "Level type at which to create the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",

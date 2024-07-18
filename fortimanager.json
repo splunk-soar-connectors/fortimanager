@@ -67,7 +67,8 @@
             "read_only": false,
             "undo": "delete firewall policy",
             "lock": {
-                "enabled": true
+                "enabled": true,
+                "concurrency": false
             },
             "parameters": {
                 "level": {
@@ -1488,7 +1489,8 @@
             "read_only": false,
             "undo": "delete address",
             "lock": {
-                "enabled": true
+                "enabled": true,
+                "concurrency": false
             },
             "parameters": {
                 "level": {
@@ -1812,7 +1814,8 @@
             "identifier": "list_addresses",
             "read_only": true,
             "lock": {
-                "enabled": true
+                "enabled": true,
+                "concurrency": false
             },
             "parameters": {
                 "level": {
@@ -2316,7 +2319,8 @@
             "read_only": false,
             "undo": "unblock ip",
             "lock": {
-                "enabled": true
+                "enabled": true,
+                "concurrency": false
             },
             "parameters": {
                 "level": {

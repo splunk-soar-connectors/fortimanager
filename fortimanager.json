@@ -10,12 +10,12 @@
     "python_version": "3",
     "product_version_regex": ".*",
     "publisher": "Splunk",
-    "license": "Copyright (c) 2023 Splunk Inc.",
+    "license": "Copyright (c) 2024 Splunk Inc.",
     "app_version": "1.0.4",
     "utctime_updated": "2023-11-17T05:38:25.000000Z",
     "package_name": "phantom_fortimanager",
     "main_module": "fortimanager_connector.py",
-    "min_phantom_version": "6.1.0",
+    "min_phantom_version": "6.2.1",
     "app_wizard_version": "1.0.0",
     "fips_compliant": false,
     "configuration": {
@@ -349,6 +349,10 @@
             "type": "investigate",
             "identifier": "list_firewall_policies",
             "read_only": true,
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            },
             "parameters": {
                 "level": {
                     "description": "Level type at which to list the firewall policies",
@@ -1217,6 +1221,10 @@
             "type": "generic",
             "identifier": "update_firewall_policy",
             "read_only": false,
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            },
             "parameters": {
                 "level": {
                     "description": "Level type at which to update the firewall policy. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",
@@ -2866,6 +2874,10 @@
             "type": "contain",
             "read_only": false,
             "undo": "unblock url",
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            },
             "parameters": {
                 "level": {
                     "description": "Level type at which to block URLs. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",
@@ -3011,6 +3023,10 @@
             "type": "contain",
             "read_only": false,
             "undo": "block url",
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            },
             "parameters": {
                 "level": {
                     "description": "Level type at which to unblock URLs. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform against that particular ADOM",
@@ -3134,6 +3150,10 @@
             "type": "generic",
             "read_only": false,
             "undo": "delete address group",
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            },
             "parameters": {
                 "level": {
                     "description": "Level type at which to create the address group. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform the action against that particular ADOM",
@@ -3168,7 +3188,7 @@
                     "allow_list": true,
                     "primary": true,
                     "contains": [
-                        "fortimanager address name"
+                        "list of fortimanager's address names"
                     ],
                     "order": 3
                 }
@@ -3301,6 +3321,10 @@
             "type": "generic",
             "read_only": false,
             "undo": "create address group",
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            },
             "parameters": {
                 "level": {
                     "description": "Level type at which to create the address group. Choosing 'ADOM' (Administrative Domain Name) of the FortiManager server allows you to perform the action against that particular ADOM",

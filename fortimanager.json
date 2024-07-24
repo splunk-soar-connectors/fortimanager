@@ -10,7 +10,7 @@
     "python_version": "3",
     "product_version_regex": ".*",
     "publisher": "Splunk",
-    "license": "Copyright (c) 2024 Splunk Inc.",
+    "license": "Copyright (c) 2023-2024 Splunk Inc.",
     "app_version": "1.0.4",
     "utctime_updated": "2023-11-17T05:38:25.000000Z",
     "package_name": "phantom_fortimanager",
@@ -56,7 +56,11 @@
             "read_only": true,
             "parameters": {},
             "output": [],
-            "versions": "EQ(*)"
+            "versions": "EQ(*)",
+            "lock": {
+                "enabled": true,
+                "concurrency": false
+            }
         },
         {
             "action": "create firewall policy",
@@ -3188,7 +3192,7 @@
                     "allow_list": true,
                     "primary": true,
                     "contains": [
-                        "list of fortimanager's address names"
+                        "fortimanager address name"
                     ],
                     "order": 3
                 }

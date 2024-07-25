@@ -6,7 +6,7 @@ Connector Version: 1.0.4
 Product Vendor: Fortinet  
 Product Name: FortiManager  
 Product Version Supported (regex): ".\*"  
-Minimum Product Version: 6.1.0  
+Minimum Product Version: 6.2.1  
 
 This app performs firewall configuration and security policy management actions in FortiManager
 

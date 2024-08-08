@@ -2,7 +2,7 @@
 # FortiManager
 
 Publisher: Splunk  
-Connector Version: 1.0.4  
+Connector Version: 1.0.5  
 Product Vendor: Fortinet  
 Product Name: FortiManager  
 Product Version Supported (regex): ".\*"  

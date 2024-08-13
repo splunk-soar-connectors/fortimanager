@@ -1,3 +1,1 @@
 **Unreleased**
-
-* [PAPP-34052] fix concurrency issue in actions by adding lock

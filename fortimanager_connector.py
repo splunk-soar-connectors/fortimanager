@@ -1,6 +1,6 @@
 # File: fortimanager_connector.py
 #
-# Copyright (c) 2023-2024 Splunk Inc.
+# Copyright (c) 2023-2025 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,11 +57,19 @@ class FortimanagerConnector(BaseConnector):
 
     def _login(self, action_result):
         if self._username and self._password:
-            fmg_instance = FortiManager(self._host, self._username, self._password, debug=False,
-                                        verify_ssl=self._verify_server_cert, verbose=True, disable_request_warnings=True)
+            fmg_instance = FortiManager(
+                self._host,
+                self._username,
+                self._password,
+                debug=False,
+                verify_ssl=self._verify_server_cert,
+                verbose=True,
+                disable_request_warnings=True,
+            )
         elif self._api_key:
-            fmg_instance = FortiManager(self._host, apikey=self._api_key, debug=False,
-                                        verify_ssl=self._verify_server_cert, verbose=True, disable_request_warnings=True)
+            fmg_instance = FortiManager(
+                self._host, apikey=self._api_key, debug=False, verify_ssl=self._verify_server_cert, verbose=True, disable_request_warnings=True
+            )
         else:
             raise Exception("The asset configuration requires either an API key or a username and password.")
 
@@ -73,8 +81,8 @@ class FortimanagerConnector(BaseConnector):
         return fmg_instance
 
     def _format_url(self, url):
-        if not re.match('(?:http|https)://', url):
-            return 'https://{}'.format(url)
+        if not re.match("(?:http|https)://", url):
+            return "https://{}".format(url)
         return url
 
     def _get_error_msg_from_exception(self, e):
@@ -134,7 +142,7 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             self.save_progress("Obtaining system status")
-            response_code, response_data = fmg_instance.get('sys/status')
+            response_code, response_data = fmg_instance.get("sys/status")
 
             if response_code == 0:
                 self.save_progress("Test Connectivity Passed")
@@ -157,29 +165,29 @@ class FortimanagerConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
         fmg_instance = None
-        level = param['level']
-        pkg = param['package']
-        src_addresses = self._get_param_list(param['source_address'])
-        dst_addresses = self._get_param_list(param['destination_address'])
+        level = param["level"]
+        pkg = param["package"]
+        src_addresses = self._get_param_list(param["source_address"])
+        dst_addresses = self._get_param_list(param["destination_address"])
         data = {
-                    'name': param['name'],
-                    'srcintf': self._get_param_list(param['source_interface']),
-                    'dstintf': self._get_param_list(param['destination_interface']),
-                    'service': self._get_param_list(param['service']),
-                    'srcaddr': src_addresses,
-                    'dstaddr': dst_addresses,
-                    'action': param['action'],
-                    'status': param['status'],
-                    'inspection-mode': param['inspection_mode'],
-                    'logtraffic': param['log_traffic'],
-                    'schedule': param['schedule']
-                }
-        if level == 'ADOM':
-            adom = param.get('adom')
+            "name": param["name"],
+            "srcintf": self._get_param_list(param["source_interface"]),
+            "dstintf": self._get_param_list(param["destination_interface"]),
+            "service": self._get_param_list(param["service"]),
+            "srcaddr": src_addresses,
+            "dstaddr": dst_addresses,
+            "action": param["action"],
+            "status": param["status"],
+            "inspection-mode": param["inspection_mode"],
+            "logtraffic": param["log_traffic"],
+            "schedule": param["schedule"],
+        }
+        if level == "ADOM":
+            adom = param.get("adom")
             if not adom:
-                adom = 'root'
+                adom = "root"
             endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg)
-        elif level != 'ADOM':
+        elif level != "ADOM":
             return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
@@ -221,14 +229,14 @@ class FortimanagerConnector(BaseConnector):
         if response_code == 0:
             action_result.add_data(response_data)
             summary = action_result.update_summary({})
-            summary['status'] = 'Successfully added firewall policy'
+            summary["status"] = "Successfully added firewall policy"
             return action_result.set_status(phantom.APP_SUCCESS)
         else:
             self.save_progress("Failed.")
-            if response_data.get('status'):
-                error_msg = response_data['status'].get('message', 'Invalid parameters.')
+            if response_data.get("status"):
+                error_msg = response_data["status"].get("message", "Invalid parameters.")
             else:
-                error_msg = 'Invalid parameters'
+                error_msg = "Invalid parameters"
             return action_result.set_status(phantom.APP_ERROR, "Failed to create firewall policy. Reason: {}".format(error_msg))
 
     def _handle_update_firewall_policy(self, param):
@@ -237,14 +245,14 @@ class FortimanagerConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
         fmg_instance = None
-        pkg = param['package']
-        level = param['level']
-        if level == 'ADOM':
-            adom = param.get('adom')
+        pkg = param["package"]
+        level = param["level"]
+        if level == "ADOM":
+            adom = param.get("adom")
             if not adom:
-                adom = 'root'
+                adom = "root"
             endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg)
-        elif level != 'ADOM':
+        elif level != "ADOM":
             return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
@@ -253,27 +261,22 @@ class FortimanagerConnector(BaseConnector):
         #     endpoint = GLOBAL_FIREWALL_ENDPOINT.format(pkg=pkg, policy_type=policy_type)
 
         # Build out the firewall parameters to update
-        name = param['name']
-        srcintf = param.get('source_interface')
-        dstintf = param.get('destination_interface')
-        service = param.get('service')
-        srcaddr = param.get('source_address')
-        dstaddr = param.get('destination_address')
-        action = param.get('action')
-        status = param.get('status')
-        inspection_mode = param.get('inspection_mode')
-        log_traffic = param.get('log_traffic')
-        schedule = param.get('schedule')
+        name = param["name"]
+        srcintf = param.get("source_interface")
+        dstintf = param.get("destination_interface")
+        service = param.get("service")
+        srcaddr = param.get("source_address")
+        dstaddr = param.get("destination_address")
+        action = param.get("action")
+        status = param.get("status")
+        inspection_mode = param.get("inspection_mode")
+        log_traffic = param.get("log_traffic")
+        schedule = param.get("schedule")
         # get the payload of the firewall policy to update
         data = {}
         try:
             fmg_instance = self._login(action_result)
-            data = {
-                'filter': [
-                    [
-                        "name", "==", "{}".format(name)
-                    ]
-                ]}
+            data = {"filter": [["name", "==", "{}".format(name)]]}
             response_code, firewall_policy = fmg_instance.get(endpoint, **data)
             if not firewall_policy or response_code != 0:
                 self.save_progress("Failed to update firewall policy. Please verify parameters.")
@@ -286,31 +289,31 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.logout()
             return action_result.set_status(phantom.APP_ERROR, None)
         data = {}
-        data['name'] = name
+        data["name"] = name
         if srcintf:
-            data['srcintf'] = self._get_param_list(srcintf)
+            data["srcintf"] = self._get_param_list(srcintf)
         if dstintf:
-            data['dstintf'] = self._get_param_list(dstintf)
+            data["dstintf"] = self._get_param_list(dstintf)
         if service:
-            data['service'] = self._get_param_list(service)
+            data["service"] = self._get_param_list(service)
         if srcaddr:
             src_addresses = self._get_param_list(srcaddr)
-            data['srcaddr'] = src_addresses
+            data["srcaddr"] = src_addresses
         if dstaddr:
             dst_addresses = self._get_param_list(dstaddr)
-            data['dstaddr'] = dst_addresses
+            data["dstaddr"] = dst_addresses
         if action:
-            data['action'] = action
+            data["action"] = action
         if status:
-            data['status'] = status
+            data["status"] = status
         if inspection_mode:
-            data['inspection-mode'] = inspection_mode
+            data["inspection-mode"] = inspection_mode
         if log_traffic:
-            data['logtraffic'] = log_traffic
+            data["logtraffic"] = log_traffic
         if schedule:
-            data['schedule'] = schedule
+            data["schedule"] = schedule
         data = dict(list(firewall_policy[0].items()) + list(data.items()))
-        for key in ['obj seq', 'oid', 'pkg', 'policy', 'level_type', 'policy_type', 'method']:
+        for key in ["obj seq", "oid", "pkg", "policy", "level_type", "policy_type", "method"]:
             data.pop(key, None)
 
         # login to FortiManager
@@ -348,14 +351,14 @@ class FortimanagerConnector(BaseConnector):
         if response_code == 0:
             action_result.add_data(response_data)
             summary = action_result.update_summary({})
-            summary['status'] = 'Successfully updated firewall policy'
+            summary["status"] = "Successfully updated firewall policy"
             return action_result.set_status(phantom.APP_SUCCESS)
         else:
             self.save_progress("Failed.")
-            if response_data.get('status'):
-                error_msg = response_data['status'].get('message', 'Invalid parameters.')
+            if response_data.get("status"):
+                error_msg = response_data["status"].get("message", "Invalid parameters.")
             else:
-                error_msg = 'Invalid parameters.'
+                error_msg = "Invalid parameters."
             return action_result.set_status(phantom.APP_ERROR, "Failed to update firewall policy. Reason: {}".format(error_msg))
 
     def _handle_list_firewall_policies(self, param):
@@ -364,18 +367,18 @@ class FortimanagerConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
         fmg_instance = None
-        level = param['level']
-        pkg = param.get('package')
-        package_path = param.get('package_path')
-        policy_name = param.get('policy_name')
+        level = param["level"]
+        pkg = param.get("package")
+        package_path = param.get("package_path")
+        policy_name = param.get("policy_name")
         if pkg and package_path:
-            pkg += '/' + package_path
-        if level == 'ADOM':
-            adom = param.get('adom')
+            pkg += "/" + package_path
+        if level == "ADOM":
+            adom = param.get("adom")
             if not adom:
-                adom = 'root'
+                adom = "root"
             endpoint = LIST_ADOM_FIREWALL_POLICY.format(adom=adom, pkg=pkg)
-        elif level != 'ADOM':
+        elif level != "ADOM":
             return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
@@ -384,12 +387,7 @@ class FortimanagerConnector(BaseConnector):
         try:
             fmg_instance = self._login(action_result)
             if policy_name:
-                data = {
-                    'filter': [
-                        [
-                            "name", "==", "{}".format(policy_name)
-                        ]
-                    ]}
+                data = {"filter": [["name", "==", "{}".format(policy_name)]]}
                 response_code, firewall_policies = fmg_instance.get(endpoint, **data)
             else:
                 response_code, firewall_policies = fmg_instance.get(endpoint)
@@ -402,27 +400,27 @@ class FortimanagerConnector(BaseConnector):
         fmg_instance.logout()
         if response_code == 0:
             for firewall_policy in firewall_policies:
-                if firewall_policy.get('action') == 0:
-                    firewall_policy['action'] = 'accept'
-                elif firewall_policy.get('action') == 1:
-                    firewall_policy['action'] = 'deny'
-                elif firewall_policy.get('action') == 2:
-                    firewall_policy['action'] = 'IPsec'
+                if firewall_policy.get("action") == 0:
+                    firewall_policy["action"] = "accept"
+                elif firewall_policy.get("action") == 1:
+                    firewall_policy["action"] = "deny"
+                elif firewall_policy.get("action") == 2:
+                    firewall_policy["action"] = "IPsec"
                 # checks to see if firewall policy uses ipv6 instead of ipv4
-                if not firewall_policy.get('srcaddr') and firewall_policy.get('srcaddr6'):
-                    firewall_policy['srcaddr'] = firewall_policy['srcaddr6']
-                if not firewall_policy.get('dstaddr') and firewall_policy.get('dstaddr6'):
-                    firewall_policy['dstaddr'] = firewall_policy['dstaddr6']
+                if not firewall_policy.get("srcaddr") and firewall_policy.get("srcaddr6"):
+                    firewall_policy["srcaddr"] = firewall_policy["srcaddr6"]
+                if not firewall_policy.get("dstaddr") and firewall_policy.get("dstaddr6"):
+                    firewall_policy["dstaddr"] = firewall_policy["dstaddr6"]
                 action_result.add_data(firewall_policy)
             summary = action_result.update_summary({})
-            summary['total_firewall_policies'] = len(firewall_policies)
+            summary["total_firewall_policies"] = len(firewall_policies)
             return action_result.set_status(phantom.APP_SUCCESS)
         else:
             self.save_progress("Failed.")
-            if firewall_policies.get('status'):
-                error_msg = firewall_policies['status'].get('message', 'Invalid parameters.')
+            if firewall_policies.get("status"):
+                error_msg = firewall_policies["status"].get("message", "Invalid parameters.")
             else:
-                error_msg = 'Invalid parameters.'
+                error_msg = "Invalid parameters."
             return action_result.set_status(phantom.APP_ERROR, "Failed to retrieve firewall policies. Reason: {}".format(error_msg))
 
     def _handle_delete_firewall_policy(self, param):
@@ -431,15 +429,15 @@ class FortimanagerConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
         fmg_instance = None
-        level = param['level']
-        pkg = param['package']
-        policy_id = param['policy_id']
-        if level == 'ADOM':
-            adom = param.get('adom')
+        level = param["level"]
+        pkg = param["package"]
+        policy_id = param["policy_id"]
+        if level == "ADOM":
+            adom = param.get("adom")
             if not adom:
-                adom = 'root'
-            endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg) + '/' + policy_id
-        elif level != 'ADOM':
+                adom = "root"
+            endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg) + "/" + policy_id
+        elif level != "ADOM":
             return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
@@ -477,14 +475,14 @@ class FortimanagerConnector(BaseConnector):
         if response_code == 0:
             action_result.add_data(response_data)
             summary = action_result.update_summary({})
-            summary['status'] = 'Successfully deleted firewall policy ID: {}'.format(policy_id)
+            summary["status"] = "Successfully deleted firewall policy ID: {}".format(policy_id)
             return action_result.set_status(phantom.APP_SUCCESS)
         else:
             self.save_progress("Failed.")
-            if response_data.get('status'):
-                error_msg = response_data['status'].get('message', 'Invalid parameters.')
+            if response_data.get("status"):
+                error_msg = response_data["status"].get("message", "Invalid parameters.")
             else:
-                error_msg = 'Invalid parameters.'
+                error_msg = "Invalid parameters."
             return action_result.set_status(phantom.APP_ERROR, "Failed to delete firewall policy. Reason: {}".format(error_msg))
 
     def _get_param_list(self, param_list):
@@ -492,12 +490,12 @@ class FortimanagerConnector(BaseConnector):
         if isinstance(param_list, list):
             pass
         elif isinstance(param_list, str):
-            param_list = [x.strip() for x in param_list.split(',')]
+            param_list = [x.strip() for x in param_list.split(",")]
         return param_list
 
     # URLs
     def _get_urlfilter_profile(self, fmg_instance, adom, urlfilter_table_id):
-        urlfilter_profile_endpoint = ADOM_URL_FILTER_ENDPOINT.format(adom=adom) + '/' + str(urlfilter_table_id)
+        urlfilter_profile_endpoint = ADOM_URL_FILTER_ENDPOINT.format(adom=adom) + "/" + str(urlfilter_table_id)
         response_code, urlfilter_profile = fmg_instance.get(urlfilter_profile_endpoint)
         if response_code == 0 and urlfilter_profile:
             return urlfilter_profile
@@ -519,30 +517,25 @@ class FortimanagerConnector(BaseConnector):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level']
+        level = param["level"]
         adom = None
 
-        if level == 'ADOM':
-            adom = param.get('adom', 'root')
+        if level == "ADOM":
+            adom = param.get("adom", "root")
         else:
             return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
-        web_filter_profile_name = param['web_filter_profile_name']
-        url_to_block = param['url']
-        url_type = param['type']
+        web_filter_profile_name = param["web_filter_profile_name"]
+        url_to_block = param["url"]
+        url_type = param["type"]
 
-        if url_type == 'wildcard' and '*' not in url_to_block:
+        if url_type == "wildcard" and "*" not in url_to_block:
             return action_result.set_status(phantom.APP_ERROR, ADOM_BLOCK_URL_WILDCARD_ERROR_MSG)
 
         fmg_instance = None
 
         data = {}
-        url_entry = {
-            "url": url_to_block,
-            "type": url_type,
-            "action": "block",
-            "status": "enable"
-        }
+        url_entry = {"url": url_to_block, "type": url_type, "action": "block", "status": "enable"}
 
         urlfilter_profile = None
 
@@ -564,13 +557,14 @@ class FortimanagerConnector(BaseConnector):
             # first get the current web filter profile
             web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
             if not web_filter_profile:
-                return action_result.set_status(phantom.APP_ERROR,
-                                                ADOM_WEB_FILTER_PROFILE_DNE_ERROR_MSG.format(web_filter_profile_name=web_filter_profile_name))
+                return action_result.set_status(
+                    phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_DNE_ERROR_MSG.format(web_filter_profile_name=web_filter_profile_name)
+                )
 
             # get url filter profile attached to the web filter profile if there is one
             urlfilter_table_id = None
-            if 'web' in web_filter_profile[0]:
-                urlfilter_table_id = web_filter_profile[0]['web'].get('urlfilter-table')
+            if "web" in web_filter_profile[0]:
+                urlfilter_table_id = web_filter_profile[0]["web"].get("urlfilter-table")
             else:
                 return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
 
@@ -583,16 +577,16 @@ class FortimanagerConnector(BaseConnector):
                 else:
                     return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
 
-                data.pop('oid', None)
-                entries = data.get('entries', [])
+                data.pop("oid", None)
+                entries = data.get("entries", [])
                 if entries:
                     for entry in entries:
-                        [entry.pop(key, None) for key in ['obj seq', 'oid']]
-                        if entry.get('url') == url_to_block:
+                        [entry.pop(key, None) for key in ["obj seq", "oid"]]
+                        if entry.get("url") == url_to_block:
                             return action_result.set_status(phantom.APP_ERROR, ADOM_BLOCK_URL_EXISTS_ERROR_MSG)
-                    data['entries'] = entries
+                    data["entries"] = entries
 
-                data['entries'].append(url_entry)
+                data["entries"].append(url_entry)
 
                 # update attached urlfilter profile
                 update_urlfilter_endpoint = "{}/{}".format(ADOM_URL_FILTER_ENDPOINT.format(adom=adom), str(urlfilter_table_id))
@@ -601,46 +595,47 @@ class FortimanagerConnector(BaseConnector):
                     fmg_instance.commit_changes(adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
-                    summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
+                    summary["status"] = ADOM_BLOCK_URL_SUCCESS_MSG
                     return action_result.set_status(phantom.APP_SUCCESS)
                 else:
                     self.save_progress("Failed.")
-                    if response_data.get('status'):
-                        error_msg = response_data['status'].get('message', 'Invalid parameters.')
+                    if response_data.get("status"):
+                        error_msg = response_data["status"].get("message", "Invalid parameters.")
                     else:
-                        error_msg = 'Invalid parameters.'
+                        error_msg = "Invalid parameters."
                     return action_result.set_status(phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_BLOCK_URL_FAILED_MSG, error_msg))
 
             else:
                 # create a new urlfilter profile
-                data['entries'] = [url_entry]
+                data["entries"] = [url_entry]
                 urlfilter_profile = self._set_urlfilter_profile(fmg_instance, adom, urlfilter_table_id, data)
-                if 'id' in urlfilter_profile:
+                if "id" in urlfilter_profile:
                     # add the id to the webfilter urlfilter-table entries
                     web_filter_endpoint = "{}/{}/{}".format(ADOM_WEB_FILTER_PROFILE_ENDPOINT.format(adom=adom), web_filter_profile_name, "web")
-                    data = { "urlfilter-table": urlfilter_profile['id'] }
+                    data = {"urlfilter-table": urlfilter_profile["id"]}
 
                     response_code, response_data = fmg_instance.update(web_filter_endpoint, data=data)
                     if response_code == 0:
                         fmg_instance.commit_changes(adom)
                         action_result.add_data(urlfilter_profile)
                         summary = action_result.update_summary({})
-                        summary['status'] = ADOM_BLOCK_URL_SUCCESS_MSG
+                        summary["status"] = ADOM_BLOCK_URL_SUCCESS_MSG
                         return action_result.set_status(phantom.APP_SUCCESS)
                     else:
                         self.save_progress("Failed.")
-                        if response_data.get('status'):
-                            error_msg = response_data['status'].get('message', 'Invalid parameters.')
+                        if response_data.get("status"):
+                            error_msg = response_data["status"].get("message", "Invalid parameters.")
                         else:
-                            error_msg = 'Invalid parameters.'
+                            error_msg = "Invalid parameters."
                         return action_result.set_status(
-                            phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_ADD_URL_FILTER_PROFILE_ERROR_MSG, error_msg))
+                            phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_ADD_URL_FILTER_PROFILE_ERROR_MSG, error_msg)
+                        )
                 else:
                     return action_result.set_status(phantom.APP_ERROR, ADOM_CREATE_URL_FILTER_PROFILE_ERROR_MSG)
 
         except Exception as e:
             self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
-            self.debug_print('{}: {}'.format(ADOM_BLOCK_URL_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            self.debug_print("{}: {}".format(ADOM_BLOCK_URL_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
         finally:
             fmg_instance.unlock_adom(adom)
@@ -650,18 +645,18 @@ class FortimanagerConnector(BaseConnector):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level']
+        level = param["level"]
         adom = None
 
-        if level == 'ADOM':
-            adom = param.get('adom')
+        if level == "ADOM":
+            adom = param.get("adom")
             if not adom:
-                adom = 'root'
+                adom = "root"
         else:
             return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
-        web_filter_profile_name = param['web_filter_profile_name']
-        url_to_unblock = param['url']
+        web_filter_profile_name = param["web_filter_profile_name"]
+        url_to_unblock = param["url"]
 
         fmg_instance = None
 
@@ -686,13 +681,14 @@ class FortimanagerConnector(BaseConnector):
             # first get the current web filter profile
             web_filter_profile = self._get_web_filter_profile(fmg_instance, adom, web_filter_profile_name)
             if not web_filter_profile:
-                return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_DNE_ERROR_MSG.format(
-                    web_filter_profile_name=web_filter_profile_name))
+                return action_result.set_status(
+                    phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_DNE_ERROR_MSG.format(web_filter_profile_name=web_filter_profile_name)
+                )
 
             # get url filter profile attached to the web filter profile if there is one
             urlfilter_table_id = None
-            if 'web' in web_filter_profile[0]:
-                urlfilter_table_id = web_filter_profile[0]['web'].get('urlfilter-table')
+            if "web" in web_filter_profile[0]:
+                urlfilter_table_id = web_filter_profile[0]["web"].get("urlfilter-table")
             else:
                 return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
 
@@ -705,16 +701,16 @@ class FortimanagerConnector(BaseConnector):
                 else:
                     return action_result.set_status(phantom.APP_ERROR, ADOM_WEB_FILTER_PROFILE_MALFORMED_ERROR_MSG)
 
-                data.pop('oid', None)
-                entries = data.get('entries', [])
+                data.pop("oid", None)
+                entries = data.get("entries", [])
                 found = False
                 if entries:
                     for entry in entries[:]:
-                        if entry.get('url') == url_to_unblock:
+                        if entry.get("url") == url_to_unblock:
                             entries.remove(entry)
                             found = True
                         else:
-                            [entry.pop(key, None) for key in ['obj seq', 'oid']]
+                            [entry.pop(key, None) for key in ["obj seq", "oid"]]
                     if not found:
                         return action_result.set_status(phantom.APP_ERROR, ADOM_URL_DNE_WEB_FILTER_PROFILE_ERROR_MSG)
 
@@ -729,19 +725,19 @@ class FortimanagerConnector(BaseConnector):
                     fmg_instance.commit_changes(adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
-                    summary['status'] = ADOM_UNBLOCK_URL_SUCCESS_MSG
+                    summary["status"] = ADOM_UNBLOCK_URL_SUCCESS_MSG
                     return action_result.set_status(phantom.APP_SUCCESS)
                 else:
                     self.save_progress("Failed.")
-                    if response_data.get('status'):
-                        error_msg = response_data['status'].get('message', 'Invalid parameters.')
+                    if response_data.get("status"):
+                        error_msg = response_data["status"].get("message", "Invalid parameters.")
                     else:
-                        error_msg = 'Invalid parameters.'
+                        error_msg = "Invalid parameters."
             return action_result.set_status(phantom.APP_ERROR, "{}. Reason: {}".format(ADOM_UNBLOCK_URL_FAILED_MSG, error_msg))
 
         except Exception as e:
             self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
-            self.debug_print('{}: {}'.format(ADOM_BLOCK_URL_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            self.debug_print("{}: {}".format(ADOM_BLOCK_URL_FAILED_MSG, self._get_error_msg_from_exception(e)))
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
         finally:
             fmg_instance.unlock_adom(adom)
@@ -752,15 +748,15 @@ class FortimanagerConnector(BaseConnector):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level']
+        level = param["level"]
 
-        name = param.get('address_name')
-        filter_by = param.get('filter_by')
-        limit = param.get('limit', 0)
-        offset = param.get('offset', 0)
+        name = param.get("address_name")
+        filter_by = param.get("filter_by")
+        limit = param.get("limit", 0)
+        offset = param.get("offset", 0)
 
         if level == "ADOM":
-            adom = param.get('adom', 'root')
+            adom = param.get("adom", "root")
             if name:
                 url = SPECIFIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
             else:
@@ -787,10 +783,10 @@ class FortimanagerConnector(BaseConnector):
             if name:
                 response_code, response_data = fmg_instance.get(url)
             else:
-                get_params['range'] = [offset, limit]
+                get_params["range"] = [offset, limit]
 
                 if filter_by:
-                    get_params['filter'] = json.loads(filter_by)
+                    get_params["filter"] = json.loads(filter_by)
 
                 response_code, response_data = fmg_instance.get(url, **get_params)
 
@@ -803,40 +799,40 @@ class FortimanagerConnector(BaseConnector):
             fmg_instance.logout()
 
         if response_code == 0:
-            if type(response_data) == list:
+            if type(response_data) is list:
                 for addr in response_data:
-                    if addr.get('subnet'):
-                        addr['subnet'] = '/'.join(addr.get('subnet'))
+                    if addr.get("subnet"):
+                        addr["subnet"] = "/".join(addr.get("subnet"))
 
                     action_result.add_data(addr)
 
-                summary = {'total_address_objects': len(response_data)}
+                summary = {"total_address_objects": len(response_data)}
                 action_result.update_summary(summary)
             else:
-                if response_data.get('subnet'):
-                    response_data['subnet'] = '/'.join(response_data.get('subnet'))
+                if response_data.get("subnet"):
+                    response_data["subnet"] = "/".join(response_data.get("subnet"))
 
                 action_result.add_data(response_data)
-                summary = {'total_address_objects': 1}
+                summary = {"total_address_objects": 1}
                 action_result.update_summary(summary)
 
             return action_result.set_status(phantom.APP_SUCCESS)
         else:
             self.save_progress(LIST_ADDRESSES_FAILED_MSG)
-            return action_result.set_status(phantom.APP_ERROR, response_data['status']['message'])
+            return action_result.set_status(phantom.APP_ERROR, response_data["status"]["message"])
 
     def _handle_create_address(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level']
-        name = param['address_name']
-        addr_type = param['address_type']
+        level = param["level"]
+        name = param["address_name"]
+        addr_type = param["address_type"]
 
-        policy_group = param.get('policy_group_name')
+        policy_group = param.get("policy_group_name")
 
         if level == "ADOM":
-            adom = param.get('adom', 'root')
+            adom = param.get("adom", "root")
             url = GENERIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
 
         fmg_instance = None
@@ -859,19 +855,19 @@ class FortimanagerConnector(BaseConnector):
 
         # then actually create address
         try:
-            data['name'] = name
+            data["name"] = name
 
-            if addr_type == 'Subnet':
-                ip_addr = param.get('ip_netmask')
-                data['subnet'] = ipaddress.IPv4Interface(ip_addr).with_netmask.split('/')
-                data['type'] = 'ipmask'
+            if addr_type == "Subnet":
+                ip_addr = param.get("ip_netmask")
+                data["subnet"] = ipaddress.IPv4Interface(ip_addr).with_netmask.split("/")
+                data["type"] = "ipmask"
 
-            elif addr_type == 'FQDN':
-                data['fqdn'] = param.get('fqdn')
-                data['type'] = 'fqdn'
+            elif addr_type == "FQDN":
+                data["fqdn"] = param.get("fqdn")
+                data["type"] = "fqdn"
 
             if policy_group:
-                data['policy-group'] = policy_group
+                data["policy-group"] = policy_group
 
             response_code, response_data = fmg_instance.add(url, **data)
             fmg_instance.commit_changes(adom)
@@ -890,21 +886,21 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_SUCCESS, CREATE_ADDRESS_SUCCESS_MSG)
         else:
             self.save_progress(CREATE_ADDRESS_FAILED_MSG)
-            return action_result.set_status(phantom.APP_ERROR, response_data['status']['message'])
+            return action_result.set_status(phantom.APP_ERROR, response_data["status"]["message"])
 
     def _handle_update_address(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level']
-        name = param['address_name']
+        level = param["level"]
+        name = param["address_name"]
 
-        subnet = param.get('ip_netmask')
-        fqdn = param.get('fqdn')
-        policy_group = param.get('policy_group_name')
+        subnet = param.get("ip_netmask")
+        fqdn = param.get("fqdn")
+        policy_group = param.get("policy_group_name")
 
         if level == "ADOM":
-            adom = param.get('adom', 'root')
+            adom = param.get("adom", "root")
             url = SPECIFIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
 
         fmg_instance = None
@@ -928,13 +924,13 @@ class FortimanagerConnector(BaseConnector):
         # then actually update address
         try:
             if subnet:
-                data['subnet'] = ipaddress.IPv4Interface(subnet).with_netmask.split('/')
+                data["subnet"] = ipaddress.IPv4Interface(subnet).with_netmask.split("/")
 
             if fqdn:
-                data['fqdn'] = fqdn
+                data["fqdn"] = fqdn
 
             if policy_group:
-                data['policy-group'] = policy_group
+                data["policy-group"] = policy_group
 
             response_code, response_data = fmg_instance.update(url, **data)
             fmg_instance.commit_changes(adom)
@@ -950,15 +946,15 @@ class FortimanagerConnector(BaseConnector):
 
         if response_code == 0:
             action_result.add_data(response_data)
-            summary = {'status': UPDATE_ADDRESS_SUCCESS_MSG}
+            summary = {"status": UPDATE_ADDRESS_SUCCESS_MSG}
             action_result.update_summary(summary)
             return action_result.set_status(phantom.APP_SUCCESS, UPDATE_ADDRESS_SUCCESS_MSG)
 
         else:
             if response_code == -3:
-                error_msg = 'Object does not exist'
+                error_msg = "Object does not exist"
             else:
-                error_msg = response_data['status']['message']
+                error_msg = response_data["status"]["message"]
             self.save_progress(UPDATE_ADDRESS_FAILED_MSG)
             return action_result.set_status(phantom.APP_ERROR, error_msg)
 
@@ -966,11 +962,11 @@ class FortimanagerConnector(BaseConnector):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level']
-        name = param['address_name']
+        level = param["level"]
+        name = param["address_name"]
 
         if level == "ADOM":
-            adom = param.get('adom', 'root')
+            adom = param.get("adom", "root")
             url = SPECIFIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
 
         fmg_instance = None
@@ -1006,13 +1002,13 @@ class FortimanagerConnector(BaseConnector):
 
         if response_code == 0:
             action_result.add_data(response_data)
-            summary = {'status': DELETE_ADDRESS_SUCCESS_MSG}
+            summary = {"status": DELETE_ADDRESS_SUCCESS_MSG}
             action_result.update_summary(summary)
             return action_result.set_status(phantom.APP_SUCCESS, DELETE_ADDRESS_SUCCESS_MSG)
 
         else:
             self.save_progress(DELETE_ADDRESS_FAILED_MSG)
-            return action_result.set_status(phantom.APP_ERROR, response_data['status']['message'])
+            return action_result.set_status(phantom.APP_ERROR, response_data["status"]["message"])
 
     # Web Filters
     def _handle_list_web_filters(self, param):
@@ -1027,8 +1023,8 @@ class FortimanagerConnector(BaseConnector):
             current_policy = response_data[0]
             if not current_policy:
                 return False
-            source_block_ips = current_policy.get('srcaddr', [])
-            destination_block_ips = current_policy.get('dstaddr', [])
+            source_block_ips = current_policy.get("srcaddr", [])
+            destination_block_ips = current_policy.get("dstaddr", [])
             already_blocked_ips = source_block_ips + destination_block_ips
             return already_blocked_ips
         else:
@@ -1045,9 +1041,7 @@ class FortimanagerConnector(BaseConnector):
     def _create_address_objects(self, fmg_instance, adom, ip_block_list):
         add_address_endpoint = ADOM_ADD_ADDRESS_ENDPOINT.format(adom=adom)
 
-        result = { 'created_address_objects': [],
-                   'address_object_already_exists': [],
-                   'address_object_failed': [] }
+        result = {"created_address_objects": [], "address_object_already_exists": [], "address_object_failed": []}
 
         for ip in ip_block_list:
             try:
@@ -1056,56 +1050,50 @@ class FortimanagerConnector(BaseConnector):
                 continue
             ip_object = vars(ipaddress.IPv4Network(ip))
 
-            ip_address = str(ip_object.get('network_address'))
-            ip_netmask = str(ip_object.get('netmask'))
-            ip_payload = [{'name': ip, 'subnet': [ip_address, ip_netmask]}]
+            ip_address = str(ip_object.get("network_address"))
+            ip_netmask = str(ip_object.get("netmask"))
+            ip_payload = [{"name": ip, "subnet": [ip_address, ip_netmask]}]
             data = {"data": ip_payload}
 
             response_code, response_data = fmg_instance.add(add_address_endpoint, data)
             status_message = None
-            if 'status' in response_data:
-                status_message = response_data['status'].get('message')
+            if "status" in response_data:
+                status_message = response_data["status"].get("message")
 
             if response_code == 0:
-                result['created_address_objects'].append(ip)
-            elif status_message == 'Object already exists':
-                result['address_object_already_exists'].append(ip)
+                result["created_address_objects"].append(ip)
+            elif status_message == "Object already exists":
+                result["address_object_already_exists"].append(ip)
             else:
-                result['address_object_failed'].append((ip, status_message))
+                result["address_object_failed"].append((ip, status_message))
 
         return result
 
     def _create_fqdn_address_objects(self, fmg_instance, adom, fqdn_list):
         url = GENERIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
 
-        result = { 'created_address_objects': [],
-                   'address_object_already_exists': [],
-                   'address_object_failed': [] }
+        result = {"created_address_objects": [], "address_object_already_exists": [], "address_object_failed": []}
 
         for fqdn in fqdn_list:
-            data = {
-                'name': fqdn,
-                'fqdn': fqdn,
-                'type': 'fqdn'
-            }
+            data = {"name": fqdn, "fqdn": fqdn, "type": "fqdn"}
 
             response_code, response_data = fmg_instance.add(url, **data)
             status_message = None
-            if 'status' in response_data:
-                status_message = response_data['status'].get('message')
+            if "status" in response_data:
+                status_message = response_data["status"].get("message")
 
             if response_code == 0:
-                result['created_address_objects'].append(fqdn)
-            elif status_message == 'Object already exists':
-                result['address_object_already_exists'].append(fqdn)
+                result["created_address_objects"].append(fqdn)
+            elif status_message == "Object already exists":
+                result["address_object_already_exists"].append(fqdn)
             else:
-                result['address_object_failed'].append((fqdn, status_message))
+                result["address_object_failed"].append((fqdn, status_message))
 
         return result
 
     def _update_address_group(self, fmg_instance, address_group_name, adom, ip_block_list):
         address_group_endpoint = ADOM_ADDRESS_GROUP_ENDPOINT.format(adom=adom, addrgrp=address_group_name)
-        group_payload = {'member': ip_block_list}
+        group_payload = {"member": ip_block_list}
         data = group_payload
 
         response_code, failed_ips = fmg_instance.update(address_group_endpoint, data=data)
@@ -1118,31 +1106,30 @@ class FortimanagerConnector(BaseConnector):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level']
+        level = param["level"]
         adom = None
 
-        if level == 'ADOM':
-            adom = param.get('adom')
+        if level == "ADOM":
+            adom = param.get("adom")
             if not adom:
-                adom = 'root'
+                adom = "root"
         else:
             return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
-        package = param['package']
-        package_path = param.get('package_path')
+        package = param["package"]
+        package_path = param.get("package_path")
 
         if package and package_path:
-            package = '{0}/{1}'.format(package_path, package)
+            package = "{0}/{1}".format(package_path, package)
 
-        policy_name = param['policy_name']
-        address_group_name = param['address_group_name']
-        ip_addresses_to_block = self._get_param_list(param['ip_addresses'])
+        policy_name = param["policy_name"]
+        address_group_name = param["address_group_name"]
+        ip_addresses_to_block = self._get_param_list(param["ip_addresses"])
 
         already_blocked_ips = []
         ip_block_list = []
 
-        result = { 'ips_blocked': [],
-                   'ips_already_blocked': [] }
+        result = {"ips_blocked": [], "ips_already_blocked": []}
 
         fmg_instance = None
 
@@ -1164,26 +1151,25 @@ class FortimanagerConnector(BaseConnector):
             # get the current policy IP addresses
             already_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
             if isinstance(already_blocked_ips, bool):
-                return action_result.set_status(phantom.APP_ERROR, 'Failed to complete action, please check input parameters.')
+                return action_result.set_status(phantom.APP_ERROR, "Failed to complete action, please check input parameters.")
 
             if address_group_name not in already_blocked_ips:
-                return action_result.set_status(
-                    phantom.APP_ERROR, 'Address group {} does not exist in this policy'.format(address_group_name))
+                return action_result.set_status(phantom.APP_ERROR, "Address group {} does not exist in this policy".format(address_group_name))
 
             # get the address group
             address_group = self._get_address_group(fmg_instance, address_group_name, adom)
             if isinstance(address_group, bool):
-                return action_result.set_status(phantom.APP_ERROR, 'Error retrieving address group {}'.format(address_group_name))
+                return action_result.set_status(phantom.APP_ERROR, "Error retrieving address group {}".format(address_group_name))
 
-            address_group_members = address_group.get('member')
+            address_group_members = address_group.get("member")
 
             # check to see if IPs to block are in the group
             for ip in ip_addresses_to_block:
                 if ip not in address_group_members:
                     ip_block_list.append(ip)
-                    result['ips_blocked'].append(ip)
+                    result["ips_blocked"].append(ip)
                 else:
-                    result['ips_already_blocked'].append(ip)
+                    result["ips_already_blocked"].append(ip)
 
             # create the address objects to add
             create_address_objects_result = self._create_address_objects(fmg_instance, adom, ip_block_list)
@@ -1220,31 +1206,30 @@ class FortimanagerConnector(BaseConnector):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level']
+        level = param["level"]
         adom = None
 
-        if level == 'ADOM':
-            adom = param.get('adom')
+        if level == "ADOM":
+            adom = param.get("adom")
             if not adom:
-                adom = 'root'
+                adom = "root"
         else:
             return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
-        package = param['package']
-        package_path = param.get('package_path')
+        package = param["package"]
+        package_path = param.get("package_path")
 
         if package and package_path:
-            package = '{0}/{1}'.format(package_path, package)
+            package = "{0}/{1}".format(package_path, package)
 
-        policy_name = param['policy_name']
-        address_group_name = param['address_group_name']
-        ip_addresses_to_unblock = self._get_param_list(param['ip_addresses'])
+        policy_name = param["policy_name"]
+        address_group_name = param["address_group_name"]
+        ip_addresses_to_unblock = self._get_param_list(param["ip_addresses"])
 
         currently_blocked_ips = []
         ip_unblock_list = []
 
-        result = { 'ips_unblocked': [],
-                   'ips_already_unblocked': [] }
+        result = {"ips_unblocked": [], "ips_already_unblocked": []}
 
         fmg_instance = None
 
@@ -1266,27 +1251,26 @@ class FortimanagerConnector(BaseConnector):
             # first get the current policy IP addresses
             currently_blocked_ips = self._get_current_policy_ips(fmg_instance, adom, package, policy_name)
             if isinstance(currently_blocked_ips, bool):
-                return action_result.set_status(phantom.APP_ERROR, 'Failed to complete action, please check input parameters.')
+                return action_result.set_status(phantom.APP_ERROR, "Failed to complete action, please check input parameters.")
 
             if address_group_name not in currently_blocked_ips:
-                return action_result.set_status(
-                    phantom.APP_ERROR, 'Address group {} does not exist in this policy'.format(address_group_name))
+                return action_result.set_status(phantom.APP_ERROR, "Address group {} does not exist in this policy".format(address_group_name))
 
             # get the address group
             address_group = self._get_address_group(fmg_instance, address_group_name, adom)
             if isinstance(address_group, bool):
-                return action_result.set_status(phantom.APP_ERROR, 'Error retrieving address group {}'.format(address_group_name))
+                return action_result.set_status(phantom.APP_ERROR, "Error retrieving address group {}".format(address_group_name))
 
-            address_group_members = address_group.get('member')
+            address_group_members = address_group.get("member")
             ip_unblock_list.extend(address_group_members)
 
             # check to see if IPs to unblock are in the group
             for ip in ip_addresses_to_unblock:
                 if ip in address_group_members:
                     ip_unblock_list.remove(ip)
-                    result['ips_unblocked'].append(ip)
+                    result["ips_unblocked"].append(ip)
                 else:
-                    result['ips_already_unblocked'].append(ip)
+                    result["ips_already_unblocked"].append(ip)
 
             # update the address group with new list of ips
             response_data = self._update_address_group(fmg_instance, address_group_name, adom, ip_unblock_list)
@@ -1346,18 +1330,18 @@ class FortimanagerConnector(BaseConnector):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level']
+        level = param["level"]
         adom = None
 
-        if level == 'ADOM':
-            adom = param.get('adom')
+        if level == "ADOM":
+            adom = param.get("adom")
             if not adom:
-                adom = 'root'
+                adom = "root"
         else:
             return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
-        addr_group_name = param['address_group_name']
-        members = [m.strip() for m in param['members'].split(',')]
+        addr_group_name = param["address_group_name"]
+        members = [m.strip() for m in param["members"].split(",")]
 
         fmg_instance = None
 
@@ -1408,19 +1392,16 @@ class FortimanagerConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
 
         result = {
-            'created_address_objects': subnet_results['created_address_objects'] + fqdn_results['created_address_objects'],
-            'address_object_already_exists': members_cleaned[:],
-            'address_object_failed': subnet_results['address_object_failed'] + fqdn_results['address_object_failed'] + invalid_addrs
+            "created_address_objects": subnet_results["created_address_objects"] + fqdn_results["created_address_objects"],
+            "address_object_already_exists": members_cleaned[:],
+            "address_object_failed": subnet_results["address_object_failed"] + fqdn_results["address_object_failed"] + invalid_addrs,
         }
 
-        members_cleaned += subnet_results['created_address_objects'] + fqdn_results['created_address_objects']
+        members_cleaned += subnet_results["created_address_objects"] + fqdn_results["created_address_objects"]
 
         try:
             # get params
-            data = {
-                'name': addr_group_name,
-                'member': members_cleaned
-            }
+            data = {"name": addr_group_name, "member": members_cleaned}
 
             response_code, response_data = fmg_instance.add(url, **data)
             fmg_instance.commit_changes(adom)
@@ -1436,20 +1417,20 @@ class FortimanagerConnector(BaseConnector):
 
         if response_code == 0:
             result.update(response_data)
-            result['members_added'] = members_cleaned
+            result["members_added"] = members_cleaned
             action_result.add_data(result)
 
-            summary = {'status': CREATE_ADDRESS_GROUP_SUCCESS_MSG}
+            summary = {"status": CREATE_ADDRESS_GROUP_SUCCESS_MSG}
             action_result.update_summary(summary)
 
             msg = CREATE_ADDRESS_GROUP_SUCCESS_MSG
-            if result['address_object_failed']:
+            if result["address_object_failed"]:
                 msg = "{}. {}".format(CREATE_ADDRESS_GROUP_SUCCESS_MSG, MEMBER_VALIDATION_ERROR)
 
             return action_result.set_status(phantom.APP_SUCCESS, msg)
 
         else:
-            error_msg = response_data['status']['message']
+            error_msg = response_data["status"]["message"]
             self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
             return action_result.set_status(phantom.APP_ERROR, error_msg)
 
@@ -1457,17 +1438,17 @@ class FortimanagerConnector(BaseConnector):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        level = param['level']
+        level = param["level"]
         adom = None
 
-        if level == 'ADOM':
-            adom = param.get('adom')
+        if level == "ADOM":
+            adom = param.get("adom")
             if not adom:
-                adom = 'root'
+                adom = "root"
         else:
             return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
-        addr_group_name = param['address_group_name']
+        addr_group_name = param["address_group_name"]
 
         fmg_instance = None
 
@@ -1502,40 +1483,40 @@ class FortimanagerConnector(BaseConnector):
 
         if response_code == 0:
             action_result.add_data(response_data)
-            summary = {'status': DELETE_ADDRESS_GROUP_SUCCESS_MSG}
+            summary = {"status": DELETE_ADDRESS_GROUP_SUCCESS_MSG}
             action_result.update_summary(summary)
             return action_result.set_status(phantom.APP_SUCCESS, DELETE_ADDRESS_GROUP_SUCCESS_MSG)
 
         else:
-            error_msg = response_data['status']['message']
+            error_msg = response_data["status"]["message"]
             self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
             return action_result.set_status(phantom.APP_ERROR, error_msg)
 
     def _handle_install_firewall_policy(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
         action_result = self.add_action_result(ActionResult(dict(param)))
-        level = param['level']
+        level = param["level"]
         adom = None
 
-        if level == 'ADOM':
-            adom = param.get('adom')
+        if level == "ADOM":
+            adom = param.get("adom")
             if not adom:
-                adom = 'root'
+                adom = "root"
         else:
             return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
-        policy_pkg = param['policy_pkg']
+        policy_pkg = param["policy_pkg"]
 
         fmg_instance = None
 
-        flags = [ x for x in param.keys() if type(param[x]) == bool and param[x] ]
-        params = { x: param[x] for x in param if x not in flags and x in ['adom_rev_comments', 'adom_rev_name', 'dev_rev_comments']}
+        flags = [x for x in param.keys() if type(param[x]) is bool and param[x]]
+        params = {x: param[x] for x in param if x not in flags and x in ["adom_rev_comments", "adom_rev_name", "dev_rev_comments"]}
 
         scope = {}
-        if 'scope_name' in param:
-            scope['name'] = param['scope_name']
-        if 'scope_vdom' in param:
-            scope['vdom'] = param['scope_vdom']
+        if "scope_name" in param:
+            scope["name"] = param["scope_name"]
+        if "scope_vdom" in param:
+            scope["vdom"] = param["scope_vdom"]
 
         try:
             fmg_instance = self._login(action_result)
@@ -1552,14 +1533,18 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             if scope:
-                task_response_code, task_obj = fmg_instance.execute(INSTALL_FIREWALL_POLICY_ENDPOINT, flags=flags, adom=adom, pkg=policy_pkg, scope=scope, **params)
+                task_response_code, task_obj = fmg_instance.execute(
+                    INSTALL_FIREWALL_POLICY_ENDPOINT, flags=flags, adom=adom, pkg=policy_pkg, scope=scope, **params
+                )
             else:
-                task_response_code, task_obj = fmg_instance.execute(INSTALL_FIREWALL_POLICY_ENDPOINT, flags=flags, adom=adom, pkg=policy_pkg, **params)
+                task_response_code, task_obj = fmg_instance.execute(
+                    INSTALL_FIREWALL_POLICY_ENDPOINT, flags=flags, adom=adom, pkg=policy_pkg, **params
+                )
 
-            if 'task' in task_obj:
-                taskid = task_obj.get('task')
+            if "task" in task_obj:
+                taskid = task_obj.get("task")
                 track_task_results = fmg_instance.track_task(taskid)
-                self.debug_print('task results: {}, {}'.format(task_response_code, json.dumps(track_task_results)))
+                self.debug_print("task results: {}, {}".format(task_response_code, json.dumps(track_task_results)))
                 self.save_progress(json.dumps(track_task_results))
 
         except Exception as e:
@@ -1573,14 +1558,20 @@ class FortimanagerConnector(BaseConnector):
 
         if task_response_code == 0:
             action_result.add_data(track_task_results[1])
-            if track_task_results[1].get('num_err') == 0:
-                summary = {'status': INSTALL_FIREWALL_POLICY_SUCCESS_MSG, 'state': track_task_results[1].get('state'),
-                           'total_task_time': track_task_results[1].get('total_task_time') }
+            if track_task_results[1].get("num_err") == 0:
+                summary = {
+                    "status": INSTALL_FIREWALL_POLICY_SUCCESS_MSG,
+                    "state": track_task_results[1].get("state"),
+                    "total_task_time": track_task_results[1].get("total_task_time"),
+                }
                 action_result.update_summary(summary)
                 return action_result.set_status(phantom.APP_SUCCESS, INSTALL_FIREWALL_POLICY_SUCCESS_MSG)
             else:
-                summary = {'status': INSTALL_FIREWALL_POLICY_FAILED_MSG,
-                           'state': track_task_results[1].get('state'), 'total_task_time': track_task_results[1].get('total_task_time') }
+                summary = {
+                    "status": INSTALL_FIREWALL_POLICY_FAILED_MSG,
+                    "state": track_task_results[1].get("state"),
+                    "total_task_time": track_task_results[1].get("total_task_time"),
+                }
                 action_result.update_summary(summary)
                 return action_result.set_status(phantom.APP_ERROR, INSTALL_FIREWALL_POLICY_FAILED_MSG)
 
@@ -1597,37 +1588,37 @@ class FortimanagerConnector(BaseConnector):
 
         self.debug_print("action_id", self.get_action_identifier())
 
-        if action_id == 'test_connectivity':
+        if action_id == "test_connectivity":
             ret_val = self._handle_test_connectivity(param)
-        elif action_id == 'create_address':
+        elif action_id == "create_address":
             ret_val = self._handle_create_address(param)
-        elif action_id == 'delete_address':
+        elif action_id == "delete_address":
             ret_val = self._handle_delete_address(param)
-        elif action_id == 'list_addresses':
+        elif action_id == "list_addresses":
             ret_val = self._handle_list_addresses(param)
-        elif action_id == 'update_address':
+        elif action_id == "update_address":
             ret_val = self._handle_update_address(param)
-        elif action_id == 'create_firewall_policy':
+        elif action_id == "create_firewall_policy":
             ret_val = self._handle_create_firewall_policy(param)
-        elif action_id == 'list_firewall_policies':
+        elif action_id == "list_firewall_policies":
             ret_val = self._handle_list_firewall_policies(param)
-        elif action_id == 'block_ip':
+        elif action_id == "block_ip":
             ret_val = self._handle_block_ip(param)
-        elif action_id == 'unblock_ip':
+        elif action_id == "unblock_ip":
             ret_val = self._handle_unblock_ip(param)
-        elif action_id == 'delete_firewall_policy':
+        elif action_id == "delete_firewall_policy":
             ret_val = self._handle_delete_firewall_policy(param)
-        elif action_id == 'update_firewall_policy':
+        elif action_id == "update_firewall_policy":
             ret_val = self._handle_update_firewall_policy(param)
-        elif action_id == 'install_firewall_policy':
+        elif action_id == "install_firewall_policy":
             ret_val = self._handle_install_firewall_policy(param)
-        elif action_id == 'block_url':
+        elif action_id == "block_url":
             ret_val = self._handle_block_url(param)
-        elif action_id == 'unblock_url':
+        elif action_id == "unblock_url":
             ret_val = self._handle_unblock_url(param)
-        elif action_id == 'create_address_group':
+        elif action_id == "create_address_group":
             ret_val = self._handle_create_address_group(param)
-        elif action_id == 'delete_address_group':
+        elif action_id == "delete_address_group":
             ret_val = self._handle_delete_address_group(param)
 
         return ret_val
@@ -1638,14 +1629,14 @@ class FortimanagerConnector(BaseConnector):
         # get the asset config
         config = self.get_config()
 
-        self._host = config['url'].replace('http://', '').replace('https://', '')
+        self._host = config["url"].replace("http://", "").replace("https://", "")
 
-        self._api_key = config.get('api_key')
-        self._username = config.get('username')
-        self._password = config.get('password')
+        self._api_key = config.get("api_key")
+        self._username = config.get("username")
+        self._password = config.get("password")
 
         self._base_url = self._format_url(self._host)
-        self._verify_server_cert = config.get('verify_server_cert', False)
+        self._verify_server_cert = config.get("verify_server_cert", False)
 
         return phantom.APP_SUCCESS
 
@@ -1660,9 +1651,9 @@ def main():
 
     argparser = argparse.ArgumentParser()
 
-    argparser.add_argument('input_test_json', help='Input Test JSON file')
-    argparser.add_argument('-u', '--username', help='username', required=False)
-    argparser.add_argument('-p', '--password', help='password', required=False)
+    argparser.add_argument("input_test_json", help="Input Test JSON file")
+    argparser.add_argument("-u", "--username", help="username", required=False)
+    argparser.add_argument("-p", "--password", help="password", required=False)
 
     args = argparser.parse_args()
     session_id = None
@@ -1674,28 +1665,29 @@ def main():
 
         # User specified a username but not a password, so ask
         import getpass
+
         password = getpass.getpass("Password: ")
 
     if username and password:
         try:
-            login_url = FortimanagerConnector._get_phantom_base_url() + '/login'
+            login_url = FortimanagerConnector._get_phantom_base_url() + "/login"
 
             print("Accessing the Login page")
             r = requests.get(login_url, verify=False)
-            csrftoken = r.cookies['csrftoken']
+            csrftoken = r.cookies["csrftoken"]
 
             data = dict()
-            data['username'] = username
-            data['password'] = password
-            data['csrfmiddlewaretoken'] = csrftoken
+            data["username"] = username
+            data["password"] = password
+            data["csrfmiddlewaretoken"] = csrftoken
 
             headers = dict()
-            headers['Cookie'] = 'csrftoken=' + csrftoken
-            headers['Referer'] = login_url
+            headers["Cookie"] = "csrftoken=" + csrftoken
+            headers["Referer"] = login_url
 
             print("Logging into Platform to get the session id")
             r2 = requests.post(login_url, verify=False, data=data, headers=headers)
-            session_id = r2.cookies['sessionid']
+            session_id = r2.cookies["sessionid"]
         except Exception as e:
             print("Unable to get session id from the platform. Error: " + str(e))
             exit(1)
@@ -1709,8 +1701,8 @@ def main():
         connector.print_progress_message = True
 
         if session_id is not None:
-            in_json['user_session_token'] = session_id
-            connector._set_csrf_info(csrftoken, headers['Referer'])
+            in_json["user_session_token"] = session_id
+            connector._set_csrf_info(csrftoken, headers["Referer"])
 
         ret_val = connector._handle_action(json.dumps(in_json), None)
         print(json.dumps(json.loads(ret_val), indent=4))
@@ -1718,7 +1710,7 @@ def main():
     exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     import sys
 
@@ -1726,7 +1718,7 @@ if __name__ == '__main__':
 
     pudb.set_trace()
     if len(sys.argv) < 2:
-        print('No test json specified as input')
+        print("No test json specified as input")
         sys.exit(0)
     with open(sys.argv[1]) as f:
         in_json = f.read()

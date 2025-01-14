@@ -11,7 +11,7 @@
     "product_version_regex": ".*",
     "publisher": "Splunk",
     "license": "Copyright (c) 2023-2025 Splunk Inc.",
-    "app_version": "1.1.0-beta",
+    "app_version": "1.1.0",
     "latest_tested_versions": [
         "FortiManager 7.4.0-build2223 230514 (GA)"
     ],

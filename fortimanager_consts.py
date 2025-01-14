@@ -27,9 +27,13 @@ ADOM_FIREWALL_ENDPOINT = '/pm/config/adom/{adom}/pkg/{pkg}/firewall/policy'
 LIST_ADOM_FIREWALL_POLICY = '/pm/config/adom/{adom}/pkg/{pkg}/firewall/policy'
 ADOM_ADDRESS_GROUP_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/addrgrp/{addrgrp}'
 ADOM_ADD_ADDRESS_ENDPOINT = '/pm/config/adom/{adom}/obj/firewall/address'
+INSTALL_FIREWALL_POLICY_ENDPOINT = '/securityconsole/install/package'
+
 CREATE_FIREWALL_FAILED_MSG = 'Failed to create firewall policy'
 UPDATE_FIREWALL_FAILED_MSG = 'Failed to update firewall policy'
 DELETE_FIREWALL_FAILED_MSG = 'Failed to delete firewall policy'
+INSTALL_FIREWALL_POLICY_SUCCESS_MSG = 'Install firewall policy action run successful'
+INSTALL_FIREWALL_POLICY_FAILED_MSG = 'Install firewall policy action run failed'
 
 # Global Firewall Endpoints TODO
 # GLOBAL_FIREWALL_ENDPOINT = '/pm/config/global/pkg/{pkg}/global/{policy_type}/policy'

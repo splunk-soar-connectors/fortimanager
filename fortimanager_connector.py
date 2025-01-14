@@ -1511,6 +1511,84 @@ class FortimanagerConnector(BaseConnector):
             self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
             return action_result.set_status(phantom.APP_ERROR, error_msg)
 
+    def _handle_install_firewall_policy(self, param):
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        level = param['level']
+        adom = None
+
+        if level == 'ADOM':
+            adom = param.get('adom')
+            if not adom:
+                adom = 'root'
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
+
+        policy_pkg = param['policy_pkg']
+
+        fmg_instance = None
+
+        flags = [ x for x in param.keys() if type(param[x]) == bool and param[x] ]
+        params = { x: param[x] for x in param if x not in flags and x in ['adom_rev_comments', 'adom_rev_name', 'dev_rev_comments']}
+
+        scope = {}
+        if 'scope_name' in param:
+            scope['name'] = param['scope_name']
+        if 'scope_vdom' in param:
+            scope['vdom'] = param['scope_vdom']
+
+        try:
+            fmg_instance = self._login(action_result)
+            self.save_progress(LOGIN_SUCCESS_MSG)
+        except Exception as e:
+            self.save_progress(INSTALL_FIREWALL_POLICY_FAILED_MSG)
+            self.debug_print("{}: {}".format(INSTALL_FIREWALL_POLICY_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, None)
+
+        if not self.acquire_lock(fmg_instance, adom):
+            self.save_progress(INSTALL_FIREWALL_POLICY_FAILED_MSG)
+            self.debug_print("{}: {}".format(INSTALL_FIREWALL_POLICY_FAILED_MSG, LOCK_FAILED_MSG.format(adom=adom)))
+            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
+
+        try:
+            if scope:
+                task_response_code, task_obj = fmg_instance.execute(INSTALL_FIREWALL_POLICY_ENDPOINT, flags=flags, adom=adom, pkg=policy_pkg, scope=scope, **params)
+            else:
+                task_response_code, task_obj = fmg_instance.execute(INSTALL_FIREWALL_POLICY_ENDPOINT, flags=flags, adom=adom, pkg=policy_pkg, **params)
+
+            if 'task' in task_obj:
+                taskid = task_obj.get('task')
+                track_task_results = fmg_instance.track_task(taskid)
+                self.debug_print('task results: {}, {}'.format(task_response_code, json.dumps(track_task_results)))
+                self.save_progress(json.dumps(track_task_results))
+
+        except Exception as e:
+            self.save_progress(INSTALL_FIREWALL_POLICY_FAILED_MSG)
+            self.debug_print("{}: {}".format(INSTALL_FIREWALL_POLICY_FAILED_MSG, self._get_error_msg_from_exception(e)))
+            return action_result.set_status(phantom.APP_ERROR, self._get_error_msg_from_exception(e))
+
+        finally:
+            fmg_instance.unlock_adom(adom)
+            fmg_instance.logout()
+
+        if task_response_code == 0:
+            action_result.add_data(track_task_results[1])
+            if track_task_results[1].get('num_err') == 0:
+                summary = {'status': INSTALL_FIREWALL_POLICY_SUCCESS_MSG, 'state': track_task_results[1].get('state'),
+                           'total_task_time': track_task_results[1].get('total_task_time') }
+                action_result.update_summary(summary)
+                return action_result.set_status(phantom.APP_SUCCESS, INSTALL_FIREWALL_POLICY_SUCCESS_MSG)
+            else:
+                summary = {'status': INSTALL_FIREWALL_POLICY_FAILED_MSG,
+                           'state': track_task_results[1].get('state'), 'total_task_time': track_task_results[1].get('total_task_time') }
+                action_result.update_summary(summary)
+                return action_result.set_status(phantom.APP_ERROR, INSTALL_FIREWALL_POLICY_FAILED_MSG)
+
+        else:
+            error_msg = track_task_results[1]
+            self.save_progress(INSTALL_FIREWALL_POLICY_FAILED_MSG)
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -1541,6 +1619,8 @@ class FortimanagerConnector(BaseConnector):
             ret_val = self._handle_delete_firewall_policy(param)
         elif action_id == 'update_firewall_policy':
             ret_val = self._handle_update_firewall_policy(param)
+        elif action_id == 'install_firewall_policy':
+            ret_val = self._handle_install_firewall_policy(param)
         elif action_id == 'block_url':
             ret_val = self._handle_block_url(param)
         elif action_id == 'unblock_url':

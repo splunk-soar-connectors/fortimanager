@@ -3969,19 +3969,11 @@
             "versions": "EQ(*)"
         }
     ],
-    "pip_dependencies": {
-        "wheel": [
-            {
-                "module": "pyfmg",
-                "input_file": "wheels/py3/pyfmg-0.8.6.3-py3-none-any.whl"
-            }
-        ]
-    },
     "pip39_dependencies": {
         "wheel": [
             {
                 "module": "pyfmg",
-                "input_file": "wheels/py3/pyfmg-0.8.5.4-py3-none-any.whl"
+                "input_file": "wheels/py3/pyfmg-0.8.6.3-py3-none-any.whl"
             }
         ]
     }

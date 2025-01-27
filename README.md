@@ -2,11 +2,11 @@
 # FortiManager
 
 Publisher: Splunk  
-Connector Version: 1.0.6  
+Connector Version: 1.1.0  
 Product Vendor: Fortinet  
 Product Name: FortiManager  
 Product Version Supported (regex): ".\*"  
-Minimum Product Version: 6.2.1  
+Minimum Product Version: 6.3.0  
 
 This app performs firewall configuration and security policy management actions in FortiManager
 
@@ -42,8 +42,8 @@ The two authentication schemes allowed by the connector are either Basic Auth (u
 8. After the User has been created, click on the user now listed under 'REST API Administrator' to see the user details. Click on 'Regenerate' in the 'Regenerate API Key' form value, then click the 'Generate' button. Copy the generated key and use that value as the API key in the asset configuration. For this authentication scheme, only the base URL and API key are required.
 
 
-### Configuration Variables
-The below configuration variables are required for this Connector to operate.  These variables are specified when configuring a FortiManager asset in SOAR.
+### Configuration variables
+This table lists the configuration variables required to operate FortiManager. These variables are specified when configuring a FortiManager asset in Splunk SOAR.
 
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
@@ -58,6 +58,7 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [create firewall policy](#action-create-firewall-policy) - Create an ADOM firewall policy  
 [list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies  
 [update firewall policy](#action-update-firewall-policy) - Update an ADOM firewall policy  
+[install firewall policy](#action-install-firewall-policy) - Install a firewall policy on a device  
 [create address](#action-create-address) - Create a firewall address object  
 [delete address](#action-delete-address) - Delete firewall address object  
 [list addresses](#action-list-addresses) - List firewall address objects  
@@ -316,6 +317,91 @@ action_result.parameter.schedule | string |  |   always
 action_result.parameter.log_traffic | string |  |   disable 
 action_result.parameter.inspection_mode | string |  |   flow 
 action_result.parameter.destination_address | string |  |   2.2.2.2   
+
+## action: 'install firewall policy'
+Install a firewall policy on a device
+
+Type: **generic**  
+Read only: **False**
+
+This action will install a firewall policy package on a device.
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**level** |  required  | Level Type | string | 
+**adom** |  optional  | Administrative Domain Name | string | 
+**generate_rev** |  optional  | Generate new ADOM revision before install | boolean | 
+**adom_rev_comments** |  optional  | If 'generate_rev' flag is set, the comment for the new ADOM revision | string | 
+**adom_rev_name** |  optional  | If 'generate_rev' flag is set, the name for the new ADOM revision | string | 
+**dev_rev_comments** |  optional  | Comments for the device configuration revision that will be generated during install | string | 
+**policy_pkg** |  required  | Source package path and name | string | 
+**scope_name** |  optional  | Scope name | string | 
+**scope_vdom** |  optional  | Scope VDOM | string | 
+**preview** |  optional  | Generate preview cache only | boolean | 
+**unassign** |  optional  | Remove global policy from ADOM | boolean | 
+**ifpolicy_only** |  optional  | Only install interface policies | boolean | 
+**no_ifpolicy** |  optional  | Install regular policies only - do not install interface policies | boolean | 
+**objs_only** |  optional  | Install objects only - do not install any policies | boolean | 
+**auto_lock_ws** |  optional  | Automatically lock and unlock workspace when performing security console task | boolean | 
+**copy_only** |  optional  | Only copy to device db | boolean | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.id | numeric |  |   71 
+action_result.data.\*.pid | numeric |  `pid`  |   23498 
+action_result.data.\*.src | string |  |   security console 
+action_result.data.\*.adom | numeric |  |   170 
+action_result.data.\*.line.\*.ip | string |  `ip`  |   3.101.53.203 
+action_result.data.\*.line.\*.err | numeric |  |   0 
+action_result.data.\*.line.\*.oid | numeric |  |   162 
+action_result.data.\*.line.\*.name | string |  |   bb623[copy] 
+action_result.data.\*.line.\*.vdom | string |  |   FG-traffic 
+action_result.data.\*.line.\*.state | string |  |   error 
+action_result.data.\*.line.\*.detail | string |  |   Aborted due to previous error 
+action_result.data.\*.line.\*.end_tm | numeric |  |   1729448810 
+action_result.data.\*.line.\*.history.\*.name | string |  |   bb623[copy] 
+action_result.data.\*.line.\*.history.\*.vdom | string |  |   FG-traffic 
+action_result.data.\*.line.\*.history.\*.state | numeric |  |   1 
+action_result.data.\*.line.\*.history.\*.detail | string |  |   2024-10-20 11:26:50:Start copying policy to devdb, device(bb623), vdomid(FG-traffic) 
+action_result.data.\*.line.\*.history.\*.percent | numeric |  |   1 
+action_result.data.\*.line.\*.percent | numeric |  |   100 
+action_result.data.\*.line.\*.start_tm | numeric |  |   1729448807 
+action_result.data.\*.user | string |  |   u2 
+action_result.data.\*.flags | numeric |  |   0 
+action_result.data.\*.state | string |  |   error 
+action_result.data.\*.title | string |  |   Copy Package 'default' 
+action_result.data.\*.end_tm | numeric |  |   1729448810 
+action_result.data.\*.num_err | numeric |  |   2 
+action_result.data.\*.percent | numeric |  |   100 
+action_result.data.\*.num_done | numeric |  |   1 
+action_result.data.\*.num_warn | numeric |  |   0 
+action_result.data.\*.start_tm | numeric |  |   1729448807 
+action_result.data.\*.num_lines | numeric |  |   3 
+action_result.data.\*.tot_percent | numeric |  |   300 
+action_result.data.\*.total_task_time | string |  |   0:00:03.218516 
+action_result.status | string |  |   success 
+action_result.message | string |  |   Successfully installed firewall policy package 
+action_result.summary.status | string |  |   Successfully installed firewall policy package 
+action_result.parameter.adom | string |  |   new_adom 
+action_result.parameter.adom_rev_comments | string |  |    
+action_result.parameter.adom_rev_name | string |  |    
+action_result.parameter.dev_rev_comments | string |  |    
+action_result.parameter.scope_name | string |  |   bb623 
+action_result.parameter.scope_vdom | string |  |   root 
+action_result.parameter.level | string |  |   ADOM 
+action_result.parameter.preview | numeric |  |   False 
+action_result.parameter.unassign | numeric |  |   False 
+action_result.parameter.copy_only | numeric |  |   False 
+action_result.parameter.objs_only | numeric |  |   False 
+action_result.parameter.policy_pkg | string |  |   default 
+action_result.parameter.no_ifpolicy | numeric |  |   False 
+action_result.parameter.auto_lock_ws | numeric |  |   False 
+action_result.parameter.generate_rev | numeric |  |   False 
+action_result.parameter.ifpolicy_only | numeric |  |   False 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1   
 
 ## action: 'create address'
 Create a firewall address object

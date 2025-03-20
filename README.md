@@ -404,6 +404,7 @@ action_result.parameter.generate_rev | numeric | | False |
 action_result.parameter.ifpolicy_only | numeric | | False |
 summary.total_objects | numeric | | 1 |
 summary.total_objects_successful | numeric | | 1 |
+action_result.parameter.ph | ph | | |
 
 ## action: 'create address'
 

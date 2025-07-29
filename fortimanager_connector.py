@@ -176,12 +176,13 @@ class FortimanagerConnector(BaseConnector):
             "logtraffic": param["log_traffic"],
             "schedule": param["schedule"],
         }
+        endpoint = None
         if level == "ADOM":
             adom = param.get("adom")
             if not adom:
                 adom = "root"
             endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg)
-        elif level != "ADOM":
+        else:
             return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
@@ -240,12 +241,13 @@ class FortimanagerConnector(BaseConnector):
         fmg_instance = None
         pkg = param["package"]
         level = param["level"]
+        endpoint = None
         if level == "ADOM":
             adom = param.get("adom")
             if not adom:
                 adom = "root"
             endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg)
-        elif level != "ADOM":
+        else:
             return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
@@ -363,6 +365,7 @@ class FortimanagerConnector(BaseConnector):
         pkg = param.get("package")
         package_path = param.get("package_path")
         policy_name = param.get("policy_name")
+        endpoint = None
         if pkg and package_path:
             pkg += "/" + package_path
         if level == "ADOM":
@@ -370,7 +373,7 @@ class FortimanagerConnector(BaseConnector):
             if not adom:
                 adom = "root"
             endpoint = LIST_ADOM_FIREWALL_POLICY.format(adom=adom, pkg=pkg)
-        elif level != "ADOM":
+        else:
             return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
@@ -423,12 +426,13 @@ class FortimanagerConnector(BaseConnector):
         level = param["level"]
         pkg = param["package"]
         policy_id = param["policy_id"]
+        endpoint = None
         if level == "ADOM":
             adom = param.get("adom")
             if not adom:
                 adom = "root"
             endpoint = ADOM_FIREWALL_ENDPOINT.format(adom=adom, pkg=pkg) + "/" + policy_id
-        elif level != "ADOM":
+        else:
             return action_result.set_status(phantom.APP_ERROR, 'Invalid level provided. Please select "ADOM" from dropdown.')
         # Global Feature TODO
         # elif level == 'Global':
@@ -722,7 +726,8 @@ class FortimanagerConnector(BaseConnector):
                         error_msg = response_data["status"].get("message", "Invalid parameters.")
                     else:
                         error_msg = "Invalid parameters."
-            return action_result.set_status(phantom.APP_ERROR, f"{ADOM_UNBLOCK_URL_FAILED_MSG}. Reason: {error_msg}")
+
+                    return action_result.set_status(phantom.APP_ERROR, f"{ADOM_UNBLOCK_URL_FAILED_MSG}. Reason: {error_msg}")
 
         except Exception as e:
             self.save_progress(ADOM_BLOCK_URL_FAILED_MSG)
@@ -744,12 +749,15 @@ class FortimanagerConnector(BaseConnector):
         limit = param.get("limit", 0)
         offset = param.get("offset", 0)
 
+        url = None
         if level == "ADOM":
             adom = param.get("adom", "root")
             if name:
                 url = SPECIFIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
             else:
                 url = GENERIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
         fmg_instance = None
         get_params = {}
@@ -820,9 +828,12 @@ class FortimanagerConnector(BaseConnector):
 
         policy_group = param.get("policy_group_name")
 
+        url = None
         if level == "ADOM":
             adom = param.get("adom", "root")
             url = GENERIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom)
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
         fmg_instance = None
         data = {}
@@ -888,9 +899,12 @@ class FortimanagerConnector(BaseConnector):
         fqdn = param.get("fqdn")
         policy_group = param.get("policy_group_name")
 
+        url = None
         if level == "ADOM":
             adom = param.get("adom", "root")
             url = SPECIFIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
         fmg_instance = None
         data = {}
@@ -954,9 +968,12 @@ class FortimanagerConnector(BaseConnector):
         level = param["level"]
         name = param["address_name"]
 
+        url = None
         if level == "ADOM":
             adom = param.get("adom", "root")
             url = SPECIFIC_ADOM_IPV4_ADDRESS_ENDPOINT.format(adom=adom, name=name)
+        else:
+            return action_result.set_status(phantom.APP_ERROR, INVALID_LEVEL_ERROR_MSG)
 
         fmg_instance = None
 

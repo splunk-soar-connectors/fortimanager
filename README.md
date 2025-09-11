@@ -1,9 +1,9 @@
 # FortiManager
 
-Publisher: Splunk \
-Connector Version: 1.1.0 \
-Product Vendor: Fortinet \
-Product Name: FortiManager \
+Publisher: Splunk <br>
+Connector Version: 1.1.0 <br>
+Product Vendor: Fortinet <br>
+Product Name: FortiManager <br>
 Minimum Product Version: 6.3.0
 
 This app performs firewall configuration and security policy management actions in FortiManager
@@ -41,28 +41,28 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 
 ### Supported Actions
 
-[test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration \
-[create firewall policy](#action-create-firewall-policy) - Create an ADOM firewall policy \
-[list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies \
-[update firewall policy](#action-update-firewall-policy) - Update an ADOM firewall policy \
-[install firewall policy](#action-install-firewall-policy) - Install a firewall policy on a device \
-[create address](#action-create-address) - Create a firewall address object \
-[delete address](#action-delete-address) - Delete firewall address object \
-[list addresses](#action-list-addresses) - List firewall address objects \
-[update address](#action-update-address) - Update existing firewall address object \
-[block ip](#action-block-ip) - Block ADOM level IP addresses \
-[unblock ip](#action-unblock-ip) - Unblock ADOM level IP addresses \
-[delete firewall policy](#action-delete-firewall-policy) - Delete an ADOM firewall policy \
-[block url](#action-block-url) - Block ADOM level URLs \
-[unblock url](#action-unblock-url) - Unblock ADOM level URLs \
-[create address group](#action-create-address-group) - Create address group \
+[test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration <br>
+[create firewall policy](#action-create-firewall-policy) - Create an ADOM firewall policy <br>
+[list firewall policies](#action-list-firewall-policies) - List ADOM firewall policies <br>
+[update firewall policy](#action-update-firewall-policy) - Update an ADOM firewall policy <br>
+[install firewall policy](#action-install-firewall-policy) - Install a firewall policy on a device <br>
+[create address](#action-create-address) - Create a firewall address object <br>
+[delete address](#action-delete-address) - Delete firewall address object <br>
+[list addresses](#action-list-addresses) - List firewall address objects <br>
+[update address](#action-update-address) - Update existing firewall address object <br>
+[block ip](#action-block-ip) - Block ADOM level IP addresses <br>
+[unblock ip](#action-unblock-ip) - Unblock ADOM level IP addresses <br>
+[delete firewall policy](#action-delete-firewall-policy) - Delete an ADOM firewall policy <br>
+[block url](#action-block-url) - Block ADOM level URLs <br>
+[unblock url](#action-unblock-url) - Unblock ADOM level URLs <br>
+[create address group](#action-create-address-group) - Create address group <br>
 [delete address group](#action-delete-address-group) - Delete address group
 
 ## action: 'test connectivity'
 
 Validate the asset configuration for connectivity using supplied configuration
 
-Type: **test** \
+Type: **test** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -77,7 +77,7 @@ No Output
 
 Create an ADOM firewall policy
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 This action can be used to create a firewall policy within FortiManager. When specifying a firewall policy name, make sure that it is unique. FortiManager requires every firewall policy to have a distinct name, or else the action will fail.
@@ -130,7 +130,7 @@ action_result.parameter.adom | string | | root |
 
 List ADOM firewall policies
 
-Type: **investigate** \
+Type: **investigate** <br>
 Read only: **True**
 
 This action can be used to retrieve one specific firewall policy or multiple firewall policies. To filter for a specific firewall policy, provide the policy's name and if you would like to display all policies within a package, simply leave the policy name parameter blank.
@@ -268,7 +268,7 @@ action_result.parameter.package_path | string | | firewall-policy-path |
 
 Update an ADOM firewall policy
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 This action can be used to update an existing firewall policy. Whichever parameters you wish to change, make sure to provide all the values since this action will overwrite all the values. If you leave a parameter blank, it will not be changed.
@@ -321,7 +321,7 @@ action_result.parameter.destination_address | string | | 2.2.2.2 |
 
 Install a firewall policy on a device
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 This action will install a firewall policy package on a device.
@@ -410,7 +410,7 @@ action_result.parameter.ph | ph | | |
 
 Create a firewall address object
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 This action can be used to create an address object of either subnet or FQDN type. When specifying an address name, make sure that it is unique. FortiManager requires every address object to have a distinct name, or else the action will fail.
@@ -449,7 +449,7 @@ action_result.summary.status | string | | Successfully created address object |
 
 Delete firewall address object
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 #### Action Parameters
@@ -480,7 +480,7 @@ action_result.summary.status | string | | Successfully deleted address object |
 
 List firewall address objects
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **True**
 
 This action can be used to retrieve one specific address object or multiple address objects.<br><br>The filter_by parameter in the list addresses action can take multiple filtering criteria. For example, to filter by multiple address types you can use the following: `[["type", "==", "subnet"],["type", "==", "fqdn"]]`. Note that when using multiple criteria, only one needs to be true in order for the address object to be returned in the results. Therefore, using the previous example, the action will return address objects of both type subnet and FQDN.<br><br>When running the list addresses action adhoc, you can directly type in something like `[["type", "==", "subnet"],["type", "==", "fqdn"]]` into the filter_by parameter. However, if you are incorporating this action into a Classic Playbook, you must directly edit the action's code block in the playbook code editor and enclose the value in quotes, formatting the value like so: `"[["type", "==", "subnet"]]"`. This issue does not persist for Modern Playbooks.
@@ -541,7 +541,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Update existing firewall address object
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 This action can be used to update an existing firewall address object. Note that you can only update the IP/Netmask value if the address is of type Subnet. Similarly, you can only update the FQDN value if the address is of type FQDN. This action does not currently support changing the address type of an address object.
@@ -578,7 +578,7 @@ action_result.summary.status | string | | Successfully updated addresss object |
 
 Block ADOM level IP addresses
 
-Type: **contain** \
+Type: **contain** <br>
 Read only: **False**
 
 This action can be used to block IPV4 addresses. By specifying either a single IP address or multiple addresses as a comma-separated list, this action will create address objects if they don't already exist. The address objects will then be added to the specified address group. If the address group does not exist, the action will fail.
@@ -623,7 +623,7 @@ action_result.parameter.package_path | string | | my_package_folder |
 
 Unblock ADOM level IP addresses
 
-Type: **contain** \
+Type: **contain** <br>
 Read only: **False**
 
 This action can be used to unblock IPV4 addresses. By specifying either a single IP address or multiple addresses as a comma-separated list, this action will remove any address objects from the specified address group but will NOT delete the address objects from FortiManager. If the address group does not exist, the action will fail.
@@ -664,7 +664,7 @@ action_result.parameter.package_path | string | | my_package_folder |
 
 Delete an ADOM firewall policy
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 This action can be used to delete a firewall policy within FortiManager. You must provide the policy ID of the firewall policy you wish to delete. This policy ID can be retrieved from the list firewall policies action.
@@ -699,7 +699,7 @@ action_result.parameter.adom | string | | root |
 
 Block ADOM level URLs
 
-Type: **contain** \
+Type: **contain** <br>
 Read only: **False**
 
 This action can be used to block a URL. A URL of type 'simple' will exactly match a URL, while a 'wildcard' or 'regex' URL can be configured to match different permutations. The URL will be added to the specified web filter profile if it exists, otherwise the action will fail.
@@ -734,7 +734,7 @@ action_result.summary.status | string | | Successfully blocked URL |
 
 Unblock ADOM level URLs
 
-Type: **contain** \
+Type: **contain** <br>
 Read only: **False**
 
 This action can be used to unblock a URL. If the URL exists in the web filter profile, it will be removed. If the specified web filter profile does not exist, the action will fail.
@@ -767,7 +767,7 @@ summary.total_objects_successful | numeric | | 1 0 |
 
 Create address group
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 This action can be used to create a new address group. When specifying an address group name, make sure that it is unique. FortiManager requires every address group to have a distinct name, or else the action will fail.<br><br>The `members` parameter accepts names of existing address objects and address groups, IP/netmask addresses, and FQDN addresses in a comma-separated list. If the IP/netmask or FQDN address does not exist on FortiManager, this action will automatically create an address object with the respective address value and add it to the address group.
@@ -803,7 +803,7 @@ action_result.data.\*.address_object_failed | string | | |
 
 Delete address group
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 This action deletes an existing address group. Make sure the address group name entered is valid and exists on your FortiManager asset. If an invalid address group name is used, the action will fail.

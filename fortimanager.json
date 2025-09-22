@@ -3980,5 +3980,13 @@
                 "input_file": "wheels/py3/pyfmg-0.8.6.3-py3-none-any.whl"
             }
         ]
+    },
+    "pip313_dependencies": {
+        "wheel": [
+            {
+                "module": "pyfmg",
+                "input_file": "wheels/py3/pyfmg-0.8.6.3-py3-none-any.whl"
+            }
+        ]
     }
 }

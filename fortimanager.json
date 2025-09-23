@@ -7,7 +7,7 @@
     "logo": "logo_fortinet.svg",
     "logo_dark": "logo_fortinet_dark.svg",
     "product_name": "FortiManager",
-    "python_version": "3",
+    "python_version": "3.9, 3.13",
     "product_version_regex": ".*",
     "publisher": "Splunk",
     "license": "Copyright (c) 2023-2025 Splunk Inc.",
@@ -3974,6 +3974,14 @@
         }
     ],
     "pip39_dependencies": {
+        "wheel": [
+            {
+                "module": "pyfmg",
+                "input_file": "wheels/py3/pyfmg-0.8.6.3-py3-none-any.whl"
+            }
+        ]
+    },
+    "pip313_dependencies": {
         "wheel": [
             {
                 "module": "pyfmg",

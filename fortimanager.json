@@ -11,11 +11,11 @@
     "product_version_regex": ".*",
     "publisher": "Splunk",
     "license": "Copyright (c) 2023-2025 Splunk Inc.",
-    "app_version": "1.1.0",
+    "app_version": "1.1.1",
     "latest_tested_versions": [
         "FortiManager 7.4.0-build2223 230514 (GA)"
     ],
-    "utctime_updated": "2024-08-13T13:20:22.000000Z",
+    "utctime_updated": "2025-09-23T19:17:00.689508Z",
     "package_name": "phantom_fortimanager",
     "main_module": "fortimanager_connector.py",
     "min_phantom_version": "6.3.0",

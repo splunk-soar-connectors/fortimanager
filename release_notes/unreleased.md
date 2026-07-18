@@ -3,3 +3,5 @@
 - Validate all action parameters interpolated into FortiManager JSON-RPC URL paths.
 - Enable TLS certificate verification by default.
 - Fail write actions when the FortiManager workspace commit is unsuccessful.
+- Install modified firewall policy packages to assigned devices before reporting policy or IP containment success.
+- Clarify that URL-filter changes remain staged until the policy package is installed.

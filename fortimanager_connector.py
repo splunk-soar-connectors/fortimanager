@@ -140,6 +140,16 @@ class FortimanagerConnector(BaseConnector):
             raise RuntimeError(f"Workspace commit failed (code {commit_code}): {detail}")
         return commit_data
 
+    @staticmethod
+    def _install_policy_package(fmg_instance, adom, policy_package):
+        task_code, task = fmg_instance.execute(INSTALL_FIREWALL_POLICY_ENDPOINT, adom=adom, pkg=policy_package)
+        if task_code != 0 or not isinstance(task, dict) or "task" not in task:
+            raise RuntimeError(f"FortiManager did not start policy package installation (code {task_code})")
+        track_code, track_data = fmg_instance.track_task(task["task"])
+        if track_code != 0 or not isinstance(track_data, dict) or track_data.get("num_err", 1) != 0:
+            raise RuntimeError(f"Policy package installation failed: {track_data}")
+        return track_data
+
     def _handle_test_connectivity(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
         self.save_progress("Connecting to endpoint")
@@ -230,6 +240,7 @@ class FortimanagerConnector(BaseConnector):
             self._create_address_objects(fmg_instance, adom, dst_addresses)
             response_code, response_data = fmg_instance.add(endpoint, **data)
             self._commit_changes(fmg_instance, adom)
+            self._install_policy_package(fmg_instance, adom, pkg)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress(CREATE_FIREWALL_FAILED_MSG)
@@ -352,6 +363,7 @@ class FortimanagerConnector(BaseConnector):
                 self._create_address_objects(fmg_instance, adom, dst_addresses)
             response_code, response_data = fmg_instance.update(endpoint, **data)
             self._commit_changes(fmg_instance, adom)
+            self._install_policy_package(fmg_instance, adom, pkg)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress(UPDATE_FIREWALL_FAILED_MSG)
@@ -476,6 +488,7 @@ class FortimanagerConnector(BaseConnector):
         try:
             response_code, response_data = fmg_instance.delete(endpoint)
             self._commit_changes(fmg_instance, adom)
+            self._install_policy_package(fmg_instance, adom, pkg)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress(DELETE_FIREWALL_FAILED_MSG)
@@ -608,7 +621,7 @@ class FortimanagerConnector(BaseConnector):
                     self._commit_changes(fmg_instance, adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
-                    summary["status"] = ADOM_BLOCK_URL_SUCCESS_MSG
+                    summary["status"] = f"{ADOM_BLOCK_URL_SUCCESS_MSG} Change is staged; run install firewall policy to deploy it to devices."
                     return action_result.set_status(phantom.APP_SUCCESS)
                 else:
                     self.save_progress("Failed.")
@@ -632,7 +645,7 @@ class FortimanagerConnector(BaseConnector):
                         self._commit_changes(fmg_instance, adom)
                         action_result.add_data(urlfilter_profile)
                         summary = action_result.update_summary({})
-                        summary["status"] = ADOM_BLOCK_URL_SUCCESS_MSG
+                        summary["status"] = f"{ADOM_BLOCK_URL_SUCCESS_MSG} Change is staged; run install firewall policy to deploy it to devices."
                         return action_result.set_status(phantom.APP_SUCCESS)
                     else:
                         self.save_progress("Failed.")
@@ -736,7 +749,7 @@ class FortimanagerConnector(BaseConnector):
                     self._commit_changes(fmg_instance, adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
-                    summary["status"] = ADOM_UNBLOCK_URL_SUCCESS_MSG
+                    summary["status"] = f"{ADOM_UNBLOCK_URL_SUCCESS_MSG} Change is staged; run install firewall policy to deploy it to devices."
                     return action_result.set_status(phantom.APP_SUCCESS)
                 else:
                     self.save_progress("Failed.")
@@ -1214,6 +1227,7 @@ class FortimanagerConnector(BaseConnector):
                 summary[f"total_{key}"] = len(result[key])
 
             self._commit_changes(fmg_instance, adom)
+            self._install_policy_package(fmg_instance, adom, package)
 
             return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -1308,6 +1322,7 @@ class FortimanagerConnector(BaseConnector):
                 summary[f"total_{key}"] = len(result[key])
 
             self._commit_changes(fmg_instance, adom)
+            self._install_policy_package(fmg_instance, adom, package)
 
             return action_result.set_status(phantom.APP_SUCCESS)
 

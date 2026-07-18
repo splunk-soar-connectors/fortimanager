@@ -802,11 +802,6 @@ class FortimanagerConnector(BaseConnector):
             self.debug_print(f"{LIST_ADDRESSES_FAILED_MSG}: {self._get_error_msg_from_exception(e)}")
             return action_result.set_status(phantom.APP_ERROR, None)
 
-        if not self.acquire_lock(fmg_instance, adom):
-            self.save_progress(LIST_ADDRESSES_FAILED_MSG)
-            self.debug_print(f"{LIST_ADDRESSES_FAILED_MSG}: {LOCK_FAILED_MSG.format(adom=adom)}")
-            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
-
         try:
             if name:
                 response_code, response_data = fmg_instance.get(url)

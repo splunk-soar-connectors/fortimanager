@@ -1,6 +1,6 @@
 # File: fortimanager_connector.py
 #
-# Copyright (c) 2023-2025 Splunk Inc.
+# Copyright (c) 2023-2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -645,7 +645,9 @@ class FortimanagerConnector(BaseConnector):
                         self._commit_changes(fmg_instance, adom)
                         action_result.add_data(urlfilter_profile)
                         summary = action_result.update_summary({})
-                        summary["status"] = f"{ADOM_BLOCK_URL_SUCCESS_MSG} Change is staged; run install firewall policy to deploy it to devices."
+                        summary["status"] = (
+                            f"{ADOM_BLOCK_URL_SUCCESS_MSG} Change is staged; run install firewall policy to deploy it to devices."
+                        )
                         return action_result.set_status(phantom.APP_SUCCESS)
                     else:
                         self.save_progress("Failed.")
@@ -1621,7 +1623,9 @@ class FortimanagerConnector(BaseConnector):
         for key in self._PATH_PARAMETER_NAMES:
             value = param.get(key)
             if value is not None and (".." in str(value) or not re.fullmatch(r"[A-Za-z0-9._-]{1,128}", str(value))):
-                return self.set_status(phantom.APP_ERROR, f"Parameter '{key}' contains characters that are not valid in a FortiManager object name")
+                return self.set_status(
+                    phantom.APP_ERROR, f"Parameter '{key}' contains characters that are not valid in a FortiManager object name"
+                )
 
         # Get the action that we are supposed to execute for this App Run
         action_id = self.get_action_identifier()

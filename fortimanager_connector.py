@@ -1657,7 +1657,7 @@ class FortimanagerConnector(BaseConnector):
         self._password = config.get("password")
 
         self._base_url = self._format_url(self._host)
-        self._verify_server_cert = config.get("verify_server_cert", False)
+        self._verify_server_cert = config.get("verify_server_cert", True)
 
         return phantom.APP_SUCCESS
 

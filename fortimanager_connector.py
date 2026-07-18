@@ -37,6 +37,16 @@ class RetVal(tuple):
 
 
 class FortimanagerConnector(BaseConnector):
+    _PATH_PARAMETER_NAMES = {
+        "adom",
+        "package",
+        "package_path",
+        "address_name",
+        "address_group_name",
+        "web_filter_profile_name",
+        "policy_id",
+    }
+
     def __init__(self):
         # Call the BaseConnectors init first
         super().__init__()
@@ -1588,6 +1598,11 @@ class FortimanagerConnector(BaseConnector):
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
+
+        for key in self._PATH_PARAMETER_NAMES:
+            value = param.get(key)
+            if value is not None and (".." in str(value) or not re.fullmatch(r"[A-Za-z0-9._-]{1,128}", str(value))):
+                return self.set_status(phantom.APP_ERROR, f"Parameter '{key}' contains characters that are not valid in a FortiManager object name")
 
         # Get the action that we are supposed to execute for this App Run
         action_id = self.get_action_identifier()

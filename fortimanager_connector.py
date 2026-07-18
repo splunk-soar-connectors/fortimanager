@@ -1580,11 +1580,12 @@ class FortimanagerConnector(BaseConnector):
                     INSTALL_FIREWALL_POLICY_ENDPOINT, flags=flags, adom=adom, pkg=policy_pkg, **params
                 )
 
-            if "task" in task_obj:
-                taskid = task_obj.get("task")
-                track_task_results = fmg_instance.track_task(taskid)
-                self.debug_print(f"task results: {task_response_code}, {json.dumps(track_task_results)}")
-                self.save_progress(json.dumps(track_task_results))
+            if task_response_code != 0 or "task" not in task_obj:
+                raise RuntimeError(f"FortiManager did not return an install task (code {task_response_code})")
+            taskid = task_obj["task"]
+            track_task_results = fmg_instance.track_task(taskid)
+            self.debug_print(f"task results: {task_response_code}, {json.dumps(track_task_results)}")
+            self.save_progress(json.dumps(track_task_results))
 
         except Exception as e:
             self.save_progress(INSTALL_FIREWALL_POLICY_FAILED_MSG)

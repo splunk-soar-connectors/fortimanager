@@ -132,6 +132,14 @@ class FortimanagerConnector(BaseConnector):
 
         return lock_code == 0
 
+    @staticmethod
+    def _commit_changes(fmg_instance, adom):
+        commit_code, commit_data = fmg_instance.commit_changes(adom)
+        if commit_code != 0:
+            detail = commit_data.get("status", {}).get("message", "Unknown FortiManager error") if isinstance(commit_data, dict) else commit_data
+            raise RuntimeError(f"Workspace commit failed (code {commit_code}): {detail}")
+        return commit_data
+
     def _handle_test_connectivity(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
         self.save_progress("Connecting to endpoint")
@@ -221,7 +229,7 @@ class FortimanagerConnector(BaseConnector):
             self._create_address_objects(fmg_instance, adom, src_addresses)
             self._create_address_objects(fmg_instance, adom, dst_addresses)
             response_code, response_data = fmg_instance.add(endpoint, **data)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress(CREATE_FIREWALL_FAILED_MSG)
@@ -343,7 +351,7 @@ class FortimanagerConnector(BaseConnector):
             if dstaddr:
                 self._create_address_objects(fmg_instance, adom, dst_addresses)
             response_code, response_data = fmg_instance.update(endpoint, **data)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress(UPDATE_FIREWALL_FAILED_MSG)
@@ -467,7 +475,7 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             response_code, response_data = fmg_instance.delete(endpoint)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress(DELETE_FIREWALL_FAILED_MSG)
@@ -597,7 +605,7 @@ class FortimanagerConnector(BaseConnector):
                 update_urlfilter_endpoint = f"{ADOM_URL_FILTER_ENDPOINT.format(adom=adom)}/{urlfilter_table_id!s}"
                 response_code, response_data = fmg_instance.update(update_urlfilter_endpoint, data=data)
                 if response_code == 0:
-                    fmg_instance.commit_changes(adom)
+                    self._commit_changes(fmg_instance, adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
                     summary["status"] = ADOM_BLOCK_URL_SUCCESS_MSG
@@ -621,7 +629,7 @@ class FortimanagerConnector(BaseConnector):
 
                     response_code, response_data = fmg_instance.update(web_filter_endpoint, data=data)
                     if response_code == 0:
-                        fmg_instance.commit_changes(adom)
+                        self._commit_changes(fmg_instance, adom)
                         action_result.add_data(urlfilter_profile)
                         summary = action_result.update_summary({})
                         summary["status"] = ADOM_BLOCK_URL_SUCCESS_MSG
@@ -725,7 +733,7 @@ class FortimanagerConnector(BaseConnector):
                 update_urlfilter_endpoint = f"{ADOM_URL_FILTER_ENDPOINT.format(adom=adom)}/{urlfilter_table_id!s}"
                 response_code, response_data = fmg_instance.update(update_urlfilter_endpoint, data=data)
                 if response_code == 0:
-                    fmg_instance.commit_changes(adom)
+                    self._commit_changes(fmg_instance, adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
                     summary["status"] = ADOM_UNBLOCK_URL_SUCCESS_MSG
@@ -880,7 +888,7 @@ class FortimanagerConnector(BaseConnector):
                 data["policy-group"] = policy_group
 
             response_code, response_data = fmg_instance.add(url, **data)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
         except Exception as e:
             self.save_progress(CREATE_ADDRESS_FAILED_MSG)
@@ -946,7 +954,7 @@ class FortimanagerConnector(BaseConnector):
                 data["policy-group"] = policy_group
 
             response_code, response_data = fmg_instance.update(url, **data)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
         except Exception as e:
             self.save_progress(UPDATE_ADDRESS_FAILED_MSG)
@@ -1005,7 +1013,7 @@ class FortimanagerConnector(BaseConnector):
         # then actually delete address
         try:
             response_code, response_data = fmg_instance.delete(url)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
         except Exception as e:
             self.save_progress(DELETE_ADDRESS_FAILED_MSG)
@@ -1205,7 +1213,7 @@ class FortimanagerConnector(BaseConnector):
             for key in result:
                 summary[f"total_{key}"] = len(result[key])
 
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
             return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -1299,7 +1307,7 @@ class FortimanagerConnector(BaseConnector):
             for key in result:
                 summary[f"total_{key}"] = len(result[key])
 
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
             return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -1399,7 +1407,7 @@ class FortimanagerConnector(BaseConnector):
         try:
             subnet_results = self._create_address_objects(fmg_instance, adom, subnet_addrs)
             fqdn_results = self._create_fqdn_address_objects(fmg_instance, adom, fqdn_addrs)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
         except Exception as e:
             self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
             self.debug_print(f"{CREATE_ADDRESS_GROUP_FAILED_MSG}: {self._get_error_msg_from_exception(e)}")
@@ -1420,7 +1428,7 @@ class FortimanagerConnector(BaseConnector):
             data = {"name": addr_group_name, "member": members_cleaned}
 
             response_code, response_data = fmg_instance.add(url, **data)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
         except Exception as e:
             self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
@@ -1486,7 +1494,7 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             response_code, response_data = fmg_instance.delete(url)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
         except Exception as e:
             self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)

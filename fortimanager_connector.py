@@ -1,6 +1,6 @@
 # File: fortimanager_connector.py
 #
-# Copyright (c) 2023-2025 Splunk Inc.
+# Copyright (c) 2023-2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,6 +37,16 @@ class RetVal(tuple):
 
 
 class FortimanagerConnector(BaseConnector):
+    _PATH_PARAMETER_NAMES = {
+        "adom",
+        "package",
+        "package_path",
+        "address_name",
+        "address_group_name",
+        "web_filter_profile_name",
+        "policy_id",
+    }
+
     def __init__(self):
         # Call the BaseConnectors init first
         super().__init__()
@@ -121,6 +131,24 @@ class FortimanagerConnector(BaseConnector):
             return False
 
         return lock_code == 0
+
+    @staticmethod
+    def _commit_changes(fmg_instance, adom):
+        commit_code, commit_data = fmg_instance.commit_changes(adom)
+        if commit_code != 0:
+            detail = commit_data.get("status", {}).get("message", "Unknown FortiManager error") if isinstance(commit_data, dict) else commit_data
+            raise RuntimeError(f"Workspace commit failed (code {commit_code}): {detail}")
+        return commit_data
+
+    @staticmethod
+    def _install_policy_package(fmg_instance, adom, policy_package):
+        task_code, task = fmg_instance.execute(INSTALL_FIREWALL_POLICY_ENDPOINT, adom=adom, pkg=policy_package)
+        if task_code != 0 or not isinstance(task, dict) or "task" not in task:
+            raise RuntimeError(f"FortiManager did not start policy package installation (code {task_code})")
+        track_code, track_data = fmg_instance.track_task(task["task"])
+        if track_code != 0 or not isinstance(track_data, dict) or track_data.get("num_err", 1) != 0:
+            raise RuntimeError(f"Policy package installation failed: {track_data}")
+        return track_data
 
     def _handle_test_connectivity(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
@@ -211,7 +239,8 @@ class FortimanagerConnector(BaseConnector):
             self._create_address_objects(fmg_instance, adom, src_addresses)
             self._create_address_objects(fmg_instance, adom, dst_addresses)
             response_code, response_data = fmg_instance.add(endpoint, **data)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
+            self._install_policy_package(fmg_instance, adom, pkg)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress(CREATE_FIREWALL_FAILED_MSG)
@@ -333,7 +362,8 @@ class FortimanagerConnector(BaseConnector):
             if dstaddr:
                 self._create_address_objects(fmg_instance, adom, dst_addresses)
             response_code, response_data = fmg_instance.update(endpoint, **data)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
+            self._install_policy_package(fmg_instance, adom, pkg)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress(UPDATE_FIREWALL_FAILED_MSG)
@@ -457,7 +487,8 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             response_code, response_data = fmg_instance.delete(endpoint)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
+            self._install_policy_package(fmg_instance, adom, pkg)
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             self.save_progress(DELETE_FIREWALL_FAILED_MSG)
@@ -587,10 +618,10 @@ class FortimanagerConnector(BaseConnector):
                 update_urlfilter_endpoint = f"{ADOM_URL_FILTER_ENDPOINT.format(adom=adom)}/{urlfilter_table_id!s}"
                 response_code, response_data = fmg_instance.update(update_urlfilter_endpoint, data=data)
                 if response_code == 0:
-                    fmg_instance.commit_changes(adom)
+                    self._commit_changes(fmg_instance, adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
-                    summary["status"] = ADOM_BLOCK_URL_SUCCESS_MSG
+                    summary["status"] = f"{ADOM_BLOCK_URL_SUCCESS_MSG} Change is staged; run install firewall policy to deploy it to devices."
                     return action_result.set_status(phantom.APP_SUCCESS)
                 else:
                     self.save_progress("Failed.")
@@ -611,10 +642,12 @@ class FortimanagerConnector(BaseConnector):
 
                     response_code, response_data = fmg_instance.update(web_filter_endpoint, data=data)
                     if response_code == 0:
-                        fmg_instance.commit_changes(adom)
+                        self._commit_changes(fmg_instance, adom)
                         action_result.add_data(urlfilter_profile)
                         summary = action_result.update_summary({})
-                        summary["status"] = ADOM_BLOCK_URL_SUCCESS_MSG
+                        summary["status"] = (
+                            f"{ADOM_BLOCK_URL_SUCCESS_MSG} Change is staged; run install firewall policy to deploy it to devices."
+                        )
                         return action_result.set_status(phantom.APP_SUCCESS)
                     else:
                         self.save_progress("Failed.")
@@ -715,10 +748,10 @@ class FortimanagerConnector(BaseConnector):
                 update_urlfilter_endpoint = f"{ADOM_URL_FILTER_ENDPOINT.format(adom=adom)}/{urlfilter_table_id!s}"
                 response_code, response_data = fmg_instance.update(update_urlfilter_endpoint, data=data)
                 if response_code == 0:
-                    fmg_instance.commit_changes(adom)
+                    self._commit_changes(fmg_instance, adom)
                     action_result.add_data(response_data)
                     summary = action_result.update_summary({})
-                    summary["status"] = ADOM_UNBLOCK_URL_SUCCESS_MSG
+                    summary["status"] = f"{ADOM_UNBLOCK_URL_SUCCESS_MSG} Change is staged; run install firewall policy to deploy it to devices."
                     return action_result.set_status(phantom.APP_SUCCESS)
                 else:
                     self.save_progress("Failed.")
@@ -770,11 +803,6 @@ class FortimanagerConnector(BaseConnector):
             self.save_progress(LIST_ADDRESSES_FAILED_MSG)
             self.debug_print(f"{LIST_ADDRESSES_FAILED_MSG}: {self._get_error_msg_from_exception(e)}")
             return action_result.set_status(phantom.APP_ERROR, None)
-
-        if not self.acquire_lock(fmg_instance, adom):
-            self.save_progress(LIST_ADDRESSES_FAILED_MSG)
-            self.debug_print(f"{LIST_ADDRESSES_FAILED_MSG}: {LOCK_FAILED_MSG.format(adom=adom)}")
-            return action_result.set_status(phantom.APP_ERROR, LOCK_FAILED_MSG.format(adom=adom))
 
         try:
             if name:
@@ -870,7 +898,7 @@ class FortimanagerConnector(BaseConnector):
                 data["policy-group"] = policy_group
 
             response_code, response_data = fmg_instance.add(url, **data)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
         except Exception as e:
             self.save_progress(CREATE_ADDRESS_FAILED_MSG)
@@ -936,7 +964,7 @@ class FortimanagerConnector(BaseConnector):
                 data["policy-group"] = policy_group
 
             response_code, response_data = fmg_instance.update(url, **data)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
         except Exception as e:
             self.save_progress(UPDATE_ADDRESS_FAILED_MSG)
@@ -995,7 +1023,7 @@ class FortimanagerConnector(BaseConnector):
         # then actually delete address
         try:
             response_code, response_data = fmg_instance.delete(url)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
         except Exception as e:
             self.save_progress(DELETE_ADDRESS_FAILED_MSG)
@@ -1195,7 +1223,8 @@ class FortimanagerConnector(BaseConnector):
             for key in result:
                 summary[f"total_{key}"] = len(result[key])
 
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
+            self._install_policy_package(fmg_instance, adom, package)
 
             return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -1289,7 +1318,8 @@ class FortimanagerConnector(BaseConnector):
             for key in result:
                 summary[f"total_{key}"] = len(result[key])
 
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
+            self._install_policy_package(fmg_instance, adom, package)
 
             return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -1389,7 +1419,7 @@ class FortimanagerConnector(BaseConnector):
         try:
             subnet_results = self._create_address_objects(fmg_instance, adom, subnet_addrs)
             fqdn_results = self._create_fqdn_address_objects(fmg_instance, adom, fqdn_addrs)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
         except Exception as e:
             self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
             self.debug_print(f"{CREATE_ADDRESS_GROUP_FAILED_MSG}: {self._get_error_msg_from_exception(e)}")
@@ -1410,7 +1440,7 @@ class FortimanagerConnector(BaseConnector):
             data = {"name": addr_group_name, "member": members_cleaned}
 
             response_code, response_data = fmg_instance.add(url, **data)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
         except Exception as e:
             self.save_progress(CREATE_ADDRESS_GROUP_FAILED_MSG)
@@ -1476,7 +1506,7 @@ class FortimanagerConnector(BaseConnector):
 
         try:
             response_code, response_data = fmg_instance.delete(url)
-            fmg_instance.commit_changes(adom)
+            self._commit_changes(fmg_instance, adom)
 
         except Exception as e:
             self.save_progress(DELETE_ADDRESS_GROUP_FAILED_MSG)
@@ -1547,11 +1577,12 @@ class FortimanagerConnector(BaseConnector):
                     INSTALL_FIREWALL_POLICY_ENDPOINT, flags=flags, adom=adom, pkg=policy_pkg, **params
                 )
 
-            if "task" in task_obj:
-                taskid = task_obj.get("task")
-                track_task_results = fmg_instance.track_task(taskid)
-                self.debug_print(f"task results: {task_response_code}, {json.dumps(track_task_results)}")
-                self.save_progress(json.dumps(track_task_results))
+            if task_response_code != 0 or "task" not in task_obj:
+                raise RuntimeError(f"FortiManager did not return an install task (code {task_response_code})")
+            taskid = task_obj["task"]
+            track_task_results = fmg_instance.track_task(taskid)
+            self.debug_print(f"task results: {task_response_code}, {json.dumps(track_task_results)}")
+            self.save_progress(json.dumps(track_task_results))
 
         except Exception as e:
             self.save_progress(INSTALL_FIREWALL_POLICY_FAILED_MSG)
@@ -1588,6 +1619,13 @@ class FortimanagerConnector(BaseConnector):
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
+
+        for key in self._PATH_PARAMETER_NAMES:
+            value = param.get(key)
+            if value is not None and (".." in str(value) or not re.fullmatch(r"[A-Za-z0-9._-]{1,128}", str(value))):
+                return self.set_status(
+                    phantom.APP_ERROR, f"Parameter '{key}' contains characters that are not valid in a FortiManager object name"
+                )
 
         # Get the action that we are supposed to execute for this App Run
         action_id = self.get_action_identifier()
@@ -1642,7 +1680,7 @@ class FortimanagerConnector(BaseConnector):
         self._password = config.get("password")
 
         self._base_url = self._format_url(self._host)
-        self._verify_server_cert = config.get("verify_server_cert", False)
+        self._verify_server_cert = config.get("verify_server_cert", True)
 
         return phantom.APP_SUCCESS
 

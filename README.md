@@ -16,6 +16,10 @@ If the locking attempt is successful, then the API call to FortiManager will exe
 
 ## Asset Configuration
 
+TLS certificate verification is enabled by default. Install a CA-issued certificate on the
+FortiManager appliance or add its issuing certificate to the SOAR trust store before connecting;
+disable verification only when an administrator has explicitly accepted that risk.
+
 The two authentication schemes allowed by the connector are either Basic Auth (username and password) or API key. The steps to generate an API key through the FortiManager UI are as follows:
 
 1. Log into the FortiManager UI using an administrator account.
@@ -836,7 +840,7 @@ ______________________________________________________________________
 
 Auto-generated Splunk SOAR Connector documentation.
 
-Copyright 2025 Splunk Inc.
+Copyright 2026 Splunk Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -1,7 +1,7 @@
 # FortiManager
 
 Publisher: Splunk <br>
-Connector Version: 1.1.1 <br>
+Connector Version: 2.0.0 <br>
 Product Vendor: Fortinet <br>
 Product Name: FortiManager <br>
 Minimum Product Version: 6.3.0

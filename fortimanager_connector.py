@@ -36,6 +36,13 @@ class RetVal(tuple):
         return tuple.__new__(RetVal, (val1, val2))
 
 
+def _is_valid_path_parameter(value):
+    """Return whether a value is one canonical FortiManager object-name segment."""
+    return (
+        isinstance(value, str) and value not in {".", ".."} and ".." not in value and re.fullmatch(r"[A-Za-z0-9._-]{1,128}", value) is not None
+    )
+
+
 class FortimanagerConnector(BaseConnector):
     _PATH_PARAMETER_NAMES = {
         "adom",
@@ -1622,7 +1629,7 @@ class FortimanagerConnector(BaseConnector):
 
         for key in self._PATH_PARAMETER_NAMES:
             value = param.get(key)
-            if value is not None and (".." in str(value) or not re.fullmatch(r"[A-Za-z0-9._-]{1,128}", str(value))):
+            if value is not None and not _is_valid_path_parameter(value):
                 return self.set_status(
                     phantom.APP_ERROR, f"Parameter '{key}' contains characters that are not valid in a FortiManager object name"
                 )
